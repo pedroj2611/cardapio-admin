@@ -149,6 +149,21 @@ export class AppController {
       }
     });
 
+    // Alternador de Modo Celular Interativo
+    const btnsPhoneFrame = [
+      document.getElementById("nav-item-phone-frame"),
+      document.getElementById("btn-toggle-phone-top")
+    ];
+
+    btnsPhoneFrame.forEach(btn => {
+      if (btn) {
+        btn.addEventListener("click", () => {
+          const ativo = document.body.classList.toggle("mobile-frame-active");
+          ToastView.mostrarToast(ativo ? "Modo Celular Interativo Ativado!" : "Modo Desktop Restaurado!", "📱");
+        });
+      }
+    });
+
     // Voltar para o Cardápio
     const btnSairAdmin = document.getElementById("btn-sair-admin");
     const btnsCardapio = [

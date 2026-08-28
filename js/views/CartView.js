@@ -32,25 +32,27 @@ export class CartView {
     if (this.listaModal) {
       if (carrinho.length === 0) {
         this.listaModal.innerHTML = `
-          <div style="text-align: center; padding: 24px; color: #64748b;">
-            <span style="font-size: 2rem; display: block; margin-bottom: 6px;">🛒</span>
-            <p style="font-size: 1.05rem; font-weight: 700; color: var(--dark); margin-bottom: 4px;">Seu carrinho está vazio</p>
+          <div style="text-align: center; padding: 28px 16px; color: #64748b;">
+            <span style="font-size: 2.5rem; display: block; margin-bottom: 8px;">🛒</span>
+            <p style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">Seu carrinho está vazio</p>
             <p style="font-size: 0.85rem;">Selecione delícias do nosso cardápio para montar seu pedido.</p>
           </div>
         `;
       } else {
         this.listaModal.innerHTML = carrinho.map(item => `
-          <div class="modal-item-linha">
-            <div class="modal-item-detalhes">
-              <div class="modal-item-nome">${item.icone || '🍽️'} ${item.nome}</div>
-              <div class="modal-item-unit">${item.quantidade}x de ${formatarPreco(item.preco)}</div>
+          <div class="modal-item-card">
+            <div class="modal-item-info-group">
+              <div class="modal-item-title"><span class="item-icon">${item.icone || '🍽️'}</span> ${item.nome}</div>
+              <div class="modal-item-subtext">${item.quantidade}x de ${formatarPreco(item.preco)}</div>
             </div>
-            <div class="stepper-box">
-              <button class="btn-step btn-modal-diminuir" data-id="${item.id}" title="Diminuir" aria-label="Diminuir">-</button>
-              <span class="step-valor">${item.quantidade}</span>
-              <button class="btn-step btn-modal-aumentar" data-id="${item.id}" title="Aumentar" aria-label="Aumentar">+</button>
+            <div class="modal-item-controls">
+              <div class="stepper-pill">
+                <button class="btn-step-pill btn-modal-diminuir" data-id="${item.id}" title="Diminuir">-</button>
+                <span class="step-pill-val">${item.quantidade}</span>
+                <button class="btn-step-pill btn-modal-aumentar" data-id="${item.id}" title="Aumentar">+</button>
+              </div>
+              <div class="modal-item-price">${formatarPreco(item.preco * item.quantidade)}</div>
             </div>
-            <div class="modal-item-subtotal">${formatarPreco(item.preco * item.quantidade)}</div>
           </div>
         `).join("");
       }

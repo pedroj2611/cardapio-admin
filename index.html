@@ -28,8 +28,11 @@
 <body>
 
   <!-- LAYOUT PRINCIPAL DO SISTEMA (SIDEBAR + CONTEÚDO) -->
-  <div class="app-layout">
+  <div class="app-layout" id="app-layout">
     
+    <!-- NOTCH DO SMARTPHONE NO MODO CELULAR -->
+    <div class="phone-notch-bar" aria-hidden="true"></div>
+
     <!-- MENU LATERAL (SIDEBAR DARK ESTILO MOCKUP) -->
     <aside class="sidebar-app" id="sidebar-app">
       <div class="sidebar-header">
@@ -54,6 +57,10 @@
         <button class="sidebar-item" id="nav-item-configuracoes" data-tab="configuracoes">
           <span class="sidebar-icon">⚙️</span>
           <span>Configurações</span>
+        </button>
+        <button class="sidebar-item" id="nav-item-phone-frame" title="Simular em Tela de Celular">
+          <span class="sidebar-icon">📱</span>
+          <span>Modo Celular</span>
         </button>
       </nav>
 
@@ -88,9 +95,14 @@
                 <span class="status-pulse"></span>
                 <span class="status-label">Aberto para Pedidos</span>
               </div>
-              <button id="btn-abrir-config" class="btn-config-loja" title="Configurações do Estabelecimento" aria-label="Configurações do Estabelecimento">
-                <span>⚙️ Configurações</span>
-              </button>
+              <div class="top-bar-btns">
+                <button id="btn-toggle-phone-top" class="btn-config-loja" title="Modo Celular Interativo">
+                  <span>📱 Modo Celular</span>
+                </button>
+                <button id="btn-abrir-config" class="btn-config-loja" title="Configurações do Estabelecimento" aria-label="Configurações do Estabelecimento">
+                  <span>⚙️ Configurações</span>
+                </button>
+              </div>
             </div>
 
             <div class="brand-box">
@@ -444,7 +456,7 @@
     </div>
   </dialog>
 
-  <!-- MODAL DE FINALIZAÇÃO DO PEDIDO (<dialog>) -->
+  <!-- MODAL DE FINALIZAÇÃO DO PEDIDO (<dialog>) ESTILO MOCKUP EXATO -->
   <dialog id="modal-pedido" class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -461,7 +473,7 @@
       <div class="modal-body">
         <!-- LISTA DE ITENS SELECIONADOS NO MODAL -->
         <div class="pedido-itens-lista" id="pedido-itens-lista">
-          <!-- Injetado via JS -->
+          <!-- Injetado via JS no formato do mockup -->
         </div>
 
         <!-- FORMULÁRIO DE ENTREGA / ATENDIMENTO -->
