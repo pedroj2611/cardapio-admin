@@ -1,9 +1,9 @@
 ========================================================================
-ATIVIDADE DE PWA - AULA 03 · PARTE 3 (FANESE)
+ATIVIDADE DE PWA - AULA 04 · PARTE 3 (FANESE)
 ========================================================================
 
 Para: marciocarvalho@prof.fanese.edu.br
-Assunto: PWA-Aula-03
+Assunto: PWA-Aula-04
 
 ------------------------------------------------------------------------
 DADOS DO ALUNO:
@@ -14,20 +14,26 @@ Disciplina: Programação para Dispositivos Móveis
 Professor: Márcio Rodrigo
 
 ------------------------------------------------------------------------
+LINK PUBLICADO (HTTPS):
+------------------------------------------------------------------------
+Link Público / Netlify: https://cardapio-admin.netlify.app
+Repositório GitHub: https://github.com/pedroj2611/cardapio-admin.git
+
+------------------------------------------------------------------------
 PERGUNTAS E RESPOSTAS DA ATIVIDADE:
 ------------------------------------------------------------------------
 
-1. O que é um Service Worker (com minhas palavras)?
-R: O Service Worker é um script em JavaScript (sw.js) que executa em segundo plano no navegador, de maneira independente da página principal do aplicativo. Ele atua como um intermediário entre a aplicação web e a rede, sendo capaz de interceptar requisições, armazenar arquivos no Cache Storage e servi-los mesmo quando o dispositivo estiver sem conexão à internet.
+1. O que faz o localStorage (com minhas palavras)?
+R: O localStorage é uma API de armazenamento do navegador que guarda dados no formato de texto (chave -> valor) diretamente no computador ou smartphone do usuário. Ao contrário da memória temporária da página, as informações salvas no localStorage não somem ao recarregar a tela ou fechar o navegador. No projeto, usamos JSON.stringify() para salvar o array de tarefas/itens e JSON.parse() com bloco try/catch para lê-los de volta.
 
-2. O que é a estratégia "Cache Primeiro" (Cache First)?
-R: É uma estratégia de armazenamento onde, a cada requisição de arquivo (HTML, CSS, JS, ícones), o Service Worker verifica primeiro se o recurso já está salvo na memória cache local (Cache Storage). Se o arquivo for encontrado no cache, ele é entregue instantaneamente ao usuário sem necessidade de conexão. Caso contrário, a requisição é direcionada para a rede (internet).
+2. Por que o HTTPS é necessário para PWAs?
+R: O HTTPS é necessário porque o Service Worker é um script poderoso que roda em segundo plano e intercepta todas as requisições de rede do aplicativo. Por questões de segurança (contexto seguro), os navegadores só permitem a ativação do Service Worker e a oferta de instalação em conexões criptografadas com HTTPS (ou em localhost para desenvolvimento), prevenindo ataques do tipo Man-in-the-Middle (interceptação e alteração maliciosa de scripts).
 
 ------------------------------------------------------------------------
-REQUISITOS PWA ATENDIDOS NO PROJETO:
+REQUISITOS PWA DA AULA 04 ATENDIDOS:
 ------------------------------------------------------------------------
-[✔] Execução em ambiente seguro / servidor local (http://127.0.0.1:8080 ou Live Server)
-[✔] Arquivo manifest.json configurado com name, short_name, start_url, display standalone e ícones (192px e 512px)
-[✔] Service Worker (sw.js) ativo com eventos de install (cache.addAll), activate (limpeza de versões antigas) e fetch (Cache First)
-[✔] Funcionamento comprovado no modo Offline (DevTools -> Network -> Offline)
-[✔] Aplicativo instalável no desktop e dispositivos móveis (Add to Home Screen)
+[✔] Persistência de Dados (localStorage + JSON.stringify / JSON.parse)
+[✔] Atualização da versão do Cache no sw.js (cardapio-admin-v2)
+[✔] Publicação online com protocolo seguro HTTPS
+[✔] PWA Instalável no dispositivo móvel e desktop (Add to Home Screen)
+[✔] Testado no modo Offline (Network -> Offline)
