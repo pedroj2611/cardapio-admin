@@ -29,11 +29,8 @@
 
   <!-- LAYOUT PRINCIPAL DO SISTEMA (SIDEBAR + CONTEÚDO) -->
   <div class="app-layout" id="app-layout">
-    
-    <!-- NOTCH DO SMARTPHONE NO MODO CELULAR -->
-    <div class="phone-notch-bar" aria-hidden="true"></div>
 
-    <!-- MENU LATERAL (SIDEBAR DARK ESTILO MOCKUP) -->
+    <!-- MENU LATERAL (SIDEBAR DARK ESTILO MOCKUP - VISÍVEL NO DESKTOP) -->
     <aside class="sidebar-app" id="sidebar-app">
       <div class="sidebar-header">
         <div class="sidebar-logo-box">
@@ -57,10 +54,6 @@
         <button class="sidebar-item" id="nav-item-configuracoes" data-tab="configuracoes">
           <span class="sidebar-icon">⚙️</span>
           <span>Configurações</span>
-        </button>
-        <button class="sidebar-item" id="nav-item-phone-frame" title="Simular em Tela de Celular">
-          <span class="sidebar-icon">📱</span>
-          <span>Modo Celular</span>
         </button>
       </nav>
 
@@ -95,14 +88,9 @@
                 <span class="status-pulse"></span>
                 <span class="status-label">Aberto para Pedidos</span>
               </div>
-              <div class="top-bar-btns">
-                <button id="btn-toggle-phone-top" class="btn-config-loja" title="Modo Celular Interativo">
-                  <span>📱 Modo Celular</span>
-                </button>
-                <button id="btn-abrir-config" class="btn-config-loja" title="Configurações do Estabelecimento" aria-label="Configurações do Estabelecimento">
-                  <span>⚙️ Configurações</span>
-                </button>
-              </div>
+              <button id="btn-abrir-config" class="btn-config-loja" title="Configurações do Estabelecimento" aria-label="Configurações do Estabelecimento">
+                <span>⚙️ Configurações</span>
+              </button>
             </div>
 
             <div class="brand-box">
@@ -403,7 +391,7 @@
     </div>
   </div>
 
-  <!-- NAVEGAÇÃO BOTTOM BAR EM DISPOSITIVOS MOBILES -->
+  <!-- NAVEGAÇÃO BOTTOM BAR EM DISPOSITIVOS MOBILES (ADAPTAÇÃO AUTOMÁTICA EM CELULARES) -->
   <nav class="mobile-bottom-nav">
     <button class="mobile-nav-btn active" id="mob-btn-cardapio" data-tab="cardapio">
       <span class="nav-icon">🍽️</span>
