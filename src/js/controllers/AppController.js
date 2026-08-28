@@ -246,6 +246,24 @@ export class AppController {
   }
 
   configurarEventos() {
+    // Modal de Confirmação (OK e Cancelar)
+    const btnConfirmOk = document.getElementById("btn-confirm-ok");
+    const btnConfirmCancelar = document.getElementById("btn-confirm-cancelar");
+
+    if (btnConfirmOk) {
+      btnConfirmOk.addEventListener("click", () => {
+        if (typeof window.acaoConfirmacaoPendente === "function") {
+          window.acaoConfirmacaoPendente();
+        }
+      });
+    }
+
+    if (btnConfirmCancelar) {
+      btnConfirmCancelar.addEventListener("click", () => {
+        ToastView.fecharModalConfirmacao();
+      });
+    }
+
     // Busca em tempo real
     const campoBusca = document.getElementById("campo-busca");
     const btnLimparBusca = document.getElementById("btn-limpar-busca");
