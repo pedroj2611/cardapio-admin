@@ -100,6 +100,43 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* ITENS DO CARRINHO DENTRO DO MODAL */
+.modal-item-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-item-detalhes {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.modal-item-nome {
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: var(--text-main);
+}
+
+.modal-item-unit {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.modal-item-subtotal {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.98rem;
+  color: var(--primary);
+  min-width: 70px;
+  text-align: right;
+}
+
 /* ESTILOS ESPECÍFICOS DO MODAL DE AUTENTICAÇÃO ADMIN */
 .auth-modal-body {
   text-align: center;
