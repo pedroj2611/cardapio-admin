@@ -721,9 +721,14 @@ details[open] .accordion-arrow {
   transform: translateY(-1px);
 }
 
-/* MENU LATERAL (SIDEBAR DARK ESTILO MOCKUP) */
+/* MENU LATERAL (SIDEBAR DARK ESTILO MOCKUP - 100% FIXA) */
 .sidebar-app {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
   width: var(--sidebar-width);
+  height: 100vh;
   background: var(--dark-sidebar);
   color: #a0a5ad;
   display: flex;
@@ -733,7 +738,7 @@ details[open] .accordion-arrow {
   flex-shrink: 0;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
   z-index: 90;
-  transition: transform 0.3s ease;
+  overflow-y: auto;
 }
 
 .sidebar-header {
@@ -931,7 +936,11 @@ input:checked + .slider-toggle:before {
 /* RESPONSIVIDADE FLUIDA E ADAPTAÇÃO NATIVA PARA DISPOSITIVOS MOBILES */
 @media (max-width: 768px) {
   .sidebar-app {
-    display: none;
+    display: none !important;
+  }
+  .main-workspace {
+    margin-left: 0 !important;
+    width: 100% !important;
   }
   .mobile-bottom-nav {
     display: flex;
