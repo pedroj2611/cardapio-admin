@@ -22,6 +22,8 @@ export class ToastView {
     const elTitulo = document.getElementById("confirm-titulo");
     const elMensagem = document.getElementById("confirm-mensagem");
     const elIcone = document.getElementById("confirm-icon");
+    const btnOk = document.getElementById("btn-confirm-ok");
+    const btnCancel = document.getElementById("btn-confirm-cancelar");
 
     if (!modalConf) {
       if (confirm(mensagem)) acao();
@@ -32,10 +34,31 @@ export class ToastView {
     if (elMensagem) elMensagem.textContent = mensagem;
     if (elIcone) elIcone.textContent = icone || "⚠️";
 
-    window.acaoConfirmacaoPendente = acao;
+    // Bind direto e garantido dos botões de ação do modal
+    if (btnOk) {
+      btnOk.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof acao === "function") {
+          acao();
+        }
+      };
+    }
+
+    if (btnCancel) {
+      btnCancel.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        ToastView.fecharModalConfirmacao();
+      };
+    }
 
     if (typeof modalConf.showModal === "function") {
-      modalConf.showModal();
+      try {
+        modalConf.showModal();
+      } catch (err) {
+        modalConf.setAttribute("open", "true");
+      }
     } else {
       modalConf.setAttribute("open", "true");
     }
@@ -44,9 +67,15 @@ export class ToastView {
   static fecharModalConfirmacao() {
     const modalConf = document.getElementById("modal-confirmacao");
     if (modalConf) {
-      if (typeof modalConf.close === "function") modalConf.close();
-      else modalConf.removeAttribute("open");
+      if (typeof modalConf.close === "function") {
+        try {
+          modalConf.close();
+        } catch (err) {
+          modalConf.removeAttribute("open");
+        }
+      } else {
+        modalConf.removeAttribute("open");
+      }
     }
-    window.acaoConfirmacaoPendente = null;
   }
 }
