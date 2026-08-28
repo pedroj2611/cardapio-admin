@@ -344,6 +344,29 @@ export class AppController {
       });
     }
 
+    // Eventos delegados na lista de itens dentro do Modal de Checkout
+    const listaModal = document.getElementById("pedido-itens-lista");
+    if (listaModal) {
+      listaModal.addEventListener("click", (e) => {
+        const btnAumentar = e.target.closest(".btn-modal-aumentar");
+        const btnDiminuir = e.target.closest(".btn-modal-diminuir");
+
+        if (btnAumentar) {
+          const id = parseInt(btnAumentar.dataset.id);
+          this.cartModel.alterarQuantidade(id, 1);
+          this.atualizarInterface();
+        } else if (btnDiminuir) {
+          const id = parseInt(btnDiminuir.dataset.id);
+          this.cartModel.alterarQuantidade(id, -1);
+          this.atualizarInterface();
+          if (this.cartModel.obterItens().length === 0) {
+            this.modalView.fecharModal(this.modalView.modalPedido);
+            ToastView.mostrarToast("Seu carrinho foi esvaziado!", "🛒");
+          }
+        }
+      });
+    }
+
     // Modal Checkout
     const btnAbrirPedido = document.getElementById("btn-abrir-pedido");
     const btnFecharModal = document.getElementById("btn-fechar-modal");
@@ -405,6 +428,7 @@ export class AppController {
             this.cartModel.limpar();
             this.atualizarInterface();
             ToastView.fecharModalConfirmacao();
+            this.modalView.fecharModal(this.modalView.modalPedido);
             ToastView.mostrarToast("Carrinho esvaziado!", "🗑️");
           }
         );
