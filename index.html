@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Sabor & Arte Gourmet | Cardápio Digital Profissional</title>
+  <title>Sabor & Cia Restaurante | Sistema & Painel Admin</title>
 
-  <meta name="description" content="Cardápio digital empresarial interativo para pedidos rápidos via WhatsApp, visualização de produtos e cálculo de total.">
-  <meta name="theme-color" content="#8b1c1c">
+  <meta name="description" content="Cardápio digital empresarial interativo e painel de monitoramento de pedidos em tempo real.">
+  <meta name="theme-color" content="#121619">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Cardápio Pro">
+  <meta name="apple-mobile-web-app-title" content="Sabor & Cia Pro">
 
   <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -27,159 +27,422 @@
 </head>
 <body>
 
-  <!-- BANNER E CABEÇALHO GOURMET -->
-  <header class="header-empresa">
-    <div class="header-banner-bg" aria-hidden="true"></div>
-    <div class="header-overlay" aria-hidden="true"></div>
+  <!-- LAYOUT PRINCIPAL DO SISTEMA (SIDEBAR + CONTEÚDO) -->
+  <div class="app-layout">
     
-    <div class="header-container">
-      <div class="header-top-bar">
-        <div class="status-box">
-          <span class="status-pulse"></span>
-          <span class="status-label">Aberto para Pedidos</span>
+    <!-- MENU LATERAL (SIDEBAR DARK ESTILO MOCKUP) -->
+    <aside class="sidebar-app" id="sidebar-app">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-box">
+          <span class="sidebar-logo-icon">🛎️</span>
         </div>
-        <button id="btn-abrir-config" class="btn-config-loja" title="Configurações do Estabelecimento" aria-label="Configurações do Estabelecimento">
-          <span>⚙️ Configurações</span>
-        </button>
+        <div class="sidebar-brand-info">
+          <h2 class="sidebar-title">SABOR & CIA</h2>
+          <span class="sidebar-subtitle">RESTAURANTE</span>
+        </div>
       </div>
 
-      <div class="brand-box">
-        <div class="brand-logo-wrapper">
-          <span class="brand-logo">🍔</span>
+      <nav class="sidebar-nav">
+        <button class="sidebar-item active" id="nav-item-cardapio" data-tab="cardapio">
+          <span class="sidebar-icon">🎛️</span>
+          <span>Cardápio</span>
+        </button>
+        <button class="sidebar-item" id="nav-item-pedidos" data-tab="pedidos">
+          <span class="sidebar-icon">📋</span>
+          <span>Pedidos / Comandas</span>
+        </button>
+        <button class="sidebar-item" id="nav-item-configuracoes" data-tab="configuracoes">
+          <span class="sidebar-icon">⚙️</span>
+          <span>Configurações</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="dark-mode-container">
+          <span class="dark-mode-label">🌙 Modo escuro</span>
+          <label class="switch-toggle" aria-label="Alternar modo escuro">
+            <input type="checkbox" id="toggle-dark-mode">
+            <span class="slider-toggle round"></span>
+          </label>
         </div>
-        <div class="brand-texts">
-          <h1 class="brand-name" id="display-nome-loja">Sabor & Arte Gourmet</h1>
-          <p class="brand-segment">Restaurante & Hamburgueria Artesanal</p>
+        <div class="version-badges">
+          <p>Versão 1.0.0</p>
+          <p>Versão Admin 1.0.0</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ÁREA DE CONTEÚDO CENTRAL -->
+    <div class="main-workspace">
+
+      <!-- VISÃO PÚBLICA DO SISTEMA (CARDÁPIO E CLIENTE) -->
+      <div id="public-view" class="view-panel active-view">
+        <!-- BANNER E CABEÇALHO GOURMET -->
+        <header class="header-empresa">
+          <div class="header-banner-bg" aria-hidden="true"></div>
+          <div class="header-overlay" aria-hidden="true"></div>
           
-          <div class="brand-badges">
-            <span class="badge-info">⭐ 4.9 (320+ avaliações)</span>
-            <span class="badge-info">⏱️ 25-35 min</span>
-            <span class="badge-info" id="display-taxa-badge">🛵 Entrega R$ 5,00</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
+          <div class="header-container">
+            <div class="header-top-bar">
+              <div class="status-box">
+                <span class="status-pulse"></span>
+                <span class="status-label">Aberto para Pedidos</span>
+              </div>
+              <button id="btn-abrir-config" class="btn-config-loja" title="Configurações do Estabelecimento" aria-label="Configurações do Estabelecimento">
+                <span>⚙️ Configurações</span>
+              </button>
+            </div>
 
-  <!-- CONTEÚDO PRINCIPAL -->
-  <main class="app-container">
-
-    <!-- BARRA DE CONTROLE: PESQUISA E CADASTRO RÁPIDO -->
-    <section class="controls-section">
-      <div class="search-bar-wrapper">
-        <span class="search-icon" aria-hidden="true">🔍</span>
-        <input type="text" id="campo-busca" placeholder="Buscar por nome ou ingredientes (ex: burger, bacon, suco)..." autocomplete="off" aria-label="Buscar produtos no cardápio">
-        <button id="btn-limpar-busca" class="btn-clear" style="display: none;" title="Limpar pesquisa" aria-label="Limpar campo de pesquisa">✕</button>
-      </div>
-
-      <!-- PAINEL ACCORDION DE CADASTRO DE NOVO ITEM -->
-      <details class="accordion-cadastro" id="accordion-cadastro">
-        <summary class="summary-btn">
-          <span>✨ Cadastrar Novo Produto no Cardápio</span>
-          <span class="accordion-arrow" aria-hidden="true">▼</span>
-        </summary>
-        <div class="form-cadastro-item">
-          <div class="form-grid">
-            <div class="form-field">
-              <label for="novo-nome">Nome do Produto *</label>
-              <input id="novo-nome" type="text" placeholder="Ex: Monster Cheese Burger" required>
-            </div>
-            <div class="form-field">
-              <label for="nova-categoria">Categoria *</label>
-              <select id="nova-categoria">
-                <option value="lanches">🍔 Lanches</option>
-                <option value="porcoes">🍟 Porções</option>
-                <option value="bebidas">🥤 Bebidas</option>
-                <option value="sobremesas">🍰 Sobremesas</option>
-              </select>
-            </div>
-            <div class="form-field">
-              <label for="novo-preco">Preço R$ *</label>
-              <input id="novo-preco" type="number" step="0.50" min="0" placeholder="Ex: 34.90" required>
-            </div>
-            <div class="form-field">
-              <label for="novo-badge">Destaque (opcional)</label>
-              <select id="novo-badge">
-                <option value="">Sem Destaque</option>
-                <option value="Mais Pedido">🔥 Mais Pedido</option>
-                <option value="Chef Special">⭐ Chef Special</option>
-                <option value="Novo">✨ Novo</option>
-                <option value="Vegetariano">🌱 Vegetariano</option>
-              </select>
-            </div>
-            <div class="form-field full-width">
-              <label for="nova-imagem">URL da Imagem (opcional)</label>
-              <input id="nova-imagem" type="url" placeholder="https://exemplo.com/foto-hamburguer.jpg">
-            </div>
-            <div class="form-field full-width">
-              <label for="nova-descricao">Ingredientes / Descrição</label>
-              <input id="nova-descricao" type="text" placeholder="Pão brioche, blend 180g, cheddar fatiado...">
+            <div class="brand-box">
+              <div class="brand-logo-wrapper">
+                <span class="brand-logo">🍔</span>
+              </div>
+              <div class="brand-texts">
+                <h1 class="brand-name" id="display-nome-loja">Sabor & Cia Gourmet</h1>
+                <p class="brand-segment">Restaurante & Hamburgueria Artesanal</p>
+                
+                <div class="brand-badges">
+                  <span class="badge-info">⭐ 4.9 (320+ avaliações)</span>
+                  <span class="badge-info">⏱️ 25-35 min</span>
+                  <span class="badge-info" id="display-taxa-badge">🛵 Entrega R$ 5,00</span>
+                </div>
+              </div>
             </div>
           </div>
-          <button id="btn-salvar-novo" class="btn-adicionar-produto">Cadastrar Produto</button>
+        </header>
+
+        <!-- CONTEÚDO PRINCIPAL DO CARDÁPIO -->
+        <main class="app-container">
+
+          <!-- BARRA DE CONTROLE: PESQUISA E CADASTRO RÁPIDO -->
+          <section class="controls-section">
+            <div class="search-bar-wrapper">
+              <span class="search-icon" aria-hidden="true">🔍</span>
+              <input type="text" id="campo-busca" placeholder="Buscar por nome ou ingredientes (ex: burger, bacon, suco)..." autocomplete="off" aria-label="Buscar produtos no cardápio">
+              <button id="btn-limpar-busca" class="btn-clear" style="display: none;" title="Limpar pesquisa" aria-label="Limpar campo de pesquisa">✕</button>
+            </div>
+
+            <!-- PAINEL ACCORDION DE CADASTRO DE NOVO ITEM -->
+            <details class="accordion-cadastro" id="accordion-cadastro">
+              <summary class="summary-btn">
+                <span>✨ Cadastrar Novo Produto no Cardápio</span>
+                <span class="accordion-arrow" aria-hidden="true">▼</span>
+              </summary>
+              <div class="form-cadastro-item">
+                <div class="form-grid">
+                  <div class="form-field">
+                    <label for="novo-nome">Nome do Produto *</label>
+                    <input id="novo-nome" type="text" placeholder="Ex: Monster Cheese Burger" required>
+                  </div>
+                  <div class="form-field">
+                    <label for="nova-categoria">Categoria *</label>
+                    <select id="nova-categoria">
+                      <option value="lanches">🍔 Lanches</option>
+                      <option value="porcoes">🍟 Porções</option>
+                      <option value="bebidas">🥤 Bebidas</option>
+                      <option value="sobremesas">🍰 Sobremesas</option>
+                    </select>
+                  </div>
+                  <div class="form-field">
+                    <label for="novo-preco">Preço R$ *</label>
+                    <input id="novo-preco" type="number" step="0.50" min="0" placeholder="Ex: 34.90" required>
+                  </div>
+                  <div class="form-field">
+                    <label for="novo-badge">Destaque (opcional)</label>
+                    <select id="novo-badge">
+                      <option value="">Sem Destaque</option>
+                      <option value="Mais Pedido">🔥 Mais Pedido</option>
+                      <option value="Chef Special">⭐ Chef Special</option>
+                      <option value="Novo">✨ Novo</option>
+                      <option value="Vegetariano">🌱 Vegetariano</option>
+                    </select>
+                  </div>
+                  <div class="form-field full-width">
+                    <label for="nova-imagem">URL da Imagem (opcional)</label>
+                    <input id="nova-imagem" type="url" placeholder="https://exemplo.com/foto-hamburguer.jpg">
+                  </div>
+                  <div class="form-field full-width">
+                    <label for="nova-descricao">Ingredientes / Descrição</label>
+                    <input id="nova-descricao" type="text" placeholder="Pão brioche, blend 180g, cheddar fatiado...">
+                  </div>
+                </div>
+                <button id="btn-salvar-novo" class="btn-adicionar-produto">Cadastrar Produto</button>
+              </div>
+            </details>
+          </section>
+
+          <!-- ABAS DE CATEGORIAS -->
+          <nav class="categorias-nav" aria-label="Categorias do Cardápio">
+            <div class="categorias-lista" id="categorias-tabs">
+              <button class="tab-btn active" data-cat="todos">🍽️ Todos</button>
+              <button class="tab-btn" data-cat="lanches">🍔 Lanches</button>
+              <button class="tab-btn" data-cat="porcoes">🍟 Porções</button>
+              <button class="tab-btn" data-cat="bebidas">🥤 Bebidas</button>
+              <button class="tab-btn" data-cat="sobremesas">🍰 Sobremesas</button>
+            </div>
+          </nav>
+
+          <!-- LISTAGEM DE PRODUTOS DO CARDÁPIO -->
+          <section class="cardapio-section">
+            <div class="section-title-row">
+              <h2 id="titulo-categoria">Todos os Produtos</h2>
+              <span id="badge-total-itens" class="badge-count" aria-live="polite">0 produtos</span>
+            </div>
+
+            <div class="grid-produtos" id="grid-produtos">
+              <!-- Renderizado dinamicamente via JS -->
+            </div>
+
+            <!-- MENSAGEM QUANDO NENHUM ITEM FOR ENCONTRADO -->
+            <div id="vazio-alerta" class="card-vazio" style="display: none;">
+              <span class="vazio-icon">🔍</span>
+              <h3>Nenhum produto localizado</h3>
+              <p>Não encontramos resultados para a sua busca. Tente pesquisar outro termo ou trocar de categoria.</p>
+              <button id="btn-reset-busca" class="btn-secundario-vazio">Ver Todos os Produtos</button>
+            </div>
+          </section>
+
+        </main>
+
+        <!-- BARRA FLUTUANTE DE RESUMO DO PEDIDO (STICKY) -->
+        <aside class="barra-flutuante" id="barra-flutuante">
+          <div class="barra-container">
+            <div class="barra-info">
+              <div class="carrinho-icone-box">
+                🛒
+                <span class="carrinho-badge" id="carrinho-qtd" aria-live="polite">0</span>
+              </div>
+              <div class="carrinho-textos">
+                <span class="carrinho-titulo">Seu Pedido</span>
+                <span class="carrinho-detalhe" id="carrinho-resumo-texto" aria-live="polite">0 itens selecionados</span>
+              </div>
+            </div>
+
+            <div class="barra-acoes">
+              <div class="carrinho-total-box">
+                <span class="total-rotulo">Subtotal</span>
+                <span class="total-valor" id="carrinho-total-valor" aria-live="polite">R$ 0,00</span>
+              </div>
+              <button id="btn-abrir-pedido" class="btn-finalizar-pedido">
+                <span>Ver Pedido</span>
+                <span class="seta-btn">➔</span>
+              </button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- PAINEL DE MONITORAMENTO (ADMIN DASHBOARD VIEW) -->
+      <div id="admin-dashboard-view" class="view-panel admin-dashboard-container" style="display: none;">
+        <!-- Cabeçalho do Painel Admin -->
+        <header class="admin-top-header">
+          <div class="admin-title-group">
+            <h1 class="admin-main-title">Admin Monitoring</h1>
+            <p class="admin-sub-title">Escolha os melhores pratos</p>
+          </div>
+          <div class="admin-actions-group">
+            <div class="admin-search-wrapper">
+              <span class="search-icon-input">🔍</span>
+              <input type="text" id="admin-search-input" placeholder="Buscar produtos...">
+            </div>
+            <button id="btn-admin-filter" class="btn-admin-outline">
+              <span>⚡ Filtros</span>
+            </button>
+            <button id="btn-sair-admin" class="btn-admin-golden" title="Voltar ao Cardápio Público">
+              <span>🍽️ Voltar ao Cardápio</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- GRID PRINCIPAL DO DASHBOARD ADMIN -->
+        <div class="admin-dashboard-grid">
+          
+          <!-- COLUNA ESQUERDA: CARDS DE RESUMO + TABELA CENTRAL -->
+          <div class="admin-center-column">
+            
+            <!-- CARDS DE RESUMO NO TOPO -->
+            <section class="admin-summary-cards">
+              <div class="summary-card">
+                <span class="card-title">Pedidos Totais do Dia</span>
+                <span class="card-value" id="admin-card-totais">145</span>
+              </div>
+              <div class="summary-card">
+                <span class="card-title">Vendas Totais do Dia</span>
+                <span class="card-value" id="admin-card-vendas">R$ 7.420,50</span>
+              </div>
+              <div class="summary-card">
+                <span class="card-title">Tempo Médio de Preparo</span>
+                <span class="card-value" id="admin-card-tempo">18 min</span>
+              </div>
+              <div class="summary-card highlight-card">
+                <span class="card-title">Pedidos Pendentes</span>
+                <span class="card-value" id="admin-card-pendentes">32</span>
+              </div>
+            </section>
+
+            <!-- TABELA CENTRAL DE MONITORAMENTO DE PEDIDOS -->
+            <section class="admin-table-container">
+              <div class="table-header-row">
+                <h3 class="table-title">Monitoramento de Pedidos</h3>
+                <div class="table-filter-dropdowns">
+                  <select id="filter-hora-select" class="admin-select">
+                    <option value="">Hora do Pedido ▾</option>
+                    <option value="recentes">Mais recentes</option>
+                    <option value="antigos">Mais antigos</option>
+                  </select>
+                  <select id="filter-status-select" class="admin-select">
+                    <option value="">Alguns de filtrar ▾</option>
+                    <option value="Aberto">Aberto</option>
+                    <option value="Mesa 05">Mesa 05</option>
+                    <option value="Mesa 07">Mesa 07</option>
+                    <option value="Delivery">Delivery</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="table-wrapper">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Hora do Pedido</th>
+                      <th>Atendente</th>
+                      <th>Mesa/Delivery</th>
+                      <th>Itens</th>
+                      <th>Total</th>
+                      <th>Tempo Decorrido</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-orders-table-body">
+                    <!-- Preenchido via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <!-- COLUNA DIREITA: PAINEL DE RESUMO & GRÁFICO (WIDGETS) -->
+          <aside class="admin-side-widgets">
+            <!-- WIDGET 1: RESUMO DO PEDIDO -->
+            <div class="admin-widget">
+              <div class="widget-header">
+                <h4>Resumo do pedido</h4>
+                <div class="widget-cart-badge">🛒 3</div>
+              </div>
+              <div class="widget-cart-list" id="widget-cart-list">
+                <div class="widget-cart-item">
+                  <span class="item-name">X-Bacon</span>
+                  <span class="item-qty">1x</span>
+                  <span class="item-price">R$ 25,90</span>
+                </div>
+                <div class="widget-cart-item">
+                  <span class="item-name">Batata Frita</span>
+                  <span class="item-qty">1x</span>
+                  <span class="item-price">R$ 15,90</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- WIDGET 2: PEDIDOS POR HORA (GRÁFICO DE BARRAS) -->
+            <div class="admin-widget chart-widget">
+              <h4 class="widget-title">Pedidos por Hora</h4>
+              <div class="bar-chart-container">
+                <div class="y-axis">
+                  <span>40</span>
+                  <span>30</span>
+                  <span>20</span>
+                  <span>10</span>
+                  <span>0</span>
+                </div>
+                <div class="bars-flex">
+                  <div class="bar-col"><div class="bar-fill" style="height: 45%;"></div><span class="bar-label">01</span></div>
+                  <div class="bar-col"><div class="bar-fill" style="height: 60%;"></div><span class="bar-label">03</span></div>
+                  <div class="bar-col"><div class="bar-fill" style="height: 50%;"></div><span class="bar-label">06</span></div>
+                  <div class="bar-col"><div class="bar-fill" style="height: 85%;"></div><span class="bar-label">09</span></div>
+                  <div class="bar-col"><div class="bar-fill" style="height: 60%;"></div><span class="bar-label">10</span></div>
+                  <div class="bar-col"><div class="bar-fill" style="height: 75%;"></div><span class="bar-label">15</span></div>
+                  <div class="bar-col"><div class="bar-fill" style="height: 40%;"></div><span class="bar-label">18</span></div>
+                  <div class="bar-col"><div class="bar-fill" style="height: 90%;"></div><span class="bar-label">21</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- WIDGET 3: VALORES TOTAIS DA COMANDA -->
+            <div class="admin-widget totals-widget">
+              <div class="total-line">
+                <span>Subtotal (3 item)</span>
+                <span>R$ 48,30</span>
+              </div>
+              <div class="total-line">
+                <span>Taxa de entrega</span>
+                <span>R$ 5,50</span>
+              </div>
+              <div class="total-line main-total">
+                <span>Total</span>
+                <span class="total-val">R$ 53,30</span>
+              </div>
+              <button class="btn-finalizar-gold">Finalizar pedido</button>
+            </div>
+          </aside>
+
         </div>
-      </details>
-    </section>
-
-    <!-- ABAS DE CATEGORIAS -->
-    <nav class="categorias-nav" aria-label="Categorias do Cardápio">
-      <div class="categorias-lista" id="categorias-tabs">
-        <button class="tab-btn active" data-cat="todos">🍽️ Todos</button>
-        <button class="tab-btn" data-cat="lanches">🍔 Lanches</button>
-        <button class="tab-btn" data-cat="porcoes">🍟 Porções</button>
-        <button class="tab-btn" data-cat="bebidas">🥤 Bebidas</button>
-        <button class="tab-btn" data-cat="sobremesas">🍰 Sobremesas</button>
-      </div>
-    </nav>
-
-    <!-- LISTAGEM DE PRODUTOS DO CARDÁPIO -->
-    <section class="cardapio-section">
-      <div class="section-title-row">
-        <h2 id="titulo-categoria">Todos os Produtos</h2>
-        <span id="badge-total-itens" class="badge-count" aria-live="polite">0 produtos</span>
       </div>
 
-      <div class="grid-produtos" id="grid-produtos">
-        <!-- Renderizado dinamicamente via JS -->
-      </div>
+    </div>
+  </div>
 
-      <!-- MENSAGEM QUANDO NENHUM ITEM FOR ENCONTRADO -->
-      <div id="vazio-alerta" class="card-vazio" style="display: none;">
-        <span class="vazio-icon">🔍</span>
-        <h3>Nenhum produto localizado</h3>
-        <p>Não encontramos resultados para a sua busca. Tente pesquisar outro termo ou trocar de categoria.</p>
-        <button id="btn-reset-busca" class="btn-secundario-vazio">Ver Todos os Produtos</button>
-      </div>
-    </section>
+  <!-- NAVEGAÇÃO BOTTOM BAR EM DISPOSITIVOS MOBILES -->
+  <nav class="mobile-bottom-nav">
+    <button class="mobile-nav-btn active" id="mob-btn-cardapio" data-tab="cardapio">
+      <span class="nav-icon">🍽️</span>
+      <span>Cardápio</span>
+    </button>
+    <button class="mobile-nav-btn" id="mob-btn-pedidos" data-tab="pedidos">
+      <span class="nav-icon">📋</span>
+      <span>Pedidos</span>
+    </button>
+    <button class="mobile-nav-btn" id="mob-btn-config" data-tab="configuracoes">
+      <span class="nav-icon">⚙️</span>
+      <span>Config.</span>
+    </button>
+  </nav>
 
-  </main>
-
-  <!-- BARRA FLUTUANTE DE RESUMO DO PEDIDO (STICKY) -->
-  <aside class="barra-flutuante" id="barra-flutuante">
-    <div class="barra-container">
-      <div class="barra-info">
-        <div class="carrinho-icone-box">
-          🛒
-          <span class="carrinho-badge" id="carrinho-qtd" aria-live="polite">0</span>
+  <!-- MODAL DE AUTENTICAÇÃO RESTRITA ADMIN (<dialog>) -->
+  <dialog id="modal-auth-admin" class="modal-dialog modal-small">
+    <div class="modal-content auth-modal-content">
+      <div class="modal-header">
+        <div class="modal-header-title">
+          <span class="modal-icon">🔐</span>
+          <div>
+            <h3>Acesso Restrito Admin</h3>
+            <p class="modal-sub">Autenticação do Sistema</p>
+          </div>
         </div>
-        <div class="carrinho-textos">
-          <span class="carrinho-titulo">Seu Pedido</span>
-          <span class="carrinho-detalhe" id="carrinho-resumo-texto" aria-live="polite">0 itens selecionados</span>
-        </div>
+        <button id="btn-fechar-auth-admin" class="btn-fechar" aria-label="Fechar autenticação">✕</button>
       </div>
 
-      <div class="barra-acoes">
-        <div class="carrinho-total-box">
-          <span class="total-rotulo">Subtotal</span>
-          <span class="total-valor" id="carrinho-total-valor" aria-live="polite">R$ 0,00</span>
-        </div>
-        <button id="btn-abrir-pedido" class="btn-finalizar-pedido">
-          <span>Ver Pedido</span>
-          <span class="seta-btn">➔</span>
-        </button>
+      <div class="modal-body auth-modal-body">
+        <form id="form-auth-admin" onsubmit="return false;">
+          <h4 class="auth-title-centered">Acesso Restrito Admin</h4>
+          
+          <div class="input-grupo">
+            <div class="password-wrapper">
+              <input type="password" id="admin-password-input" placeholder="Senha Admin" autocomplete="current-password">
+              <button type="button" id="btn-toggle-password-vis" class="btn-eye" title="Mostrar/Ocultar Senha">👁️</button>
+            </div>
+            <p class="auth-help-text">Digite a senha "<strong>admin</strong>" para acessar o monitoramento.</p>
+            <div id="auth-error-msg" class="auth-error-msg" style="display: none;">
+              ⚠️ Senha incorreta! Tente novamente.
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="btn-submit-auth-admin" class="btn-acessar-gold">Acessar</button>
       </div>
     </div>
-  </aside>
+  </dialog>
 
   <!-- MODAL DE FINALIZAÇÃO DO PEDIDO (<dialog>) -->
   <dialog id="modal-pedido" class="modal-dialog">
@@ -361,7 +624,7 @@
         <form id="form-config" onsubmit="return false;">
           <div class="input-grupo">
             <label for="config-nome-loja">Nome do Estabelecimento</label>
-            <input type="text" id="config-nome-loja" placeholder="Ex: Sabor & Arte Gourmet">
+            <input type="text" id="config-nome-loja" placeholder="Ex: Sabor & Cia Gourmet">
           </div>
           <div class="input-grupo">
             <label for="config-whatsapp">Número do WhatsApp (com DDD)</label>

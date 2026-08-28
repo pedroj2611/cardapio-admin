@@ -12,6 +12,7 @@ import { ProductView, formatarPreco } from "../views/ProductView.js";
 import { CartView } from "../views/CartView.js";
 import { ModalView } from "../views/ModalView.js";
 import { ToastView } from "../views/ToastView.js";
+import { AdminView } from "../views/AdminView.js";
 
 export class AppController {
   constructor() {
@@ -22,13 +23,16 @@ export class AppController {
     this.productView = new ProductView();
     this.cartView = new CartView();
     this.modalView = new ModalView();
+    this.adminView = new AdminView();
 
     this.categoriaAtiva = "todos";
     this.termoBusca = "";
+    this.isAdminAutenticado = false;
   }
 
   iniciar() {
     this.configurarEventos();
+    this.configurarEventosAdmin();
     this.atualizarInterface();
   }
 
@@ -45,6 +49,171 @@ export class AppController {
 
     this.cartView.atualizarDock(totais);
     this.cartView.renderizarModalItens(this.cartModel.obterItens(), totais);
+  }
+
+  configurarEventosAdmin() {
+    const modalAuth = document.getElementById("modal-auth-admin");
+    const btnFecharAuth = document.getElementById("btn-fechar-auth-admin");
+    const btnSubmitAuth = document.getElementById("btn-submit-auth-admin");
+    const btnToggleVis = document.getElementById("btn-toggle-password-vis");
+    const inputSenha = document.getElementById("admin-password-input");
+    const errorMsg = document.getElementById("auth-error-msg");
+
+    // Botões que disparam a autenticação Admin
+    const btnsConfig = [
+      document.getElementById("nav-item-configuracoes"),
+      document.getElementById("mob-btn-config"),
+      document.getElementById("btn-abrir-config")
+    ];
+
+    btnsConfig.forEach(btn => {
+      if (btn) {
+        btn.addEventListener("click", () => {
+          if (this.isAdminAutenticado) {
+            this.exibirTelaAdmin();
+          } else {
+            if (inputSenha) inputSenha.value = "";
+            if (errorMsg) errorMsg.style.display = "none";
+            this.modalView.abrirModal(modalAuth);
+            if (inputSenha) inputSenha.focus();
+          }
+        });
+      }
+    });
+
+    if (btnFecharAuth) {
+      btnFecharAuth.addEventListener("click", () => {
+        this.modalView.fecharModal(modalAuth);
+      });
+    }
+
+    // Toggle de visualização de senha (ícone de olho)
+    if (btnToggleVis && inputSenha) {
+      btnToggleVis.addEventListener("click", () => {
+        const ehPass = inputSenha.type === "password";
+        inputSenha.type = ehPass ? "text" : "password";
+        btnToggleVis.textContent = ehPass ? "🙈" : "👁️";
+      });
+    }
+
+    // Ação de validação da senha fixa "admin"
+    const efetuarLogin = () => {
+      const senha = inputSenha ? inputSenha.value.trim() : "";
+      if (senha === "admin") {
+        this.isAdminAutenticado = true;
+        this.modalView.fecharModal(modalAuth);
+        this.exibirTelaAdmin();
+        ToastView.mostrarToast("Acesso Admin liberado!", "🔑");
+      } else {
+        if (errorMsg) errorMsg.style.display = "block";
+        ToastView.mostrarToast("Senha incorreta! Tente novamente.", "⚠️");
+      }
+    };
+
+    if (btnSubmitAuth) btnSubmitAuth.addEventListener("click", efetuarLogin);
+    if (inputSenha) {
+      inputSenha.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          efetuarLogin();
+        }
+      });
+    }
+
+    // Voltar para o Cardápio
+    const btnSairAdmin = document.getElementById("btn-sair-admin");
+    const btnsCardapio = [
+      document.getElementById("nav-item-cardapio"),
+      document.getElementById("mob-btn-cardapio")
+    ];
+
+    if (btnSairAdmin) {
+      btnSairAdmin.addEventListener("click", () => this.exibirTelaPublica());
+    }
+
+    btnsCardapio.forEach(btn => {
+      if (btn) btn.addEventListener("click", () => this.exibirTelaPublica());
+    });
+
+    // Dark Mode Toggle
+    const toggleDarkMode = document.getElementById("toggle-dark-mode");
+    if (toggleDarkMode) {
+      toggleDarkMode.addEventListener("change", (e) => {
+        document.body.classList.toggle("dark-mode", e.target.checked);
+      });
+    }
+
+    // Eventos dentro do Painel Admin (Filtros, Busca e Tabela)
+    const adminSearchInput = document.getElementById("admin-search-input");
+    const filterStatusSelect = document.getElementById("filter-status-select");
+
+    if (adminSearchInput) {
+      adminSearchInput.addEventListener("input", (e) => {
+        const statusVal = filterStatusSelect ? filterStatusSelect.value : "";
+        this.adminView.renderizarTabela(e.target.value.trim(), statusVal);
+      });
+    }
+
+    if (filterStatusSelect) {
+      filterStatusSelect.addEventListener("change", (e) => {
+        const buscaVal = adminSearchInput ? adminSearchInput.value.trim() : "";
+        this.adminView.renderizarTabela(buscaVal, e.target.value);
+      });
+    }
+
+    const tbodyAdmin = document.getElementById("admin-orders-table-body");
+    if (tbodyAdmin) {
+      tbodyAdmin.addEventListener("click", (e) => {
+        const btnDetalhes = e.target.closest(".btn-detalhes-ped");
+        const btnCancelar = e.target.closest(".btn-cancelar-ped");
+
+        if (btnDetalhes) {
+          const id = btnDetalhes.dataset.id;
+          this.adminView.alternarStatusPedido(id);
+          ToastView.mostrarToast(`Status do pedido #${id} atualizado!`, "🔄");
+        } else if (btnCancelar) {
+          const id = btnCancelar.dataset.id;
+          ToastView.solicitarConfirmacao(
+            "Cancelar Pedido?",
+            `Deseja realmente cancelar o pedido #${id}?`,
+            "❌",
+            () => {
+              this.adminView.cancelarPedido(id);
+              ToastView.fecharModalConfirmacao();
+              ToastView.mostrarToast(`Pedido #${id} cancelado!`, "🗑️");
+            }
+          );
+        }
+      });
+    }
+  }
+
+  exibirTelaAdmin() {
+    const publicView = document.getElementById("public-view");
+    const adminView = document.getElementById("admin-dashboard-view");
+
+    if (publicView) publicView.style.display = "none";
+    if (adminView) adminView.style.display = "block";
+
+    // Atualiza active nos menus
+    document.querySelectorAll(".sidebar-item, .mobile-nav-btn").forEach(el => el.classList.remove("active"));
+    document.getElementById("nav-item-configuracoes")?.classList.add("active");
+    document.getElementById("mob-btn-config")?.classList.add("active");
+
+    this.adminView.renderizarTabela();
+  }
+
+  exibirTelaPublica() {
+    const publicView = document.getElementById("public-view");
+    const adminView = document.getElementById("admin-dashboard-view");
+
+    if (adminView) adminView.style.display = "none";
+    if (publicView) publicView.style.display = "block";
+
+    // Atualiza active nos menus
+    document.querySelectorAll(".sidebar-item, .mobile-nav-btn").forEach(el => el.classList.remove("active"));
+    document.getElementById("nav-item-cardapio")?.classList.add("active");
+    document.getElementById("mob-btn-cardapio")?.classList.add("active");
   }
 
   configurarEventos() {
@@ -158,7 +327,8 @@ export class AppController {
           ToastView.mostrarToast("Adicione itens ao carrinho primeiro!", "🛒");
           return;
         }
-        this.atualizarInterface();
+        this.modalView.atualizarCamposAtendimento(this.configModel.obter().taxaEntrega);
+        this.modalView.atualizarCamposPagamento();
         this.modalView.abrirModal(this.modalView.modalPedido);
       });
     }
@@ -169,19 +339,44 @@ export class AppController {
       });
     }
 
+    const tipoAtendimentoSelect = document.getElementById("tipo-atendimento");
+    if (tipoAtendimentoSelect) {
+      tipoAtendimentoSelect.addEventListener("change", () => {
+        this.modalView.atualizarCamposAtendimento(this.configModel.obter().taxaEntrega);
+        this.atualizarInterface();
+      });
+    }
+
+    const formaPagamentoSelect = document.getElementById("forma-pagamento");
+    if (formaPagamentoSelect) {
+      formaPagamentoSelect.addEventListener("change", () => {
+        this.modalView.atualizarCamposPagamento();
+      });
+    }
+
+    const btnCopiarPix = document.getElementById("btn-copiar-pix");
+    if (btnCopiarPix) {
+      btnCopiarPix.addEventListener("click", () => {
+        const chave = document.getElementById("pix-chave-texto")?.textContent;
+        if (chave) {
+          navigator.clipboard.writeText(chave);
+          ToastView.mostrarToast("Chave PIX copiada!", "⚡");
+        }
+      });
+    }
+
     if (btnLimparTudo) {
       btnLimparTudo.addEventListener("click", () => {
         if (this.cartModel.obterItens().length === 0) return;
         ToastView.solicitarConfirmacao(
           "Esvaziar Carrinho?",
-          "Deseja remover todos os itens selecionados do seu pedido?",
-          "🧹",
+          "Deseja remover todos os itens do seu pedido?",
+          "🗑️",
           () => {
             this.cartModel.limpar();
             this.atualizarInterface();
-            this.modalView.fecharModal(this.modalView.modalPedido);
             ToastView.fecharModalConfirmacao();
-            ToastView.mostrarToast("Carrinho esvaziado!", "🧹");
+            ToastView.mostrarToast("Carrinho esvaziado!", "🗑️");
           }
         );
       });
@@ -191,213 +386,78 @@ export class AppController {
       btnEnviarWhatsApp.addEventListener("click", () => this.finalizarPedidoWhatsApp());
     }
 
-    // Modal de Itens no Checkout (steppers inline)
-    const listaModal = document.getElementById("pedido-itens-lista");
-    if (listaModal) {
-      listaModal.addEventListener("click", (e) => {
-        const btnAumentar = e.target.closest(".btn-modal-aumentar");
-        const btnDiminuir = e.target.closest(".btn-modal-diminuir");
-        if (btnAumentar) {
-          this.cartModel.alterarQuantidade(parseInt(btnAumentar.dataset.id), 1);
-          this.atualizarInterface();
-        } else if (btnDiminuir) {
-          this.cartModel.alterarQuantidade(parseInt(btnDiminuir.dataset.id), -1);
-          this.atualizarInterface();
-        }
-      });
-    }
-
-    // Selects Atendimento e Pagamento
-    const tipoAtendimentoSelect = document.getElementById("tipo-atendimento");
-    const formaPagamentoSelect = document.getElementById("forma-pagamento");
-
-    if (tipoAtendimentoSelect) {
-      tipoAtendimentoSelect.addEventListener("change", () => {
-        this.modalView.atualizarCamposAtendimento(this.configModel.obter().taxaEntrega);
-        this.atualizarInterface();
-      });
-    }
-
-    if (formaPagamentoSelect) {
-      formaPagamentoSelect.addEventListener("change", () => {
-        this.modalView.atualizarCamposPagamento();
-      });
-    }
-
-    // Copiar PIX
-    const btnCopiarPix = document.getElementById("btn-copiar-pix");
-    if (btnCopiarPix) {
-      btnCopiarPix.addEventListener("click", () => {
-        const chave = this.configModel.obter().chavePix || CONFIG_PADRAO.chavePix;
-        navigator.clipboard.writeText(chave).then(() => {
-          ToastView.mostrarToast("Chave PIX copiada!", "⚡");
-        }).catch(() => {
-          ToastView.mostrarToast("Chave: " + chave, "📋");
-        });
-      });
-    }
-
-    // Modal de Edição de Produto
+    // Modais Edição & Configurações da Loja
     const btnFecharEditar = document.getElementById("btn-fechar-editar");
     const btnSalvarEdicao = document.getElementById("btn-salvar-edicao");
-
     if (btnFecharEditar) {
-      btnFecharEditar.addEventListener("click", () => {
-        this.modalView.fecharModal(this.modalView.modalEditar);
-      });
+      btnFecharEditar.addEventListener("click", () => this.modalView.fecharModal(this.modalView.modalEditar));
     }
-
     if (btnSalvarEdicao) {
-      btnSalvarEdicao.addEventListener("click", () => {
-        const id = parseInt(document.getElementById("edit-id").value);
-        const nome = document.getElementById("edit-nome").value.trim();
-        const categoria = document.getElementById("edit-categoria").value;
-        const preco = parseFloat(document.getElementById("edit-preco").value);
-        const badge = document.getElementById("edit-badge").value;
-        const imagem = document.getElementById("edit-imagem").value.trim();
-        const descricao = document.getElementById("edit-descricao").value.trim();
-
-        if (!nome || isNaN(preco) || preco <= 0) {
-          ToastView.mostrarToast("Preencha nome e preço válido!", "⚠️");
-          return;
-        }
-
-        this.productModel.atualizar(id, { nome, categoria, preco, badge, imagem, descricao });
-        this.atualizarInterface();
-        this.modalView.fecharModal(this.modalView.modalEditar);
-        ToastView.mostrarToast("Produto atualizado!", "✨");
-      });
+      btnSalvarEdicao.addEventListener("click", () => this.salvarEdicaoProduto());
     }
 
-    // Modal de Configurações
-    const btnAbrirConfig = document.getElementById("btn-abrir-config");
     const btnFecharConfig = document.getElementById("btn-fechar-config");
     const btnSalvarConfig = document.getElementById("btn-salvar-config");
-
-    if (btnAbrirConfig) {
-      btnAbrirConfig.addEventListener("click", () => {
-        this.modalView.preencherFormConfig(this.configModel.obter());
-        this.modalView.abrirModal(this.modalView.modalConfig);
-      });
-    }
-
     if (btnFecharConfig) {
-      btnFecharConfig.addEventListener("click", () => {
-        this.modalView.fecharModal(this.modalView.modalConfig);
-      });
+      btnFecharConfig.addEventListener("click", () => this.modalView.fecharModal(this.modalView.modalConfig));
     }
-
     if (btnSalvarConfig) {
-      btnSalvarConfig.addEventListener("click", () => {
-        const nomeLoja = document.getElementById("config-nome-loja").value.trim() || CONFIG_PADRAO.nomeLoja;
-        const whatsapp = document.getElementById("config-whatsapp").value.replace(/\D/g, "") || CONFIG_PADRAO.whatsapp;
-        const taxaEntrega = parseFloat(document.getElementById("config-taxa-entrega").value) || 0;
-        const chavePix = document.getElementById("config-chave-pix").value.trim() || CONFIG_PADRAO.chavePix;
+      btnSalvarConfig.addEventListener("click", () => this.salvarConfiguracoesLoja());
+    }
+  }
 
-        this.configModel.salvarConfig({ nomeLoja, whatsapp, taxaEntrega, chavePix });
-        this.atualizarInterface();
-        this.modalView.fecharModal(this.modalView.modalConfig);
-        ToastView.mostrarToast("Configurações salvas!", "⚙️");
-      });
+  salvarEdicaoProduto() {
+    const id = parseInt(document.getElementById("edit-id").value);
+    const nome = document.getElementById("edit-nome").value.trim();
+    const categoria = document.getElementById("edit-categoria").value;
+    const preco = parseFloat(document.getElementById("edit-preco").value);
+    const badge = document.getElementById("edit-badge").value;
+    const imagem = document.getElementById("edit-imagem").value.trim();
+    const descricao = document.getElementById("edit-descricao").value.trim();
+
+    if (!nome || isNaN(preco)) {
+      ToastView.mostrarToast("Preencha os campos obrigatórios!", "⚠️");
+      return;
     }
 
-    // Cadastro de Novo Produto
-    const btnSalvarNovo = document.getElementById("btn-salvar-novo");
-    if (btnSalvarNovo) {
-      btnSalvarNovo.addEventListener("click", () => {
-        const novoNomeInput = document.getElementById("novo-nome");
-        const novaCategoriaSelect = document.getElementById("nova-categoria");
-        const novoPrecoInput = document.getElementById("novo-preco");
-        const novoBadgeSelect = document.getElementById("novo-badge");
-        const novaImagemInput = document.getElementById("nova-imagem");
-        const novaDescricaoInput = document.getElementById("nova-descricao");
+    this.productModel.atualizar(id, { nome, categoria, preco, badge, imagem, descricao });
+    this.atualizarInterface();
+    this.modalView.fecharModal(this.modalView.modalEditar);
+    ToastView.mostrarToast("Produto atualizado!", "✏️");
+  }
 
-        const nome = novoNomeInput.value.trim();
-        const categoria = novaCategoriaSelect.value;
-        const preco = parseFloat(novoPrecoInput.value);
-        const badge = novoBadgeSelect ? novoBadgeSelect.value : "";
-        const imagem = novaImagemInput ? novaImagemInput.value.trim() : "";
-        const descricao = novaDescricaoInput.value.trim();
+  salvarConfiguracoesLoja() {
+    const nomeLoja = document.getElementById("config-nome-loja").value.trim();
+    const whatsapp = document.getElementById("config-whatsapp").value.trim();
+    const taxaEntrega = parseFloat(document.getElementById("config-taxa-entrega").value);
+    const chavePix = document.getElementById("config-chave-pix").value.trim();
 
-        if (!nome || isNaN(preco) || preco <= 0) {
-          ToastView.mostrarToast("Informe nome e preço válido!", "⚠️");
-          return;
-        }
-
-        this.productModel.adicionar({ nome, categoria, preco, badge, imagem, descricao });
-
-        novoNomeInput.value = "";
-        novoPrecoInput.value = "";
-        if (novaImagemInput) novaImagemInput.value = "";
-        novaDescricaoInput.value = "";
-
-        const details = document.getElementById("accordion-cadastro");
-        if (details) details.removeAttribute("open");
-
-        this.atualizarInterface();
-        ToastView.mostrarToast(`"${nome}" cadastrado!`, "✨");
-      });
-    }
-
-    // Modal de Confirmação Botões
-    const btnCancelConfirm = document.getElementById("btn-confirm-cancelar");
-    const btnOkConfirm = document.getElementById("btn-confirm-ok");
-
-    if (btnCancelConfirm) btnCancelConfirm.addEventListener("click", ToastView.fecharModalConfirmacao);
-    if (btnOkConfirm) {
-      btnOkConfirm.addEventListener("click", () => {
-        if (typeof window.acaoConfirmacaoPendente === "function") {
-          window.acaoConfirmacaoPendente();
-        } else {
-          ToastView.fecharModalConfirmacao();
-        }
-      });
-    }
-
-    // Fechar modais ao clicar no backdrop (Target check seguro)
-    const modais = [this.modalView.modalPedido, this.modalView.modalEditar, this.modalView.modalConfig, document.getElementById("modal-confirmacao")];
-    modais.forEach(mod => {
-      if (mod) {
-        mod.addEventListener("click", (e) => {
-          if (e.target === mod) {
-            this.modalView.fecharModal(mod);
-            if (mod.id === "modal-confirmacao") ToastView.fecharModalConfirmacao();
-          }
-        });
-      }
-    });
+    this.configModel.salvar({ nomeLoja, whatsapp, taxaEntrega, chavePix });
+    this.atualizarInterface();
+    this.modalView.fecharModal(this.modalView.modalConfig);
+    ToastView.mostrarToast("Configurações salvas com sucesso!", "⚙️");
   }
 
   finalizarPedidoWhatsApp() {
     const itens = this.cartModel.obterItens();
-    if (itens.length === 0) {
-      ToastView.mostrarToast("Seu carrinho está vazio!", "⚠️");
-      return;
-    }
+    if (itens.length === 0) return;
 
-    const clienteNomeInput = document.getElementById("cliente-nome");
-    const tipoAtendimentoSelect = document.getElementById("tipo-atendimento");
-    const clienteLocalInput = document.getElementById("cliente-local");
-    const formaPagamentoSelect = document.getElementById("forma-pagamento");
-    const pedidoTrocoInput = document.getElementById("pedido-troco");
-    const pedidoObsInput = document.getElementById("pedido-obs");
-
-    const nome = clienteNomeInput ? clienteNomeInput.value.trim() : "";
-    const tipo = tipoAtendimentoSelect ? tipoAtendimentoSelect.value : "Delivery";
-    const local = clienteLocalInput ? clienteLocalInput.value.trim() : "";
-    const pagamento = formaPagamentoSelect ? formaPagamentoSelect.value : "PIX";
-    const troco = pedidoTrocoInput ? pedidoTrocoInput.value.trim() : "";
-    const obs = pedidoObsInput ? pedidoObsInput.value.trim() : "";
+    const nome = document.getElementById("cliente-nome")?.value.trim();
+    const tipo = document.getElementById("tipo-atendimento")?.value;
+    const local = document.getElementById("cliente-local")?.value.trim();
+    const pagamento = document.getElementById("forma-pagamento")?.value;
+    const troco = document.getElementById("pedido-troco")?.value.trim();
+    const obs = document.getElementById("pedido-obs")?.value.trim();
 
     if (!nome) {
       ToastView.mostrarToast("Informe seu nome completo!", "⚠️");
-      if (clienteNomeInput) clienteNomeInput.focus();
+      document.getElementById("cliente-nome")?.focus();
       return;
     }
 
     if (tipo !== "Balcão" && !local) {
-      ToastView.mostrarToast("Informe a mesa ou endereço!", "⚠️");
-      if (clienteLocalInput) clienteLocalInput.focus();
+      ToastView.mostrarToast("Informe o endereço / mesa!", "⚠️");
+      document.getElementById("cliente-local")?.focus();
       return;
     }
 

@@ -947,7 +947,8 @@ function configurarEventos() {
   if (btnSalvarNovo) btnSalvarNovo.addEventListener("click", cadastrarNovoProduto);
 
   // Fechar modais ao clicar no backdrop (Target check seguro)
-  const modais = [modalPedido, modalEditar, modalConfig, document.getElementById("modal-confirmacao")];
+  const modalAuthAdmin = document.getElementById("modal-auth-admin");
+  const modais = [modalPedido, modalEditar, modalConfig, modalAuthAdmin, document.getElementById("modal-confirmacao")];
   modais.forEach(mod => {
     if (mod) {
       mod.addEventListener("click", (e) => {
@@ -955,6 +956,10 @@ function configurarEventos() {
           if (mod === modalPedido) fecharModal();
           else if (mod === modalEditar) fecharModalEdicao();
           else if (mod === modalConfig) fecharModalConfig();
+          else if (mod === modalAuthAdmin) {
+            if (typeof mod.close === "function") mod.close();
+            else mod.removeAttribute("open");
+          }
           else if (mod.id === "modal-confirmacao") fecharModalConfirmacao();
         }
       });
