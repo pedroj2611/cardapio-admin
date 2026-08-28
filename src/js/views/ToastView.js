@@ -34,14 +34,17 @@ export class ToastView {
     if (elMensagem) elMensagem.textContent = mensagem;
     if (elIcone) elIcone.textContent = icone || "⚠️";
 
-    // Bind direto e garantido dos botões de ação do modal
+    // Bind direto e desacoplado dos botões de ação do modal
     if (btnOk) {
       btnOk.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (typeof acao === "function") {
-          acao();
-        }
+        ToastView.fecharModalConfirmacao();
+        setTimeout(() => {
+          if (typeof acao === "function") {
+            acao();
+          }
+        }, 50);
       };
     }
 
@@ -58,9 +61,11 @@ export class ToastView {
         modalConf.showModal();
       } catch (err) {
         modalConf.setAttribute("open", "true");
+        modalConf.style.display = "block";
       }
     } else {
       modalConf.setAttribute("open", "true");
+      modalConf.style.display = "block";
     }
   }
 
@@ -72,9 +77,11 @@ export class ToastView {
           modalConf.close();
         } catch (err) {
           modalConf.removeAttribute("open");
+          modalConf.style.display = "none";
         }
       } else {
         modalConf.removeAttribute("open");
+        modalConf.style.display = "none";
       }
     }
   }
