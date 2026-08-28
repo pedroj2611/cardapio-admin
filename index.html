@@ -666,15 +666,13 @@
   <!-- NOTIFICAÇÃO TOAST -->
   <div id="toast" class="toast-aviso" role="alert" aria-live="polite"></div>
 
-  <!-- SERVICE WORKER (PWA) -->
+  <!-- SERVICE WORKER (PWA - FANESE AULA 03) -->
   <script>
+    // Registra o Service Worker (se o navegador suportar)
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js", { updateViaCache: 'none' })
-        .then(reg => {
-          reg.update();
-          console.log("Service Worker ativo!");
-        })
-        .catch(err => console.error("Erro SW:", err));
+      navigator.serviceWorker.register("sw.js")
+        .then(function () { console.log("Service Worker registrado com sucesso!"); })
+        .catch(function (erro) { console.log("Falha ao registrar:", erro); });
     }
   </script>
 

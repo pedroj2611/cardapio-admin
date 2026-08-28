@@ -1,10 +1,8 @@
-// ==========================================================================
-// SERVICE WORKER PROFISSIONAL (PWA) - CARDÁPIO GOURMET
-// ==========================================================================
+// Nome da "caixa" do cache. Troque para v2, v3... ao mudar os arquivos.
+const CACHE = "cardapio-admin-v1";
 
-const CACHE_NAME = "cardapio-gourmet-v6";
-
-const ARQUIVOS_ESTATICOS = [
+// Arquivos que o app precisa para funcionar offline.
+const ARQUIVOS = [
   "./",
   "./index.html",
   "./css/base.css",
@@ -19,71 +17,41 @@ const ARQUIVOS_ESTATICOS = [
   "./js/views/CartView.js",
   "./js/views/ModalView.js",
   "./js/views/ToastView.js",
-  "./app.js",
+  "./js/views/AdminView.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
 ];
 
-// 1. Instalação: Salva arquivos essenciais e força ativação imediata
-self.addEventListener("install", (evento) => {
-  self.skipWaiting();
+// 1) INSTALAR: guarda os arquivos no cache.
+self.addEventListener("install", function (evento) {
   evento.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log("[SW] Armazenando cache essencial:", CACHE_NAME);
-      return cache.addAll(ARQUIVOS_ESTATICOS);
+    caches.open(CACHE).then(function (cache) {
+      return cache.addAll(ARQUIVOS);
     })
   );
 });
 
-// 2. Ativação: Limpa caches antigos e assume controle das páginas abertas
-self.addEventListener("activate", (evento) => {
+// 2) ATIVAR: apaga caches de versões antigas.
+self.addEventListener("activate", function (evento) {
   evento.waitUntil(
-    caches.keys().then((chaves) => {
+    caches.keys().then(function (nomes) {
       return Promise.all(
-        chaves.map((chave) => {
-          if (chave !== CACHE_NAME) {
-            console.log("[SW] Removendo cache obsoleto:", chave);
-            return caches.delete(chave);
+        nomes.map(function (nome) {
+          if (nome !== CACHE) {
+            return caches.delete(nome);
           }
         })
       );
-    }).then(() => self.clients.claim())
+    })
   );
 });
 
-// 3. Busca de arquivos (Fetch): Estratégia Network-First para HTML e Stale-While-Revalidate para recursos
-self.addEventListener("fetch", (evento) => {
-  const req = evento.request;
-
-  if (req.method !== 'GET') return;
-
-  if (req.mode === "navigate") {
-    evento.respondWith(
-      fetch(req)
-        .then((respostaRede) => {
-          const clone = respostaRede.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
-          return respostaRede;
-        })
-        .catch(() => caches.match(req) || caches.match("./index.html"))
-    );
-    return;
-  }
-
+// 3) BUSCAR: responde do cache; se não achar, vai à rede.
+self.addEventListener("fetch", function (evento) {
   evento.respondWith(
-    caches.match(req).then((respostaCache) => {
-      const buscaRede = fetch(req)
-        .then((respostaRede) => {
-          if (respostaRede && respostaRede.status === 200 && (respostaRede.type === "basic" || respostaRede.type === "cors")) {
-            const clone = respostaRede.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
-          }
-          return respostaRede;
-        })
-        .catch(() => respostaCache);
-
-      return respostaCache || buscaRede;
+    caches.match(evento.request).then(function (guardado) {
+      return guardado || fetch(evento.request);
     })
   );
 });

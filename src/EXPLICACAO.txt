@@ -1,0 +1,33 @@
+========================================================================
+ATIVIDADE DE PWA - AULA 03 · PARTE 3 (FANESE)
+========================================================================
+
+Para: marciocarvalho@prof.fanese.edu.br
+Assunto: PWA-Aula-03
+
+------------------------------------------------------------------------
+DADOS DO ALUNO:
+------------------------------------------------------------------------
+Nome: Pedro Santos (Sabor & Cia Gourmet - PWA)
+Instituição: FANESE - Faculdade de Administração, Negócios e Saúde de Sergipe
+Disciplina: Programação para Dispositivos Móveis
+Professor: Márcio Rodrigo
+
+------------------------------------------------------------------------
+PERGUNTAS E RESPOSTAS DA ATIVIDADE:
+------------------------------------------------------------------------
+
+1. O que é um Service Worker (com minhas palavras)?
+R: O Service Worker é um script em JavaScript (sw.js) que executa em segundo plano no navegador, de maneira independente da página principal do aplicativo. Ele atua como um intermediário entre a aplicação web e a rede, sendo capaz de interceptar requisições, armazenar arquivos no Cache Storage e servi-los mesmo quando o dispositivo estiver sem conexão à internet.
+
+2. O que é a estratégia "Cache Primeiro" (Cache First)?
+R: É uma estratégia de armazenamento onde, a cada requisição de arquivo (HTML, CSS, JS, ícones), o Service Worker verifica primeiro se o recurso já está salvo na memória cache local (Cache Storage). Se o arquivo for encontrado no cache, ele é entregue instantaneamente ao usuário sem necessidade de conexão. Caso contrário, a requisição é direcionada para a rede (internet).
+
+------------------------------------------------------------------------
+REQUISITOS PWA ATENDIDOS NO PROJETO:
+------------------------------------------------------------------------
+[✔] Execução em ambiente seguro / servidor local (http://127.0.0.1:8080 ou Live Server)
+[✔] Arquivo manifest.json configurado com name, short_name, start_url, display standalone e ícones (192px e 512px)
+[✔] Service Worker (sw.js) ativo com eventos de install (cache.addAll), activate (limpeza de versões antigas) e fetch (Cache First)
+[✔] Funcionamento comprovado no modo Offline (DevTools -> Network -> Offline)
+[✔] Aplicativo instalável no desktop e dispositivos móveis (Add to Home Screen)
