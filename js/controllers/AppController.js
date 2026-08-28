@@ -120,6 +120,35 @@ export class AppController {
       });
     }
 
+    // Navegação para Pedidos / Comandas
+    const btnsPedidos = [
+      document.getElementById("nav-item-pedidos"),
+      document.getElementById("mob-btn-pedidos")
+    ];
+
+    btnsPedidos.forEach(btn => {
+      if (btn) {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".sidebar-item, .mobile-nav-btn").forEach(el => el.classList.remove("active"));
+          document.getElementById("nav-item-pedidos")?.classList.add("active");
+          document.getElementById("mob-btn-pedidos")?.classList.add("active");
+
+          if (this.isAdminAutenticado) {
+            this.exibirTelaAdmin();
+          } else {
+            const itens = this.cartModel.obterItens();
+            if (itens.length > 0) {
+              this.modalView.atualizarCamposAtendimento(this.configModel.obter().taxaEntrega);
+              this.modalView.atualizarCamposPagamento();
+              this.modalView.abrirModal(this.modalView.modalPedido);
+            } else {
+              ToastView.mostrarToast("Seu pedido está vazio! Adicione itens do cardápio.", "🛒");
+            }
+          }
+        });
+      }
+    });
+
     // Voltar para o Cardápio
     const btnSairAdmin = document.getElementById("btn-sair-admin");
     const btnsCardapio = [
