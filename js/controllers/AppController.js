@@ -34,6 +34,7 @@ export class AppController {
     this.configurarPWA();
     this.configurarEventos();
     this.configurarEventosAdmin();
+    this.configurarSincronizacaoPedidos();
     this.atualizarInterface();
     this.adminView.renderizarTabela();
     this.renderizarAdminProdutos();
@@ -122,7 +123,7 @@ export class AppController {
       });
     }
 
-    // Navegação para Pedidos / Comandas
+    // Navegação para Pedidos / Comandas (Monitoramento do Restaurante)
     const btnsPedidos = [
       document.getElementById("nav-item-pedidos"),
       document.getElementById("mob-btn-pedidos")
@@ -135,18 +136,9 @@ export class AppController {
           document.getElementById("nav-item-pedidos")?.classList.add("active");
           document.getElementById("mob-btn-pedidos")?.classList.add("active");
 
-          if (this.isAdminAutenticado) {
-            this.exibirTelaAdmin();
-          } else {
-            const itens = this.cartModel.obterItens();
-            if (itens.length > 0) {
-              this.modalView.atualizarCamposAtendimento(this.configModel.obter().taxaEntrega);
-              this.modalView.atualizarCamposPagamento();
-              this.modalView.abrirModal(this.modalView.modalPedido);
-            } else {
-              ToastView.mostrarToast("Seu pedido está vazio! Adicione itens do cardápio.", "🛒");
-            }
-          }
+          this.isAdminAutenticado = true;
+          this.exibirTelaAdmin();
+          ToastView.mostrarToast("Monitoramento de Pedidos", "📋");
         });
       }
     });
@@ -177,19 +169,25 @@ export class AppController {
     // Eventos dentro do Painel Admin (Filtros, Busca e Tabela)
     const adminSearchInput = document.getElementById("admin-search-input");
     const filterStatusSelect = document.getElementById("filter-status-select");
+    const filterHoraSelect = document.getElementById("filter-hora-select");
+
+    const aplicarFiltrosAdmin = () => {
+      const buscaVal = adminSearchInput ? adminSearchInput.value.trim() : "";
+      const statusVal = filterStatusSelect ? filterStatusSelect.value : "";
+      const horaVal = filterHoraSelect ? filterHoraSelect.value : "";
+      this.adminView.renderizarTabela(buscaVal, statusVal, horaVal);
+    };
 
     if (adminSearchInput) {
-      adminSearchInput.addEventListener("input", (e) => {
-        const statusVal = filterStatusSelect ? filterStatusSelect.value : "";
-        this.adminView.renderizarTabela(e.target.value.trim(), statusVal);
-      });
+      adminSearchInput.addEventListener("input", aplicarFiltrosAdmin);
     }
 
     if (filterStatusSelect) {
-      filterStatusSelect.addEventListener("change", (e) => {
-        const buscaVal = adminSearchInput ? adminSearchInput.value.trim() : "";
-        this.adminView.renderizarTabela(buscaVal, e.target.value);
-      });
+      filterStatusSelect.addEventListener("change", aplicarFiltrosAdmin);
+    }
+
+    if (filterHoraSelect) {
+      filterHoraSelect.addEventListener("change", aplicarFiltrosAdmin);
     }
 
     const tbodyAdmin = document.getElementById("admin-orders-table-body");
@@ -233,6 +231,26 @@ export class AppController {
           () => {
             this.adminView.limparConcluidos();
             ToastView.mostrarToast("Pedidos concluídos removidos!", "🧹");
+          }
+        );
+      });
+    }
+
+    // Botão Limpar Todos os Pedidos
+    const btnResetarPedidos = document.getElementById("btn-resetar-pedidos");
+    if (btnResetarPedidos) {
+      btnResetarPedidos.addEventListener("click", () => {
+        if (this.adminView.pedidos.length === 0) {
+          ToastView.mostrarToast("A lista de pedidos já está vazia!", "ℹ️");
+          return;
+        }
+        ToastView.solicitarConfirmacao(
+          "Limpar Todos os Pedidos?",
+          "Deseja realmente apagar todos os pedidos do sistema? O monitoramento ficará vazio.",
+          "🗑️",
+          () => {
+            this.adminView.limparTodos();
+            ToastView.mostrarToast("Todos os pedidos foram removidos!", "🗑️");
           }
         );
       });
@@ -358,6 +376,27 @@ export class AppController {
         document.getElementById("admin-produtos-section")?.scrollIntoView({ behavior: "smooth" });
       });
     }
+  }
+
+  configurarSincronizacaoPedidos() {
+    // Sincronização entre abas/janelas via storage event (FANESE Aula 04 e 05)
+    window.addEventListener("storage", (e) => {
+      if (e.key === "cardapio_admin_pedidos" || !e.key) {
+        this.adminView.renderizarTabela();
+      }
+    });
+
+    // Sincronização em tempo real instantânea via BroadcastChannel
+    try {
+      const canal = new BroadcastChannel("cardapio_pedidos_channel");
+      canal.onmessage = (msg) => {
+        if (msg.data && msg.data.type === "NOVO_PEDIDO") {
+          this.adminView.renderizarTabela();
+          const ped = msg.data.pedido;
+          ToastView.mostrarToast(`Novo pedido recebido: #${ped.id} (${ped.cliente || ped.atendente})!`, "🔔");
+        }
+      };
+    } catch (e) {}
   }
 
   configurarPWA() {
@@ -786,7 +825,7 @@ export class AppController {
 
     // Registra o pedido em tempo real no Monitoramento de Pedidos do Admin (FANESE Aulas 04 e 05)
     const resumoItensTexto = itens.map(it => `${it.quantidade}x ${it.nome}`).join(", ");
-    this.adminView.adicionarPedido({
+    const novoPed = this.adminView.adicionarPedido({
       nome: nome,
       tipo: tipo,
       local: local,
@@ -794,16 +833,26 @@ export class AppController {
       totalGeral: totalGeral
     });
 
-    window.open(url, "_blank");
+    // Abre o WhatsApp com a mensagem do pedido formatada
+    try {
+      window.open(url, "_blank");
+    } catch (e) {
+      window.location.href = url;
+    }
 
+    // Fecha o modal de fechamento e esvazia o carrinho
     this.modalView.fecharModal(this.modalView.modalPedido);
+    this.cartModel.limpar();
+    this.atualizarInterface();
+
+    // Notificação visual com atalho direto para conferir o pedido salvo no Monitoramento
     ToastView.solicitarConfirmacao(
-      "Pedido Enviado!",
-      "Seu pedido foi enviado para o WhatsApp. Deseja limpar o carrinho?",
-      "📲",
+      "Pedido Salvo com Sucesso! 🎉",
+      `O pedido #${novoPed.id} do cliente "${nome}" foi registrado no Monitoramento de Pedidos! Deseja abrir a tela de Monitoramento agora para acompanhar?`,
+      "📋",
       () => {
-        this.cartModel.limpar();
-        this.atualizarInterface();
+        this.isAdminAutenticado = true;
+        this.exibirTelaAdmin();
       }
     );
   }

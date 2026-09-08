@@ -196,7 +196,7 @@
           <div class="admin-actions-group">
             <div class="admin-search-wrapper">
               <span class="search-icon-input">🔍</span>
-              <input type="text" id="admin-search-input" placeholder="Buscar produtos...">
+              <input type="text" id="admin-search-input" placeholder="Buscar pedidos (cliente, mesa, itens)...">
             </div>
             <button id="btn-admin-filter" class="btn-admin-outline">
               <span>⚡ Filtros</span>
@@ -294,11 +294,10 @@
                     <option value="antigos">Mais antigos</option>
                   </select>
                   <select id="filter-status-select" class="admin-select">
-                    <option value="">Alguns de filtrar ▾</option>
-                    <option value="Aberto">Aberto</option>
-                    <option value="Mesa 05">Mesa 05</option>
-                    <option value="Mesa 07">Mesa 07</option>
+                    <option value="">Todos os locais ▾</option>
+                    <option value="Mesa">Mesa</option>
                     <option value="Delivery">Delivery</option>
+                    <option value="Balcão">Balcão</option>
                   </select>
                 </div>
               </div>
@@ -306,12 +305,15 @@
               <!-- BARRA DE CONTADOR E LIMPEZA DE PEDIDOS CONCLUÍDOS (FANESE AULA 05) -->
               <div class="barra-pedidos" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(28, 150, 160, 0.08); border: 1px solid rgba(28, 150, 160, 0.2); border-radius: 8px; margin: 12px 0; gap: 8px; flex-wrap: wrap;">
                 <span id="contador-pedidos" style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold);">Faltam 0 de 0 pedidos a atender</span>
-                <div style="display: flex; gap: 8px;">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                   <button type="button" id="btn-admin-simular-pedido" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: #2ecc71; border-color: #2ecc71; cursor: pointer;" title="Adicionar pedido de teste para verificação imediata">
                     ➕ Pedido Teste
                   </button>
                   <button type="button" id="btn-limpar-pedidos-concluidos" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: var(--teal-bright); border-color: var(--teal-bright); cursor: pointer;">
                     🧹 Limpar concluídos
+                  </button>
+                  <button type="button" id="btn-resetar-pedidos" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: #e74c3c; border-color: #e74c3c; cursor: pointer;" title="Apagar todos os pedidos salvos">
+                    🗑️ Limpar Todos
                   </button>
                 </div>
               </div>
@@ -321,7 +323,7 @@
                   <thead>
                     <tr>
                       <th>Hora do Pedido</th>
-                      <th>Atendente</th>
+                      <th>Cliente</th>
                       <th>Mesa/Delivery</th>
                       <th>Itens</th>
                       <th>Total</th>
