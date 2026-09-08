@@ -88,9 +88,6 @@
                 <span class="status-pulse"></span>
                 <span class="status-label">Aberto para Pedidos</span>
               </div>
-              <button id="btn-abrir-config" class="btn-config-loja" title="Configurações do Estabelecimento" aria-label="Configurações do Estabelecimento">
-                <span>⚙️ Configurações</span>
-              </button>
             </div>
 
             <div class="brand-box">
@@ -321,25 +318,24 @@
             </section>
           </div>
 
-          <!-- COLUNA DIREITA: PAINEL DE RESUMO & GRÁFICO (WIDGETS) -->
+          <!-- COLUNA DIREITA: PAINEL DE MONITORAMENTO & GESTÃO (WIDGETS ADMIN) -->
           <aside class="admin-side-widgets">
-            <!-- WIDGET 1: RESUMO DO PEDIDO -->
+            <!-- WIDGET 1: GESTÃO DO ESTABELECIMENTO & CARDÁPIO -->
             <div class="admin-widget">
               <div class="widget-header">
-                <h4>Resumo do pedido</h4>
-                <div class="widget-cart-badge">🛒 3</div>
+                <h4>Gestão do Sistema</h4>
+                <span class="status-tag aberto">Ativo</span>
               </div>
-              <div class="widget-cart-list" id="widget-cart-list">
-                <div class="widget-cart-item">
-                  <span class="item-name">X-Bacon</span>
-                  <span class="item-qty">1x</span>
-                  <span class="item-price">R$ 25,90</span>
-                </div>
-                <div class="widget-cart-item">
-                  <span class="item-name">Batata Frita</span>
-                  <span class="item-qty">1x</span>
-                  <span class="item-price">R$ 15,90</span>
-                </div>
+              <p style="font-size: 0.78rem; color: #888e99; margin: 8px 0 14px 0; line-height: 1.4;">
+                Administração do restaurante, taxas, pagamentos e organização dos pratos.
+              </p>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button id="btn-admin-config-loja" class="btn-admin-golden" style="width: 100%; justify-content: center; font-size: 0.82rem; padding: 10px;">
+                  <span>⚙️ Configurar Restaurante</span>
+                </button>
+                <button id="btn-admin-gerenciar-produtos" class="btn-admin-outline" style="width: 100%; justify-content: center; font-size: 0.82rem; padding: 10px;">
+                  <span>📋 Organizar Cardápio</span>
+                </button>
               </div>
             </div>
 
@@ -365,23 +361,6 @@
                   <div class="bar-col"><div class="bar-fill" style="height: 90%;"></div><span class="bar-label">21</span></div>
                 </div>
               </div>
-            </div>
-
-            <!-- WIDGET 3: VALORES TOTAIS DA COMANDA -->
-            <div class="admin-widget totals-widget">
-              <div class="total-line">
-                <span>Subtotal (3 item)</span>
-                <span>R$ 48,30</span>
-              </div>
-              <div class="total-line">
-                <span>Taxa de entrega</span>
-                <span>R$ 5,50</span>
-              </div>
-              <div class="total-line main-total">
-                <span>Total</span>
-                <span class="total-val">R$ 53,30</span>
-              </div>
-              <button class="btn-finalizar-gold">Finalizar pedido</button>
             </div>
           </aside>
 

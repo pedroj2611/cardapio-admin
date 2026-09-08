@@ -59,11 +59,10 @@ export class AppController {
     const inputSenha = document.getElementById("admin-password-input");
     const errorMsg = document.getElementById("auth-error-msg");
 
-    // Botões que disparam a autenticação Admin
+    // Botões que disparam a autenticação Admin (somente barra lateral esquerda e barra inferior mobile)
     const btnsConfig = [
       document.getElementById("nav-item-configuracoes"),
-      document.getElementById("mob-btn-config"),
-      document.getElementById("btn-abrir-config")
+      document.getElementById("mob-btn-config")
     ];
 
     btnsConfig.forEach(btn => {
@@ -211,6 +210,27 @@ export class AppController {
               ToastView.mostrarToast(`Pedido #${id} cancelado!`, "🗑️");
             }
           );
+        }
+      });
+    }
+
+    // Ações de Gestão do Sistema e Cardápio (Painel Admin)
+    const btnAdminConfigLoja = document.getElementById("btn-admin-config-loja");
+    if (btnAdminConfigLoja) {
+      btnAdminConfigLoja.addEventListener("click", () => {
+        this.modalView.preencherFormConfig(this.configModel.obter());
+        this.modalView.abrirModal(this.modalView.modalConfig);
+      });
+    }
+
+    const btnAdminGerenciarProds = document.getElementById("btn-admin-gerenciar-produtos");
+    if (btnAdminGerenciarProds) {
+      btnAdminGerenciarProds.addEventListener("click", () => {
+        this.exibirTelaPublica();
+        const acc = document.getElementById("accordion-cadastro");
+        if (acc) {
+          acc.open = true;
+          acc.scrollIntoView({ behavior: "smooth" });
         }
       });
     }
