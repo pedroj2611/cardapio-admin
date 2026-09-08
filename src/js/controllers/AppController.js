@@ -35,6 +35,7 @@ export class AppController {
     this.configurarEventos();
     this.configurarEventosAdmin();
     this.atualizarInterface();
+    this.adminView.renderizarTabela();
   }
 
   atualizarInterface() {
@@ -658,6 +659,17 @@ export class AppController {
 
     const numeroWhats = config.whatsapp || CONFIG_PADRAO.whatsapp;
     const url = `https://wa.me/${numeroWhats}?text=${encodeURIComponent(texto)}`;
+
+    // Registra o pedido em tempo real no Monitoramento de Pedidos do Admin (FANESE Aulas 04 e 05)
+    const resumoItensTexto = itens.map(it => `${it.quantidade}x ${it.nome}`).join(", ");
+    this.adminView.adicionarPedido({
+      nome: nome,
+      tipo: tipo,
+      local: local,
+      itensTexto: resumoItensTexto,
+      totalGeral: totalGeral
+    });
+
     window.open(url, "_blank");
 
     this.modalView.fecharModal(this.modalView.modalPedido);

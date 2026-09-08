@@ -222,4 +222,31 @@ export class AdminView {
       this.renderizarTabela();
     }
   }
+
+  // Registra um novo pedido feito pelo cliente (FANESE Aulas 04 e 05)
+  adicionarPedido(dadosPedido) {
+    const proximoNumero = this.pedidos.length > 0 
+      ? Math.max(...this.pedidos.map(p => parseInt(p.id) || 0)) + 1 
+      : 1;
+
+    const agora = new Date();
+    const horaFormatada = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+    const novoPedido = {
+      id: String(proximoNumero).padStart(4, "0"),
+      hora: `Hoje ${horaFormatada}`,
+      atendente: dadosPedido.nome || "Cliente Online",
+      local: dadosPedido.tipo === "Mesa" && dadosPedido.local ? dadosPedido.local : dadosPedido.tipo,
+      itens: dadosPedido.itensTexto,
+      total: dadosPedido.totalGeral,
+      tempo: "Recente",
+      status: dadosPedido.tipo,
+      concluido: false
+    };
+
+    this.pedidos.unshift(novoPedido); // Adiciona no início para aparecer no topo do monitoramento
+    this.salvarPedidos();
+    this.renderizarTabela();
+    return novoPedido;
+  }
 }
