@@ -193,25 +193,46 @@ export class AppController {
     const tbodyAdmin = document.getElementById("admin-orders-table-body");
     if (tbodyAdmin) {
       tbodyAdmin.addEventListener("click", (e) => {
-        const btnDetalhes = e.target.closest(".btn-detalhes-ped");
+        const btnConcluir = e.target.closest(".btn-concluir-ped");
         const btnCancelar = e.target.closest(".btn-cancelar-ped");
 
-        if (btnDetalhes) {
-          const id = btnDetalhes.dataset.id;
-          this.adminView.alternarStatusPedido(id);
-          ToastView.mostrarToast(`Status do pedido #${id} atualizado!`, "🔄");
+        if (btnConcluir) {
+          const id = btnConcluir.dataset.id;
+          this.adminView.alternarConcluido(id);
+          ToastView.mostrarToast(`Status do pedido #${id} alterado!`, "✅");
         } else if (btnCancelar) {
           const id = btnCancelar.dataset.id;
           ToastView.solicitarConfirmacao(
-            "Cancelar Pedido?",
-            `Deseja realmente cancelar o pedido #${id}?`,
-            "❌",
+            "Apagar Pedido?",
+            `Deseja realmente remover o pedido #${id}?`,
+            "🗑️",
             () => {
               this.adminView.cancelarPedido(id);
-              ToastView.mostrarToast(`Pedido #${id} cancelado!`, "🗑️");
+              ToastView.mostrarToast(`Pedido #${id} removido!`, "🗑️");
             }
           );
         }
+      });
+    }
+
+    // Botão Limpar Pedidos Concluídos (FANESE Aula 05 Parte 2)
+    const btnLimparConcluidos = document.getElementById("btn-limpar-pedidos-concluidos");
+    if (btnLimparConcluidos) {
+      btnLimparConcluidos.addEventListener("click", () => {
+        const concluidos = this.adminView.pedidos.filter(p => p.concluido).length;
+        if (concluidos === 0) {
+          ToastView.mostrarToast("Nenhum pedido concluído para limpar!", "ℹ️");
+          return;
+        }
+        ToastView.solicitarConfirmacao(
+          "Limpar Concluídos?",
+          `Deseja remover ${concluidos} pedido(s) concluído(s) da lista?`,
+          "🧹",
+          () => {
+            this.adminView.limparConcluidos();
+            ToastView.mostrarToast("Pedidos concluídos removidos!", "🧹");
+          }
+        );
       });
     }
 

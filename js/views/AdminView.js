@@ -9,94 +9,110 @@ import { formatarPreco } from "./ProductView.js";
 export const PEDIDOS_INICIAIS = [
   {
     id: "0001",
-    hora: "07/08/2021 11:30",
+    hora: "Hoje 11:30",
     atendente: "João Silva",
     local: "Aberto",
-    itens: "X-Bacon",
-    total: 25.90,
-    tempo: "30 min",
-    status: "Aberto"
+    itens: "1x X-Bacon Artesanal",
+    total: 32.90,
+    tempo: "15 min",
+    status: "Aberto",
+    concluido: false
   },
   {
     id: "0002",
-    hora: "07/08/2021 11:30",
-    atendente: "Batata Frita",
+    hora: "Hoje 11:45",
+    atendente: "Ana Souza",
     local: "Mesa 05",
-    itens: "X-Salada",
-    total: 15.90,
+    itens: "1x Smash Burger + 1x Coca",
+    total: 35.00,
     tempo: "20 min",
-    status: "Mesa 05"
+    status: "Mesa 05",
+    concluido: false
   },
   {
     id: "0003",
-    hora: "07/08/2021 13:30",
-    atendente: "João Silva",
-    local: "Mesa 05",
-    itens: "3 Itens",
-    total: 22.90,
-    tempo: "20 min",
-    status: "Mesa 05"
+    hora: "Hoje 12:00",
+    atendente: "Carlos Lima",
+    local: "Delivery",
+    itens: "2x Batata Rústica + 2x Suco",
+    total: 72.00,
+    tempo: "25 min",
+    status: "Delivery",
+    concluido: false
   },
   {
     id: "0004",
-    hora: "07/08/2021 13:30",
-    atendente: "Mario Mants",
-    local: "Mesa 05",
-    itens: "2x Mario Maras OS",
-    total: 45.90,
-    tempo: "30 min",
-    status: "Mesa 05"
+    hora: "Hoje 12:15",
+    atendente: "Mario Santos",
+    local: "Mesa 07",
+    itens: "1x Chicken Crispy + 1x Brownie",
+    total: 47.90,
+    tempo: "10 min",
+    status: "Mesa 07",
+    concluido: false
   },
   {
     id: "0005",
-    hora: "07/08/2021 13:50",
-    atendente: "Batata Frita",
-    local: "Mesa 07",
-    itens: "2x Coca-Cola Lata",
-    total: 45.50,
-    tempo: "20 min",
-    status: "Mesa 07"
-  },
-  {
-    id: "0006",
-    hora: "07/08/2021 13:50",
-    atendente: "Carlos Lims",
-    local: "Delivery",
-    itens: "2x Batata Fritada",
-    total: 55.60,
-    tempo: "20 min",
-    status: "Delivery"
-  },
-  {
-    id: "0007",
-    hora: "07/08/2021 12:50",
-    atendente: "Suco Natural",
-    local: "Mesa 05",
-    itens: "X-Salada",
-    total: 86.90,
-    tempo: "20 min",
-    status: "Mesa 05"
-  },
-  {
-    id: "0008",
-    hora: "07/08/2021 12:35",
-    atendente: "Ania Paula",
-    local: "Mesa 07",
-    itens: "X-Bacon",
-    total: 55.90,
-    tempo: "20 min",
-    status: "Mesa 07"
+    hora: "Hoje 12:30",
+    atendente: "Juliana Silva",
+    local: "Balcão",
+    itens: "2x Heineken Long Neck",
+    total: 24.00,
+    tempo: "5 min",
+    status: "Balcão",
+    concluido: false
   }
 ];
 
 export class AdminView {
   constructor() {
-    this.pedidos = [...PEDIDOS_INICIAIS];
+    this.pedidos = this.carregarPedidos();
     this.tbody = document.getElementById("admin-orders-table-body");
     this.elTotais = document.getElementById("admin-card-totais");
     this.elVendas = document.getElementById("admin-card-vendas");
     this.elTempo = document.getElementById("admin-card-tempo");
     this.elPendentes = document.getElementById("admin-card-pendentes");
+    this.elContador = document.getElementById("contador-pedidos");
+  }
+
+  // Carrega os pedidos do localStorage com try/catch (FANESE Aula 04 & 05)
+  carregarPedidos() {
+    try {
+      const salvos = localStorage.getItem("cardapio_admin_pedidos");
+      if (salvos) {
+        return JSON.parse(salvos);
+      }
+      localStorage.setItem("cardapio_admin_pedidos", JSON.stringify(PEDIDOS_INICIAIS));
+      return [...PEDIDOS_INICIAIS];
+    } catch (e) {
+      console.error("Erro ao carregar pedidos:", e);
+      return [...PEDIDOS_INICIAIS];
+    }
+  }
+
+  // Salva a lista de pedidos no localStorage com JSON.stringify (FANESE Aula 04 & 05)
+  salvarPedidos() {
+    try {
+      localStorage.setItem("cardapio_admin_pedidos", JSON.stringify(this.pedidos));
+    } catch (e) {
+      console.error("Erro ao salvar pedidos:", e);
+    }
+  }
+
+  // Conta quantas tarefas/pedidos ainda faltam atender (FANESE Aula 05 Parte 2)
+  atualizarContador() {
+    let pendentes = 0;
+    for (let i = 0; i < this.pedidos.length; i++) {
+      if (!this.pedidos[i].concluido) {
+        pendentes = pendentes + 1;
+      }
+    }
+    if (this.elContador) {
+      this.elContador.textContent = "Faltam " + pendentes + " de " + this.pedidos.length + " pedidos a atender";
+    }
+    if (this.elPendentes) {
+      this.elPendentes.textContent = pendentes;
+    }
   }
 
   renderizarTabela(filtroBusca = "", filtroStatus = "") {
@@ -119,19 +135,25 @@ export class AdminView {
 
     this.tbody.innerHTML = "";
 
+    // Estado vazio com classe .vazio (FANESE Aula 05 Parte 2)
     if (lista.length === 0) {
       this.tbody.innerHTML = `
         <tr>
-          <td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">
-            Nenhum pedido localizado para os filtros selecionados.
+          <td colspan="7" class="vazio">
+            Sua lista de pedidos está vazia no momento.
           </td>
         </tr>
       `;
+      this.atualizarContador();
+      this.atualizarCards();
       return;
     }
 
     lista.forEach(ped => {
       const tr = document.createElement("tr");
+      if (ped.concluido) {
+        tr.classList.add("pedido-concluido");
+      }
 
       let badgeClass = "aberto";
       if (ped.local.includes("Mesa")) badgeClass = "mesa";
@@ -146,11 +168,11 @@ export class AdminView {
         <td>${ped.tempo}</td>
         <td>
           <div class="action-btn-group">
-            <button class="btn-action-outline btn-detalhes-ped" data-id="${ped.id}">
-              ${ped.status === "Aberto" ? "Ver Detalhes" : "Mudar Status"}
+            <button class="btn-action-outline btn-concluir-ped ${ped.concluido ? 'concluido' : ''}" data-id="${ped.id}" title="Marcar como concluído/aberto">
+              ${ped.concluido ? "✔ Concluído" : "Marcar Pronto"}
             </button>
-            <button class="btn-action-cancel btn-cancelar-ped" data-id="${ped.id}">
-              Cancelar
+            <button class="btn-action-cancel btn-cancelar-ped" data-id="${ped.id}" title="Apagar pedido">
+              🗑 Apagar
             </button>
           </div>
         </td>
@@ -159,29 +181,45 @@ export class AdminView {
       this.tbody.appendChild(tr);
     });
 
+    this.atualizarContador();
     this.atualizarCards();
   }
 
   atualizarCards() {
-    const totalPedidos = 145 + (this.pedidos.length - PEDIDOS_INICIAIS.length);
-    const totalVendas = 7420.50 + this.pedidos.reduce((acc, p) => acc + p.total, 0) - PEDIDOS_INICIAIS.reduce((acc, p) => acc + p.total, 0);
+    const totalPedidos = this.pedidos.length;
+    const totalVendas = this.pedidos.reduce((acc, p) => acc + p.total, 0);
 
     if (this.elTotais) this.elTotais.textContent = totalPedidos;
     if (this.elVendas) this.elVendas.textContent = formatarPreco(totalVendas);
-    if (this.elTempo) this.elTempo.textContent = "18 min";
-    if (this.elPendentes) this.elPendentes.textContent = this.pedidos.filter(p => p.status === "Aberto").length + 24;
+    if (this.elTempo) this.elTempo.textContent = "15 min";
   }
 
-  alternarStatusPedido(id) {
+  // Marcar/Desmarcar como concluído usando operador "!" (FANESE Aula 05 Parte 1)
+  alternarConcluido(id) {
     const ped = this.pedidos.find(p => p.id === id);
     if (ped) {
-      ped.status = ped.status === "Aberto" ? "Em Preparo" : "Aberto";
+      ped.concluido = !ped.concluido;
+      this.salvarPedidos();
       this.renderizarTabela();
     }
   }
 
-  cancelarPedido(id) {
-    this.pedidos = this.pedidos.filter(p => p.id !== id);
+  // Limpar todas as tarefas/pedidos já concluídos usando filter (FANESE Aula 05 Parte 2)
+  limparConcluidos() {
+    this.pedidos = this.pedidos.filter(function (p) {
+      return !p.concluido;
+    });
+    this.salvarPedidos();
     this.renderizarTabela();
+  }
+
+  // Apagar tarefa/pedido específico usando splice (FANESE Aula 05 Parte 1)
+  cancelarPedido(id) {
+    const index = this.pedidos.findIndex(p => p.id === id);
+    if (index !== -1) {
+      this.pedidos.splice(index, 1);
+      this.salvarPedidos();
+      this.renderizarTabela();
+    }
   }
 }

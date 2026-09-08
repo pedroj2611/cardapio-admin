@@ -1547,6 +1547,34 @@ input:checked + .slider-toggle:before {
   }
 }
 
+/* ==========================================================================
+   FANESE AULA 05 - ESTILOS DE TAREFA / PEDIDO CONCLUÍDO E ESTADO VAZIO
+   ========================================================================== */
+tr.pedido-concluido td strong,
+tr.pedido-concluido td span.status-tag,
+tr.pedido-concluido td:not(:last-child) {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+tr.pedido-concluido {
+  background: rgba(46, 204, 113, 0.06);
+}
+
+.btn-concluir-ped.concluido {
+  background: #27ae60 !important;
+  color: #ffffff !important;
+  border-color: #27ae60 !important;
+}
+
+.vazio {
+  text-align: center;
+  color: #8aa4a4;
+  padding: 24px 0;
+  font-size: 0.95rem;
+}
+
+
 
 /* --- modals.css --- */
 /* ==========================================================================

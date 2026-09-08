@@ -98,6 +98,44 @@ c:\Fanese\Facudade\
 
 ---
 
+### Aula 05 — Parte 1: Tarefas como Objetos, Marcar Concluída e Apagar
+* **Conceito ensinado:** Evolução de listas simples para coleções de **Objetos** (`{ id, ..., feito: boolean }`), alternância de estado booleano com o operador lógico de negação `!` (`tarefa.feito = !tarefa.feito`), exclusão pontual por índice com `splice(i, 1)` e sincronização imediata com `localStorage`.
+* **Aplicação no Projeto:**
+  1. **Estrutura de Objeto nos Pedidos:** Cada comanda e pedido no Admin passou a ser um objeto com propriedade `concluido: boolean`.
+  2. **Operador `!` para Alternar Estado:** Ao clicar no botão *"Marcar Pronto"*, a função executa `ped.concluido = !ped.concluido`. Se estava aberto (`false`), vira concluído (`true`) e vice-versa.
+  3. **Feedback Visual de Conclusão:** O CSS aplica a classe `tr.pedido-concluido` com `text-decoration: line-through` e opacidade reduzida, identificando os pedidos que já foram servidos.
+  4. **Exclusão com `splice(index, 1)`:** A função `cancelarPedido(id)` localiza a posição do item e o remove com `this.pedidos.splice(index, 1)`, persistindo a nova lista no `localStorage`.
+
+---
+
+### Aula 05 — Parte 2: Contador de Pendentes, Limpar Concluídas e Estado Vazio
+* **Conceito ensinado:**
+  - Contador de itens pendentes calculado via laço de repetição (`for`) checando `!item.feito` ("Faltam X de Y").
+  - Remoção em lote de itens concluídos através do método funcional `Array.filter()`.
+  - Tratamento de **Estado Vazio (`.vazio`)** para quando não houver itens na lista.
+  - Incremento de versão do Service Worker Cache para `v4`.
+* **Aplicação no Projeto:**
+  1. **Contador Dinâmico:** Implementada a função `atualizarContador()` que percorre os pedidos e exibe no topo da tabela: `Faltam X de Y pedidos a atender`.
+  2. **Limpar Concluídos com `filter`:** Implementado o botão **`🧹 Limpar concluídos`**. Ao clicar, o sistema executa:
+     ```javascript
+     this.pedidos = this.pedidos.filter(function (p) {
+       return !p.concluido;
+     });
+     ```
+     Removendo instantaneamente todos os pedidos que já foram atendidos e reorganizando a tabela.
+  3. **Estado Vazio Elegante:** Quando todos os pedidos são finalizados ou limpos, a tabela exibe uma mensagem amigável com a classe `.vazio`: *"Sua lista de pedidos está vazia no momento."*
+  4. **Atualização do Cache do Service Worker (v4):** O arquivo `sw.js` foi atualizado para `const CACHE = "cardapio-admin-v4"`, assegurando que o evento `activate` descarte as versões antigas.
+
+---
+
+### Aula 05 — Parte 3 (Extra): Teste no Celular (Android / iOS) e Entrega
+* **Conceito ensinado:** Diferença entre "copiar arquivos" e "instalar a PWA através do link publicado com HTTPS". Como instalar no Android (via menu ⋮ ou prompt nativo) e no iOS (via Safari > Compartilhar > Adicionar à Tela de Início). Teste offline e entrega de e-mail.
+* **Aplicação no Projeto:**
+  - O app é 100% acessível pelo link publicado `https://pedroj2611.github.io/cardapio-admin/` e pode ser adicionado à tela inicial sem passar pela Play Store ou App Store.
+  - Funciona perfeitamente em modo avião (offline), preservando os dados cadastrados e as alterações de estado no `localStorage` de cada aparelho.
+
+---
+
 ## 3. Resumo das Alterações e Melhorias Específicas do Projeto
 
 1. **Ajuste de Fluxo no Modal de Confirmação:** Refatorado o método `ToastView.solicitarConfirmacao` desacoplando o fechamento do `<dialog>` da execução do callback de limpeza com timeout de 50ms, eliminando qualquer travamento de interface ao esvaziar a comanda.
@@ -105,16 +143,23 @@ c:\Fanese\Facudade\
 3. **Painel Admin Exclusivo e Protegido:** 
    - Acesso restrito com autenticação por senha (`admin`).
    - Remoção do botão de configurações do cabeçalho público e remoção do resumo de compras da área administrativa.
-   - Migração da seção **"Cadastrar Novo Produto no Cardápio"** do cardápio público para dentro do Painel Admin, garantindo que clientes apenas visualizem os produtos e administradores realizem a manutenção.
+   - Migração da seção **"Cadastrar Novo Produto no Cardápio"** do cardápio público para dentro do Painel Admin.
 4. **Botão de Atalho "Organizar Cardápio":** Ajustado para expandir o accordion de cadastro e rolar suavemente a tela dentro da própria visão administrativa.
-5. **Automação de Build:** Mantido o script `build.js` que unifica os arquivos CSS e espelha o código-fonte `src/` para as pastas de distribuição `www/` e raiz.
+5. **Botão de Instalação PWA Inteligente (`beforeinstallprompt`):** Integrado à barra lateral para instalação com 1 toque.
+6. **Detector Dinâmico de Rede (Online/Offline):** Altera o badge do topo para laranja com texto explicativo quando o usuário ativa o Modo Avião.
+7. **Gestão de Pedidos com Estado Booleano, Contador e Limpar Concluídos (Aula 05):**
+   - Pedidos como objetos com `concluido: boolean`.
+   - Alternância com operador `!`.
+   - Remoção de itens com `splice`.
+   - Limpeza em lote com `filter`.
+   - Contador de pendentes e mensagem de lista vazia.
+8. **Cache PWA v4:** Versionado no `sw.js` com limpeza automática de versões anteriores.
 
 ---
 
-## 4. Modelo de E-mail Pronto para Envio ao Professor
+## 4. Modelos de E-mail Prontos para Envio ao Professor Márcio
 
-Para cumprir a atividade da **Aula 04 · Parte 3 (Extra)**, basta preencher os dados abaixo e enviar para o e-mail do professor:
-
+### Modelo 1: Entrega da Aula 04 (Assunto: PWA-Aula-04)
 ```text
 Para: marciocarvalho@prof.fanese.edu.br
 Assunto: PWA-Aula-04
@@ -126,7 +171,7 @@ Anexos:
 ----------------------------------------------------------------------
 Olá, professor Márcio. Segue a entrega da minha PWA da Aula 04.
 
-Nome: Pedro (colocar seu nome completo aqui)
+Nome: Pedro (coloque seu nome completo aqui)
 Turma: Programação para Dispositivos Móveis - FANESE
 
 Link publicado: https://pedroj2611.github.io/cardapio-admin/
@@ -147,10 +192,52 @@ o navegador bloqueia o registro do Service Worker e não autoriza a instalação
 inicial ("Adicionar à tela inicial"), pois exige um "Contexto Seguro" para garantir que os 
 arquivos guardados no cache e os dados do usuário não sejam interceptados ou alterados por terceiros.
 
-Segue em anexo os prints comprovando o salvamento dos dados, a instalação no celular e o 
+Seguem em anexo os prints comprovando o salvamento dos dados, a instalação no celular e o 
 funcionamento offline em modo avião.
 ----------------------------------------------------------------------
 ```
 
 ---
-*Relatório gerado em conformidade com as diretrizes das Aulas 01 a 04 de Programação para Dispositivos Móveis — FANESE 2026.*
+
+### Modelo 2: Entrega da Aula 05 (Assunto: PWA-Aula-05)
+```text
+Para: marciocarvalho@prof.fanese.edu.br
+Assunto: PWA-Aula-05
+Anexos: 
+  - concluida.png (print de um item/pedido marcado como concluído/riscado)
+  - contador.png (print do contador "Faltam X de Y" e do estado vazio)
+
+----------------------------------------------------------------------
+Olá, professor Márcio. Segue a entrega da minha PWA da Aula 05.
+
+Nome: Pedro (coloque seu nome completo aqui)
+Turma: Programação para Dispositivos Móveis - FANESE
+
+Link publicado: https://pedroj2611.github.io/cardapio-admin/
+Repositório GitHub: https://github.com/pedroj2611/cardapio-admin
+
+• O que é um objeto { texto, feito } (com minhas palavras):
+Um objeto é uma estrutura em JavaScript que permite agrupar várias informações relacionadas 
+em uma única variável, usando o formato { chave: valor }. Antes, tínhamos apenas uma string de 
+texto simples; ao transformá-la em objeto { texto: "...", feito: false }, o item passa a 
+carregar seu próprio estado (se está concluído ou pendente) junto com o seu nome. No meu projeto, 
+cada pedido é um objeto que guarda seus dados e a propriedade "concluido", permitindo que ao 
+clicar usemos o operador de negação (!) para marcar/desmarcar e riscar o item visualmente na tela.
+
+• O que faz o "Limpar concluídas":
+A função "Limpar concluídas" utiliza o método Array.filter() para filtrar e recriar a lista em 
+memória mantendo apenas os itens que NÃO estão concluídos (!item.concluido ou !item.feito). 
+Todos os itens que já foram marcados como prontos são descartados de uma só vez, e a nova 
+lista filtrada é salva no localStorage e redesenhada na tela, atualizando o contador e exibindo 
+o estado vazio caso não reste nenhum pedido pendente.
+
+• Testei no celular?
+Sim! Testei no celular através do link publicado com HTTPS (e via QR Code do projeto), adicionei 
+à tela inicial como PWA standalone e testei o funcionamento offline em modo avião com cache v4.
+
+Seguem em anexo os prints comprovando a marcação de itens concluídos e o funcionamento do contador.
+----------------------------------------------------------------------
+```
+
+---
+*Relatório acadêmico completo e atualizado em conformidade com as diretrizes das Aulas 01 a 05 de Programação para Dispositivos Móveis — FANESE 2026.*

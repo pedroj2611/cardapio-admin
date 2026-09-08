@@ -1,9 +1,9 @@
 // ==========================================================================
-// SERVICE WORKER (PWA - FANESE AULA 04: CACHE V2 & OFFLINE)
+// SERVICE WORKER (PWA - FANESE AULA 05: CACHE V4 & OFFLINE)
 // ==========================================================================
 
-// Nome da "caixa" do cache (v3 conforme Aula 04 da FANESE)
-const CACHE = "cardapio-admin-v3";
+// Nome da "caixa" do cache (v4 conforme Aula 05 da FANESE)
+const CACHE = "cardapio-admin-v4";
 
 // Arquivos que o app precisa para funcionar offline.
 const ARQUIVOS = [
