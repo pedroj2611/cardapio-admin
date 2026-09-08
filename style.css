@@ -130,11 +130,11 @@ body.modal-open {
 /* HEADER E BANNER GOURMET */
 .header-empresa {
   position: relative;
-  background: var(--dark);
+  background: #1c1917 url('../icons/fundo-madeira.jpg') center/cover no-repeat;
   color: #ffffff;
   padding: 24px 16px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.15);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   width: 100%;
 }
 
@@ -144,17 +144,18 @@ body.modal-open {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('https://images.unsplash.com/photo-1546484396-fb3fc6f95f98?auto=format&fit=crop&w=1200&q=80');
+  background-image: url('../icons/fundo-madeira.jpg');
   background-size: cover;
   background-position: center;
-  filter: brightness(0.65) contrast(1.15);
-  transform: scale(1.02);
+  filter: contrast(1.15) brightness(1.02);
+  transform: scale(1.0);
 }
 
 .header-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.45) 0%, rgba(15, 23, 42, 0.75) 100%);
+  background: linear-gradient(180deg, rgba(12, 10, 9, 0.15) 0%, rgba(12, 10, 9, 0.45) 100%);
+  pointer-events: none;
 }
 
 .header-container {
