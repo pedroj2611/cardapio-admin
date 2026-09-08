@@ -226,7 +226,6 @@ export class AppController {
     const btnAdminGerenciarProds = document.getElementById("btn-admin-gerenciar-produtos");
     if (btnAdminGerenciarProds) {
       btnAdminGerenciarProds.addEventListener("click", () => {
-        this.exibirTelaPublica();
         const acc = document.getElementById("accordion-cadastro");
         if (acc) {
           acc.open = true;

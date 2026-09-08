@@ -118,54 +118,6 @@
               <input type="text" id="campo-busca" placeholder="Buscar por nome ou ingredientes (ex: burger, bacon, suco)..." autocomplete="off" aria-label="Buscar produtos no cardápio">
               <button id="btn-limpar-busca" class="btn-clear" style="display: none;" title="Limpar pesquisa" aria-label="Limpar campo de pesquisa">✕</button>
             </div>
-
-            <!-- PAINEL ACCORDION DE CADASTRO DE NOVO ITEM -->
-            <details class="accordion-cadastro" id="accordion-cadastro">
-              <summary class="summary-btn">
-                <span>✨ Cadastrar Novo Produto no Cardápio</span>
-                <span class="accordion-arrow" aria-hidden="true">▼</span>
-              </summary>
-              <div class="form-cadastro-item">
-                <div class="form-grid">
-                  <div class="form-field">
-                    <label for="novo-nome">Nome do Produto *</label>
-                    <input id="novo-nome" type="text" placeholder="Ex: Monster Cheese Burger" required>
-                  </div>
-                  <div class="form-field">
-                    <label for="nova-categoria">Categoria *</label>
-                    <select id="nova-categoria">
-                      <option value="lanches">🍔 Lanches</option>
-                      <option value="porcoes">🍟 Porções</option>
-                      <option value="bebidas">🥤 Bebidas</option>
-                      <option value="sobremesas">🍰 Sobremesas</option>
-                    </select>
-                  </div>
-                  <div class="form-field">
-                    <label for="novo-preco">Preço R$ *</label>
-                    <input id="novo-preco" type="number" step="0.50" min="0" placeholder="Ex: 34.90" required>
-                  </div>
-                  <div class="form-field">
-                    <label for="novo-badge">Destaque (opcional)</label>
-                    <select id="novo-badge">
-                      <option value="">Sem Destaque</option>
-                      <option value="Mais Pedido">🔥 Mais Pedido</option>
-                      <option value="Chef Special">⭐ Chef Special</option>
-                      <option value="Novo">✨ Novo</option>
-                      <option value="Vegetariano">🌱 Vegetariano</option>
-                    </select>
-                  </div>
-                  <div class="form-field full-width">
-                    <label for="nova-imagem">URL da Imagem (opcional)</label>
-                    <input id="nova-imagem" type="url" placeholder="https://exemplo.com/foto-hamburguer.jpg">
-                  </div>
-                  <div class="form-field full-width">
-                    <label for="nova-descricao">Ingredientes / Descrição</label>
-                    <input id="nova-descricao" type="text" placeholder="Pão brioche, blend 180g, cheddar fatiado...">
-                  </div>
-                </div>
-                <button id="btn-salvar-novo" class="btn-adicionar-produto">Cadastrar Produto</button>
-              </div>
-            </details>
           </section>
 
           <!-- ABAS DE CATEGORIAS -->
@@ -275,6 +227,56 @@
                 <span class="card-title">Pedidos Pendentes</span>
                 <span class="card-value" id="admin-card-pendentes">32</span>
               </div>
+            </section>
+
+            <!-- PAINEL ACCORDION DE CADASTRO DE NOVO ITEM -->
+            <section class="admin-table-container" style="margin-bottom: 24px;">
+              <details class="accordion-cadastro" id="accordion-cadastro">
+                <summary class="summary-btn">
+                  <span>✨ Cadastrar Novo Produto no Cardápio</span>
+                  <span class="accordion-arrow" aria-hidden="true">▼</span>
+                </summary>
+                <div class="form-cadastro-item">
+                  <div class="form-grid">
+                    <div class="form-field">
+                      <label for="novo-nome">Nome do Produto *</label>
+                      <input id="novo-nome" type="text" placeholder="Ex: Monster Cheese Burger" required>
+                    </div>
+                    <div class="form-field">
+                      <label for="nova-categoria">Categoria *</label>
+                      <select id="nova-categoria">
+                        <option value="lanches">🍔 Lanches</option>
+                        <option value="porcoes">🍟 Porções</option>
+                        <option value="bebidas">🥤 Bebidas</option>
+                        <option value="sobremesas">🍰 Sobremesas</option>
+                      </select>
+                    </div>
+                    <div class="form-field">
+                      <label for="novo-preco">Preço R$ *</label>
+                      <input id="novo-preco" type="number" step="0.50" min="0" placeholder="Ex: 34.90" required>
+                    </div>
+                    <div class="form-field">
+                      <label for="novo-badge">Destaque (opcional)</label>
+                      <select id="novo-badge">
+                        <option value="">Sem Destaque</option>
+                        <option value="Mais Pedido">🔥 Mais Pedido</option>
+                        <option value="Chef Special">⭐ Chef Special</option>
+                        <option value="Novo">✨ Novo</option>
+                        <option value="Vegetariano">🌱 Vegetariano</option>
+                      </select>
+                    </div>
+                    <div class="form-field full-width">
+                      <label for="nova-imagem">URL da Imagem (opcional)</label>
+                      <input id="nova-imagem" type="url" placeholder="https://exemplo.com/foto-hamburguer.jpg">
+                    </div>
+                    <div class="form-field full-width">
+                      <label for="nova-descricao">Ingredientes / Descrição</label>
+                      <input id="nova-descricao" type="text" placeholder="Pão brioche, blend 180g, cheddar fatiado...">
+                    </div>
+                  </div>
+                  <button id="btn-salvar-novo" class="btn-adicionar-produto">Cadastrar Produto</button>
+                </div>
+              </details>
             </section>
 
             <!-- TABELA CENTRAL DE MONITORAMENTO DE PEDIDOS -->
