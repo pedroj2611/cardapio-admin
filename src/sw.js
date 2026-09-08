@@ -1,9 +1,9 @@
 // ==========================================================================
-// SERVICE WORKER (PWA - FANESE: CACHE V5 & ATUALIZAÇÃO IMEDIATA)
+// SERVICE WORKER (PWA - FANESE: CACHE V6 & ATUALIZAÇÃO IMEDIATA)
 // ==========================================================================
 
-// Nome da "caixa" do cache (v5)
-const CACHE = "cardapio-admin-v5";
+// Nome da "caixa" do cache (v6)
+const CACHE = "cardapio-admin-v6";
 
 // Arquivos que o app precisa para funcionar offline.
 const ARQUIVOS = [
@@ -33,7 +33,7 @@ self.addEventListener("install", function (evento) {
   self.skipWaiting(); // Não espera as outras abas fecharem
   evento.waitUntil(
     caches.open(CACHE).then(function (cache) {
-      console.log("[SW] Armazenando no cache v5:", CACHE);
+      console.log("[SW] Armazenando no cache v6:", CACHE);
       return cache.addAll(ARQUIVOS);
     })
   );

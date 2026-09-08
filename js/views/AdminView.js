@@ -73,6 +73,7 @@ export class AdminView {
     this.elTempo = document.getElementById("admin-card-tempo");
     this.elPendentes = document.getElementById("admin-card-pendentes");
     this.elContador = document.getElementById("contador-pedidos");
+    this.tbodyProdutos = document.getElementById("admin-products-table-body");
   }
 
   // Carrega os pedidos do localStorage com try/catch (FANESE Aula 04 & 05)
@@ -257,4 +258,62 @@ export class AdminView {
     this.renderizarTabela();
     return novoPedido;
   }
+
+  // Renderiza a tabela de produtos ativos no cardápio para consulta e alteração de preços (FANESE)
+  renderizarTabelaProdutos(produtos = []) {
+    if (!this.tbodyProdutos) {
+      this.tbodyProdutos = document.getElementById("admin-products-table-body");
+    }
+    if (!this.tbodyProdutos) return;
+
+    this.tbodyProdutos.innerHTML = "";
+
+    if (produtos.length === 0) {
+      this.tbodyProdutos.innerHTML = `
+        <tr>
+          <td colspan="6" class="vazio" style="text-align: center; padding: 24px; color: #888e99;">
+            Nenhum produto cadastrado ou encontrado com este filtro.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    produtos.forEach(p => {
+      const tr = document.createElement("tr");
+
+      const fotoHtml = p.imagem
+        ? `<img src="${p.imagem}" alt="${p.nome}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255,255,255,0.12);" onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\\'font-size: 1.6rem;\\'>${p.icone || '🍽️'}</span>';">`
+        : `<span style="font-size: 1.6rem;">${p.icone || '🍽️'}</span>`;
+
+      const badgeHtml = p.badge
+        ? `<span class="status-tag delivery" style="font-size: 0.72rem;">${p.badge}</span>`
+        : `<span style="color: #666; font-size: 0.8rem;">—</span>`;
+
+      tr.innerHTML = `
+        <td style="width: 60px; text-align: center;">${fotoHtml}</td>
+        <td>
+          <strong style="color: #fff; font-size: 0.9rem;">${p.nome}</strong>
+          <br>
+          <small style="color: #888e99; font-size: 0.75rem;">${(p.descricao || 'Sem descrição').substring(0, 48)}${(p.descricao && p.descricao.length > 48) ? '...' : ''}</small>
+        </td>
+        <td><span class="status-tag mesa" style="text-transform: capitalize;">${p.categoria}</span></td>
+        <td>${badgeHtml}</td>
+        <td><strong style="color: #2ecc71; font-size: 1rem;">${formatarPreco(p.preco)}</strong></td>
+        <td>
+          <div class="action-btn-group">
+            <button class="btn-action-outline btn-editar-preco-prod" data-id="${p.id}" title="Alterar Preço e Informações" style="color: var(--primary-gold); border-color: var(--primary-gold);">
+              ✏️ Alterar Preço
+            </button>
+            <button class="btn-action-cancel btn-excluir-prod-admin" data-id="${p.id}" title="Excluir Produto">
+              🗑️
+            </button>
+          </div>
+        </td>
+      `;
+
+      this.tbodyProdutos.appendChild(tr);
+    });
+  }
 }
+

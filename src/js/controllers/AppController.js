@@ -36,6 +36,7 @@ export class AppController {
     this.configurarEventosAdmin();
     this.atualizarInterface();
     this.adminView.renderizarTabela();
+    this.renderizarAdminProdutos();
   }
 
   atualizarInterface() {
@@ -264,11 +265,97 @@ export class AppController {
     const btnAdminGerenciarProds = document.getElementById("btn-admin-gerenciar-produtos");
     if (btnAdminGerenciarProds) {
       btnAdminGerenciarProds.addEventListener("click", () => {
-        const acc = document.getElementById("accordion-cadastro");
-        if (acc) {
-          acc.open = true;
-          acc.scrollIntoView({ behavior: "smooth" });
+        const sec = document.getElementById("admin-produtos-section");
+        if (sec) {
+          sec.scrollIntoView({ behavior: "smooth" });
         }
+      });
+    }
+
+    // Gestão de Produtos do Cardápio no Admin (FANESE: consulta e alteração de preços)
+    const buscaProdAdmin = document.getElementById("admin-busca-produtos");
+    if (buscaProdAdmin) {
+      buscaProdAdmin.addEventListener("input", () => this.renderizarAdminProdutos());
+    }
+
+    const filtroCatAdmin = document.getElementById("admin-filtro-cat-produtos");
+    if (filtroCatAdmin) {
+      filtroCatAdmin.addEventListener("change", () => this.renderizarAdminProdutos());
+    }
+
+    const tbodyProdAdmin = document.getElementById("admin-products-table-body");
+    if (tbodyProdAdmin) {
+      tbodyProdAdmin.addEventListener("click", (e) => {
+        const btnEditar = e.target.closest(".btn-editar-preco-prod");
+        const btnExcluir = e.target.closest(".btn-excluir-prod-admin");
+
+        if (btnEditar) {
+          const id = parseInt(btnEditar.dataset.id);
+          const prod = this.productModel.obterPorId(id);
+          if (prod) {
+            this.modalView.preencherFormEdicao(prod);
+            this.modalView.abrirModal(this.modalView.modalEditar);
+          }
+        } else if (btnExcluir) {
+          const id = parseInt(btnExcluir.dataset.id);
+          const prod = this.productModel.obterPorId(id);
+          if (prod) {
+            ToastView.solicitarConfirmacao(
+              "Excluir Produto?",
+              `Deseja remover "${prod.nome}" permanentemente do cardápio?`,
+              "🗑️",
+              () => {
+                this.productModel.excluir(id);
+                this.cartModel.removerItem(id);
+                this.atualizarInterface();
+                this.renderizarAdminProdutos();
+                ToastView.mostrarToast("Produto excluído do cardápio!", "🗑️");
+              }
+            );
+          }
+        }
+      });
+    }
+
+    // Formulário de Cadastro de Novo Produto no Accordion do Admin
+    const btnSalvarNovo = document.getElementById("btn-salvar-novo");
+    if (btnSalvarNovo) {
+      btnSalvarNovo.addEventListener("click", () => {
+        const nome = document.getElementById("novo-nome")?.value.trim();
+        const categoria = document.getElementById("nova-categoria")?.value || "lanches";
+        const preco = parseFloat(document.getElementById("novo-preco")?.value);
+        const badge = document.getElementById("novo-badge")?.value || "";
+        const imagem = document.getElementById("nova-imagem")?.value.trim() || "";
+        const descricao = document.getElementById("novo-descricao")?.value.trim() || "";
+
+        if (!nome || isNaN(preco) || preco <= 0) {
+          ToastView.mostrarToast("Preencha o nome e um preço válido!", "⚠️");
+          return;
+        }
+
+        const novoProduto = this.productModel.adicionar({
+          nome,
+          categoria,
+          preco,
+          badge,
+          imagem,
+          descricao
+        });
+
+        // Limpa campos
+        document.getElementById("novo-nome").value = "";
+        document.getElementById("novo-preco").value = "";
+        document.getElementById("novo-imagem").value = "";
+        document.getElementById("novo-descricao").value = "";
+        document.getElementById("novo-badge").value = "";
+
+        this.atualizarInterface();
+        this.renderizarAdminProdutos();
+
+        ToastView.mostrarToast(`"${novoProduto.nome}" cadastrado com sucesso!`, "✨");
+
+        // Rola até a tabela de produtos
+        document.getElementById("admin-produtos-section")?.scrollIntoView({ behavior: "smooth" });
       });
     }
   }
@@ -357,6 +444,7 @@ export class AppController {
     document.getElementById("mob-btn-config")?.classList.add("active");
 
     this.adminView.renderizarTabela();
+    this.renderizarAdminProdutos();
   }
 
   exibirTelaPublica() {
@@ -370,6 +458,26 @@ export class AppController {
     document.querySelectorAll(".sidebar-item, .mobile-nav-btn").forEach(el => el.classList.remove("active"));
     document.getElementById("nav-item-cardapio")?.classList.add("active");
     document.getElementById("mob-btn-cardapio")?.classList.add("active");
+  }
+
+  renderizarAdminProdutos() {
+    const termo = document.getElementById("admin-busca-produtos")?.value.trim().toLowerCase() || "";
+    const categoria = document.getElementById("admin-filtro-cat-produtos")?.value || "todos";
+
+    let produtos = this.productModel.obterTodos();
+
+    if (categoria !== "todos") {
+      produtos = produtos.filter(p => p.categoria === categoria);
+    }
+
+    if (termo) {
+      produtos = produtos.filter(p => 
+        p.nome.toLowerCase().includes(termo) ||
+        (p.descricao && p.descricao.toLowerCase().includes(termo))
+      );
+    }
+
+    this.adminView.renderizarTabelaProdutos(produtos);
   }
 
   configurarEventos() {
@@ -600,8 +708,9 @@ export class AppController {
 
     this.productModel.atualizar(id, { nome, categoria, preco, badge, imagem, descricao });
     this.atualizarInterface();
+    this.renderizarAdminProdutos();
     this.modalView.fecharModal(this.modalView.modalEditar);
-    ToastView.mostrarToast("Produto atualizado!", "✏️");
+    ToastView.mostrarToast("Produto e preço atualizados!", "✏️");
   }
 
   salvarConfiguracoesLoja() {

@@ -88,8 +88,6 @@ export class ProductView {
                   + Adicionar
                 </button>
               `}
-              <button class="btn-card-action btn-editar-prod" data-id="${p.id}" title="Editar produto" aria-label="Editar produto">✏️</button>
-              <button class="btn-card-action btn-excluir-prod" data-id="${p.id}" title="Remover produto" aria-label="Remover produto">🗑️</button>
             </div>
           </div>
         </article>

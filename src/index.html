@@ -335,6 +335,49 @@
                 </table>
               </div>
             </section>
+
+            <!-- TABELA DE GESTÃO DE PRODUTOS & ALTERAÇÃO DE PREÇOS (FANESE) -->
+            <section class="admin-table-container" id="admin-produtos-section" style="margin-top: 28px;">
+              <div class="table-header-row">
+                <div>
+                  <h3 class="table-title">🍔 Produtos do Cardápio & Alteração de Preços</h3>
+                  <p style="font-size: 0.78rem; color: #888e99; margin-top: 3px;">
+                    Consulte os produtos ativos no cardápio e altere os preços cobrados em tempo real.
+                  </p>
+                </div>
+                <div class="table-filter-dropdowns">
+                  <div class="admin-search-wrapper" style="max-width: 200px;">
+                    <span class="search-icon-input">🔍</span>
+                    <input type="text" id="admin-busca-produtos" placeholder="Buscar prato...">
+                  </div>
+                  <select id="admin-filtro-cat-produtos" class="admin-select">
+                    <option value="todos">🍽️ Todas Categorias</option>
+                    <option value="lanches">🍔 Lanches</option>
+                    <option value="porcoes">🍟 Porções</option>
+                    <option value="bebidas">🥤 Bebidas</option>
+                    <option value="sobremesas">🍰 Sobremesas</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="table-wrapper">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Foto</th>
+                      <th>Produto</th>
+                      <th>Categoria</th>
+                      <th>Destaque</th>
+                      <th>Preço Atual</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-products-table-body">
+                    <!-- Renderizado dinamicamente via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </div>
 
           <!-- COLUNA DIREITA: PAINEL DE MONITORAMENTO & GESTÃO (WIDGETS ADMIN) -->
