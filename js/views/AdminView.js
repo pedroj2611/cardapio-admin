@@ -116,7 +116,13 @@ export class AdminView {
   }
 
   renderizarTabela(filtroBusca = "", filtroStatus = "") {
+    if (!this.tbody) {
+      this.tbody = document.getElementById("admin-orders-table-body");
+    }
     if (!this.tbody) return;
+
+    // Sempre recarrega do localStorage para garantir sincronismo com novos pedidos
+    this.pedidos = this.carregarPedidos();
 
     let lista = this.pedidos;
 
@@ -225,6 +231,8 @@ export class AdminView {
 
   // Registra um novo pedido feito pelo cliente (FANESE Aulas 04 e 05)
   adicionarPedido(dadosPedido) {
+    this.pedidos = this.carregarPedidos();
+
     const proximoNumero = this.pedidos.length > 0 
       ? Math.max(...this.pedidos.map(p => parseInt(p.id) || 0)) + 1 
       : 1;
@@ -236,7 +244,7 @@ export class AdminView {
       id: String(proximoNumero).padStart(4, "0"),
       hora: `Hoje ${horaFormatada}`,
       atendente: dadosPedido.nome || "Cliente Online",
-      local: dadosPedido.tipo === "Mesa" && dadosPedido.local ? dadosPedido.local : dadosPedido.tipo,
+      local: dadosPedido.tipo === "Mesa" && dadosPedido.local ? dadosPedido.local : (dadosPedido.local ? `${dadosPedido.tipo} - ${dadosPedido.local}` : dadosPedido.tipo),
       itens: dadosPedido.itensTexto,
       total: dadosPedido.totalGeral,
       tempo: "Recente",

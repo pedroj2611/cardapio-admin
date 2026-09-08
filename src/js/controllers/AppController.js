@@ -237,6 +237,21 @@ export class AppController {
       });
     }
 
+    // Botão Simular Pedido de Teste no Admin
+    const btnSimularPedido = document.getElementById("btn-admin-simular-pedido");
+    if (btnSimularPedido) {
+      btnSimularPedido.addEventListener("click", () => {
+        this.adminView.adicionarPedido({
+          nome: "Pedro (Teste)",
+          tipo: "Mesa",
+          local: "Mesa 02",
+          itensTexto: "1x X-Bacon Artesanal, 1x Coca-Cola",
+          totalGeral: 39.40
+        });
+        ToastView.mostrarToast("Pedido de teste adicionado ao topo!", "🛎️");
+      });
+    }
+
     // Ações de Gestão do Sistema e Cardápio (Painel Admin)
     const btnAdminConfigLoja = document.getElementById("btn-admin-config-loja");
     if (btnAdminConfigLoja) {

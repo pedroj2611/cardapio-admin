@@ -1,9 +1,9 @@
 // ==========================================================================
-// SERVICE WORKER (PWA - FANESE AULA 05: CACHE V4 & OFFLINE)
+// SERVICE WORKER (PWA - FANESE: CACHE V5 & ATUALIZAÇÃO IMEDIATA)
 // ==========================================================================
 
-// Nome da "caixa" do cache (v4 conforme Aula 05 da FANESE)
-const CACHE = "cardapio-admin-v4";
+// Nome da "caixa" do cache (v5)
+const CACHE = "cardapio-admin-v5";
 
 // Arquivos que o app precisa para funcionar offline.
 const ARQUIVOS = [
@@ -28,17 +28,18 @@ const ARQUIVOS = [
   "./qrcode_projeto.png"
 ];
 
-// 1) INSTALAR: guarda os arquivos no cache v3.
+// 1) INSTALAR: força ativação imediata e guarda os arquivos essenciais.
 self.addEventListener("install", function (evento) {
+  self.skipWaiting(); // Não espera as outras abas fecharem
   evento.waitUntil(
     caches.open(CACHE).then(function (cache) {
-      console.log("[SW] Armazenando no cache v3:", CACHE);
+      console.log("[SW] Armazenando no cache v5:", CACHE);
       return cache.addAll(ARQUIVOS);
     })
   );
 });
 
-// 2) ATIVAR: apaga caches de versões antigas (ex: v1).
+// 2) ATIVAR: limpa caches antigos e assume o controle dos clientes na hora.
 self.addEventListener("activate", function (evento) {
   evento.waitUntil(
     caches.keys().then(function (nomes) {
@@ -50,15 +51,29 @@ self.addEventListener("activate", function (evento) {
           }
         })
       );
+    }).then(function () {
+      return self.clients.claim(); // Assume o controle imediatamente
     })
   );
 });
 
-// 3) BUSCAR: responde do cache (Cache First); se não achar, vai à rede.
+// 3) BUSCAR: Network First com fallback para Cache (garante que código novo seja baixado online e funcione offline).
 self.addEventListener("fetch", function (evento) {
   evento.respondWith(
-    caches.match(evento.request).then(function (guardado) {
-      return guardado || fetch(evento.request);
-    })
+    fetch(evento.request)
+      .then(function (respostaRede) {
+        if (respostaRede && respostaRede.status === 200 && respostaRede.type === "basic") {
+          const clone = respostaRede.clone();
+          caches.open(CACHE).then(function (cache) {
+            cache.put(evento.request, clone);
+          });
+        }
+        return respostaRede;
+      })
+      .catch(function () {
+        // Se estiver sem conexão (Modo Avião), entrega do cache!
+        return caches.match(evento.request);
+      })
   );
 });
+

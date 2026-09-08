@@ -304,11 +304,16 @@
               </div>
 
               <!-- BARRA DE CONTADOR E LIMPEZA DE PEDIDOS CONCLUÍDOS (FANESE AULA 05) -->
-              <div class="barra-pedidos" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(28, 150, 160, 0.08); border: 1px solid rgba(28, 150, 160, 0.2); border-radius: 8px; margin: 12px 0;">
+              <div class="barra-pedidos" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(28, 150, 160, 0.08); border: 1px solid rgba(28, 150, 160, 0.2); border-radius: 8px; margin: 12px 0; gap: 8px; flex-wrap: wrap;">
                 <span id="contador-pedidos" style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold);">Faltam 0 de 0 pedidos a atender</span>
-                <button type="button" id="btn-limpar-pedidos-concluidos" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: var(--teal-bright); border-color: var(--teal-bright); cursor: pointer;">
-                  🧹 Limpar concluídos
-                </button>
+                <div style="display: flex; gap: 8px;">
+                  <button type="button" id="btn-admin-simular-pedido" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: #2ecc71; border-color: #2ecc71; cursor: pointer;" title="Adicionar pedido de teste para verificação imediata">
+                    ➕ Pedido Teste
+                  </button>
+                  <button type="button" id="btn-limpar-pedidos-concluidos" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: var(--teal-bright); border-color: var(--teal-bright); cursor: pointer;">
+                    🧹 Limpar concluídos
+                  </button>
+                </div>
               </div>
 
               <div class="table-wrapper">
@@ -664,7 +669,10 @@
     // Registra o Service Worker (se o navegador suportar)
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("sw.js")
-        .then(function () { console.log("Service Worker registrado com sucesso!"); })
+        .then(function (reg) {
+          console.log("Service Worker registrado com sucesso!");
+          reg.update(); // Força busca de novas versões no servidor
+        })
         .catch(function (erro) { console.log("Falha ao registrar:", erro); });
     }
   </script>
