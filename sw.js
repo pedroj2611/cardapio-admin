@@ -1,9 +1,9 @@
 // ==========================================================================
-// SERVICE WORKER (PWA - FANESE: CACHE V6 & ATUALIZAÇÃO IMEDIATA)
+// SERVICE WORKER (PWA - FANESE: CACHE V7 & ATUALIZAÇÃO IMEDIATA)
 // ==========================================================================
 
-// Nome da "caixa" do cache (v6)
-const CACHE = "cardapio-admin-v6";
+// Nome da "caixa" do cache (v7)
+const CACHE = "cardapio-admin-v7";
 
 // Arquivos que o app precisa para funcionar offline.
 const ARQUIVOS = [
@@ -23,6 +23,7 @@ const ARQUIVOS = [
   "./js/views/ToastView.js",
   "./js/views/AdminView.js",
   "./manifest.json",
+  "./icons/logo.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./qrcode_projeto.png"

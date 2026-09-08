@@ -5,10 +5,10 @@
  */
 
 export const CONFIG_PADRAO = {
-  nomeLoja: "Sabor & Arte Gourmet",
+  nomeLoja: "Hambúrguer dos Amigos",
   whatsapp: "5579999820686",
   taxaEntrega: 5.00,
-  chavePix: "pix@saborearte.com.br"
+  chavePix: "pix@hamburguerdosamigos.com.br"
 };
 
 export class ConfigModel {
@@ -24,6 +24,12 @@ export class ConfigModel {
         return { ...CONFIG_PADRAO };
       }
       const config = JSON.parse(salvos);
+      // Atualiza nome da loja para o novo Hambúrguer dos Amigos se tiver o nome anterior
+      if (!config.nomeLoja || config.nomeLoja === "Sabor & Cia Gourmet" || config.nomeLoja === "Sabor & Arte Gourmet") {
+        config.nomeLoja = CONFIG_PADRAO.nomeLoja;
+        config.chavePix = CONFIG_PADRAO.chavePix;
+        localStorage.setItem("cardapio_pro_config", JSON.stringify(config));
+      }
       // Garante atualização do número oficial do WhatsApp se for o genérico antigo
       if (!config.whatsapp || config.whatsapp === "5579999999999") {
         config.whatsapp = CONFIG_PADRAO.whatsapp;
