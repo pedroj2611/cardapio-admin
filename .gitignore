@@ -2,3 +2,13 @@ node_modules/
 www/
 .DS_Store
 *.log
+
+# Relatorios e resumos pessoais (apenas local)
+RELATORIO_AULAS_FANESE.md
+RESUMO_AULAS_1_A_5.md
+RESUMO_AULAS_1_A_5.docx
+gerar_word.js
+~$*
+*.docx
+
+
