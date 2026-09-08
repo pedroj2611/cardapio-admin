@@ -55,6 +55,10 @@
           <span class="sidebar-icon">⚙️</span>
           <span>Configurações</span>
         </button>
+        <button class="sidebar-item" id="btn-instalar-pwa" style="display: none; background: rgba(28, 150, 160, 0.18); border: 1px dashed #34d0db; color: #34d0db;">
+          <span class="sidebar-icon">📲</span>
+          <span>Instalar App</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -66,7 +70,7 @@
           </label>
         </div>
         <div class="version-badges">
-          <p>Versão 1.0.0</p>
+          <p>Versão 1.0.0 (PWA)</p>
           <p>Versão Admin 1.0.0</p>
         </div>
       </div>
@@ -85,8 +89,8 @@
           <div class="header-container">
             <div class="header-top-bar">
               <div class="status-box">
-                <span class="status-pulse"></span>
-                <span class="status-label">Aberto para Pedidos</span>
+                <span class="status-pulse" id="status-pulse-dot"></span>
+                <span class="status-label" id="status-rede-label">Aberto para Pedidos</span>
               </div>
             </div>
 

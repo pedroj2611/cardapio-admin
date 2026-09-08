@@ -31,6 +31,7 @@ export class AppController {
   }
 
   iniciar() {
+    this.configurarPWA();
     this.configurarEventos();
     this.configurarEventosAdmin();
     this.atualizarInterface();
@@ -232,6 +233,77 @@ export class AppController {
           acc.scrollIntoView({ behavior: "smooth" });
         }
       });
+    }
+  }
+
+  configurarPWA() {
+    // 1. Suporte a instalação PWA (beforeinstallprompt - FANESE Aula 03 & 04)
+    let deferredPrompt = null;
+    const btnInstalar = document.getElementById("btn-instalar-pwa");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (btnInstalar) {
+        btnInstalar.style.display = "flex";
+      }
+    });
+
+    if (btnInstalar) {
+      btnInstalar.addEventListener("click", async () => {
+        if (!deferredPrompt) {
+          ToastView.mostrarToast("App já pronto ou instalado no seu dispositivo!", "📱");
+          return;
+        }
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === "accepted") {
+          ToastView.mostrarToast("Instalando o Cardápio no seu dispositivo...", "📲");
+        }
+        deferredPrompt = null;
+        btnInstalar.style.display = "none";
+      });
+    }
+
+    window.addEventListener("appinstalled", () => {
+      ToastView.mostrarToast("Cardápio instalado com sucesso na tela inicial!", "🎉");
+      if (btnInstalar) btnInstalar.style.display = "none";
+    });
+
+    // 2. Monitoramento de Rede Online / Offline (Destaque da Aula 04: Modo Avião / Offline)
+    const statusLabel = document.getElementById("status-rede-label");
+    const statusPulse = document.getElementById("status-pulse-dot");
+
+    const atualizarStatusRede = () => {
+      const online = navigator.onLine;
+      if (online) {
+        if (statusLabel) statusLabel.textContent = "Aberto para Pedidos";
+        if (statusPulse) {
+          statusPulse.style.background = "#2ecc71";
+          statusPulse.style.boxShadow = "0 0 10px #2ecc71";
+        }
+      } else {
+        if (statusLabel) statusLabel.textContent = "Modo Offline (PWA Ativo)";
+        if (statusPulse) {
+          statusPulse.style.background = "#e67e22";
+          statusPulse.style.boxShadow = "0 0 10px #e67e22";
+        }
+        ToastView.mostrarToast("Você está offline! O cardápio continua funcionando pelo Cache PWA.", "📶");
+      }
+    };
+
+    window.addEventListener("online", () => {
+      atualizarStatusRede();
+      ToastView.mostrarToast("Conexão restabelecida! Cardápio online.", "🌐");
+    });
+
+    window.addEventListener("offline", () => {
+      atualizarStatusRede();
+    });
+
+    // Verificação inicial
+    if (!navigator.onLine) {
+      atualizarStatusRede();
     }
   }
 

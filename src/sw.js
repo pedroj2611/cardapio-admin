@@ -2,8 +2,8 @@
 // SERVICE WORKER (PWA - FANESE AULA 04: CACHE V2 & OFFLINE)
 // ==========================================================================
 
-// Nome da "caixa" do cache (v2 conforme Aula 04 da FANESE)
-const CACHE = "cardapio-admin-v2";
+// Nome da "caixa" do cache (v3 conforme Aula 04 da FANESE)
+const CACHE = "cardapio-admin-v3";
 
 // Arquivos que o app precisa para funcionar offline.
 const ARQUIVOS = [
@@ -24,14 +24,15 @@ const ARQUIVOS = [
   "./js/views/AdminView.js",
   "./manifest.json",
   "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./icons/icon-512.png",
+  "./qrcode_projeto.png"
 ];
 
-// 1) INSTALAR: guarda os arquivos no cache v2.
+// 1) INSTALAR: guarda os arquivos no cache v3.
 self.addEventListener("install", function (evento) {
   evento.waitUntil(
     caches.open(CACHE).then(function (cache) {
-      console.log("[SW] Armazenando no cache v2:", CACHE);
+      console.log("[SW] Armazenando no cache v3:", CACHE);
       return cache.addAll(ARQUIVOS);
     })
   );
