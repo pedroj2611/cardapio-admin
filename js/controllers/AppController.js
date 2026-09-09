@@ -63,7 +63,21 @@ export class AppController {
     const inputSenha = document.getElementById("admin-password-input");
     const errorMsg = document.getElementById("auth-error-msg");
 
-    // Botões que disparam a autenticação Admin (somente barra lateral esquerda e barra inferior mobile)
+    // Função para abrir o modal de autenticação admin
+    const abrirAuthAdmin = () => {
+      if (inputSenha) {
+        inputSenha.value = "";
+        inputSenha.type = "password";
+      }
+      if (btnToggleVis) btnToggleVis.textContent = "👁️";
+      if (errorMsg) errorMsg.style.display = "none";
+      this.modalView.abrirModal(modalAuth);
+      setTimeout(() => {
+        if (inputSenha) inputSenha.focus();
+      }, 100);
+    };
+
+    // Botões que disparam a autenticação Admin (Configurações na sidebar e mobile bottom bar)
     const btnsConfig = [
       document.getElementById("nav-item-configuracoes"),
       document.getElementById("mob-btn-config")
@@ -75,10 +89,7 @@ export class AppController {
           if (this.isAdminAutenticado) {
             this.exibirTelaAdmin();
           } else {
-            if (inputSenha) inputSenha.value = "";
-            if (errorMsg) errorMsg.style.display = "none";
-            this.modalView.abrirModal(modalAuth);
-            if (inputSenha) inputSenha.focus();
+            abrirAuthAdmin();
           }
         });
       }
@@ -87,6 +98,17 @@ export class AppController {
     if (btnFecharAuth) {
       btnFecharAuth.addEventListener("click", () => {
         this.modalView.fecharModal(modalAuth);
+      });
+    }
+
+    if (modalAuth) {
+      modalAuth.addEventListener("click", (e) => {
+        const rect = modalAuth.getBoundingClientRect();
+        const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height
+          && rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+        if (!isInDialog) {
+          this.modalView.fecharModal(modalAuth);
+        }
       });
     }
 
@@ -109,7 +131,11 @@ export class AppController {
         ToastView.mostrarToast("Acesso Admin liberado!", "🔑");
       } else {
         if (errorMsg) errorMsg.style.display = "block";
-        ToastView.mostrarToast("Senha incorreta! Tente novamente.", "⚠️");
+        if (inputSenha) {
+          inputSenha.value = "";
+          inputSenha.focus();
+        }
+        ToastView.mostrarToast("Senha incorreta! Digite 'admin'.", "⚠️");
       }
     };
 
@@ -132,18 +158,16 @@ export class AppController {
     btnsPedidos.forEach(btn => {
       if (btn) {
         btn.addEventListener("click", () => {
-          document.querySelectorAll(".sidebar-item, .mobile-nav-btn").forEach(el => el.classList.remove("active"));
-          document.getElementById("nav-item-pedidos")?.classList.add("active");
-          document.getElementById("mob-btn-pedidos")?.classList.add("active");
-
-          this.isAdminAutenticado = true;
-          this.exibirTelaAdmin();
-          ToastView.mostrarToast("Monitoramento de Pedidos", "📋");
+          if (this.isAdminAutenticado) {
+            this.exibirTelaAdmin();
+          } else {
+            abrirAuthAdmin();
+          }
         });
       }
     });
 
-    // Voltar para o Cardápio
+    // Voltar para o Cardápio (revoga credencial temporária)
     const btnSairAdmin = document.getElementById("btn-sair-admin");
     const btnsCardapio = [
       document.getElementById("nav-item-cardapio"),
@@ -487,6 +511,7 @@ export class AppController {
   }
 
   exibirTelaPublica() {
+    this.isAdminAutenticado = false; // Bloqueia o acesso de admin ao retornar ao cardápio público
     const publicView = document.getElementById("public-view");
     const adminView = document.getElementById("admin-dashboard-view");
 
@@ -845,16 +870,8 @@ export class AppController {
     this.cartModel.limpar();
     this.atualizarInterface();
 
-    // Notificação visual com atalho direto para conferir o pedido salvo no Monitoramento
-    ToastView.solicitarConfirmacao(
-      "Pedido Salvo com Sucesso! 🎉",
-      `O pedido #${novoPed.id} do cliente "${nome}" foi registrado no Monitoramento de Pedidos! Deseja abrir a tela de Monitoramento agora para acompanhar?`,
-      "📋",
-      () => {
-        this.isAdminAutenticado = true;
-        this.exibirTelaAdmin();
-      }
-    );
+    // Notificação visual do pedido concluído
+    ToastView.mostrarToast(`Pedido #${novoPed.id} de "${nome}" enviado ao WhatsApp e salvo com sucesso!`, "📲");
   }
 }
 
