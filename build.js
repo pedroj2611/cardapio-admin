@@ -66,5 +66,5 @@ filesToCopy.forEach(file => {
 console.log('--------------------------------------------------');
 console.log('✨ Build MVC concluído com sucesso!');
 console.log('   - Estrutura MVC pronta em src/js e src/css.');
-console.log('   - Pasta www/ sincronizada para Capacitor/Android.');
+console.log('   - Pasta www/ e raiz sincronizadas para PWA e Web.');
 console.log('--------------------------------------------------');

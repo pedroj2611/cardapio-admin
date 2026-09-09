@@ -1,13 +1,11 @@
-# 🍔 Sabor & Arte Gourmet | Cardápio Digital & App Móvel
+# 🍔 Sabor & Arte Gourmet | Cardápio Digital PWA
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
-![Capacitor](https://img.shields.io/badge/Capacitor-119EFF?style=for-the-badge&logo=capacitor&logoColor=white)
-![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 
-> Sistema de cardápio digital profissional interativo para restaurantes e delivery. Funciona como **Progressive Web App (PWA)** offline e como **Aplicativo Nativo Android** compilado com Ionic Capacitor.
+> Sistema de cardápio digital profissional interativo para restaurantes e delivery. Funciona como **Progressive Web App (PWA)** offline e responsivo, desenvolvido 100% em tecnologias Web (HTML5, CSS3 e JavaScript Moderno com arquitetura MVC).
 
 ---
 
@@ -21,24 +19,25 @@
 
 ---
 
-## 📁 Arquitetura e Estrutura de Pastas
+## 📁 Arquitetura e Estrutura de Pastas (MVC)
 
 ```text
-minhas-tarefas/
-├── 📁 src/                      # Código fonte principal da aplicação Web
-│   ├── 📁 icons/                # Ícones PWA (192x192, 512x512)
-│   ├── 📄 index.html            # Estrutura HTML5 com meta tags otimizadas
-│   ├── 📄 style.css             # Design System com suporte a Safe Area
-│   ├── 📄 app.js                # Lógica de negócio, catálogo e carrinho
+cardapio-admin/
+├── 📁 src/                      # Código fonte da aplicação Web
+│   ├── 📁 css/                  # Módulos CSS (base, components, modals)
+│   ├── 📁 icons/                # Ícones PWA e imagens do cardápio
+│   ├── 📁 js/                   # JavaScript em Arquitetura MVC
+│   │   ├── 📁 controllers/      # AppController (regras de negócio e sessão)
+│   │   ├── 📁 models/           # Models (CartModel, ProductModel, ConfigModel)
+│   │   └── 📁 views/            # Views (ProductView, CartView, AdminView, ToastView)
+│   ├── 📄 index.html            # Estrutura HTML5 semântica e acessível
+│   ├── 📄 style.css             # Folha de estilo unificada
 │   ├── 📄 sw.js                 # Service Worker (Estratégias de Cache PWA)
-│   └── 📄 manifest.json         # Manifesto PWA do aplicativo
-├── 📁 android/                  # Projeto nativo Android gerado via Capacitor
+│   └── 📄 manifest.json         # Manifesto PWA para instalação no celular
 ├── 📁 docs/                     # Documentação acadêmica e relatórios
-│   └── 📄 TRABALHO_ACADEMICO.md
-├── 📁 www/                      # Bundle compilado enviado para o Android
-├── 📄 build.js                  # Script automatizado de build e sincronização
-├── 📄 capacitor.config.json     # Configuração do Capacitor Android
-├── 📄 package.json              # Dependências e scripts do projeto
+├── 📁 www/                      # Bundle de distribuição Web
+├── 📄 build.js                  # Script de build e sincronização
+├── 📄 package.json              # Configuração do projeto
 ├── 📄 .gitignore                # Arquivos ignorados pelo Git
 └── 📄 README.md                 # Documentação principal
 ```
@@ -77,21 +76,14 @@ npm run build
 
 ---
 
-## 📱 Como Gerar o APK Nativo para Android
+## 📱 Instalação e Execução Mobile (PWA)
 
-1. Instale as dependências e execute o build:
-   ```bash
-   npm run build
-   ```
-2. Sincronize com a plataforma Android:
-   ```bash
-   npm run cap:sync
-   ```
-3. Abra o projeto no **Android Studio**:
-   ```bash
-   npm run cap:open:android
-   ```
-4. No Android Studio, vá em **Build > Build Bundle(s) / APK(s) > Build APK(s)** para gerar o arquivo `.apk`.
+O aplicativo foi desenvolvido como **Progressive Web App (PWA)**, dispensando código nativo ou compilação complexa:
+
+1. **Acesso Online**: Acesse o link do projeto pelo navegador do smartphone:  
+   👉 [https://pedroj2611.github.io/cardapio-admin/](https://pedroj2611.github.io/cardapio-admin/)
+2. **Instalação na Tela Inicial**: Clique em **"Instalar App"** no banner da página ou no menu do navegador (três pontos > *"Adicionar à tela inicial"* / *"Instalar aplicativo"*).
+3. **Modo Offline**: Uma vez instalado, o Service Worker garante o funcionamento integral do cardápio mesmo sem internet (Modo Avião).
 
 ---
 
