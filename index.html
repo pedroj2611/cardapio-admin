@@ -193,16 +193,19 @@
             <h1 class="admin-main-title">Admin Monitoring</h1>
             <p class="admin-sub-title">Escolha os melhores pratos</p>
           </div>
-          <div class="admin-actions-group">
+          <div class="admin-actions-group" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <div class="admin-search-wrapper">
               <span class="search-icon-input">🔍</span>
               <input type="text" id="admin-search-input" placeholder="Buscar pedidos (cliente, mesa, itens)...">
             </div>
-            <button id="btn-admin-filter" class="btn-admin-outline">
-              <span>⚡ Filtros</span>
+            <span id="admin-session-badge" style="font-size: 0.78rem; background: rgba(46, 204, 113, 0.15); border: 1px solid #2ecc71; color: #2ecc71; font-weight: 700; padding: 6px 10px; border-radius: 6px;" title="Tempo restante da sua sessão de administrador">
+              ⏱️ Sessão: 20 min
+            </span>
+            <button id="btn-sair-admin" class="btn-admin-golden" title="Ir para o Cardápio Público">
+              <span>🍽️ Cardápio</span>
             </button>
-            <button id="btn-sair-admin" class="btn-admin-golden" title="Voltar ao Cardápio Público">
-              <span>🍽️ Voltar ao Cardápio</span>
+            <button id="btn-logout-admin" class="btn-action-cancel" style="padding: 8px 12px; font-size: 0.8rem; cursor: pointer;" title="Encerrar Sessão de Administrador">
+              <span>🔒 Sair</span>
             </button>
           </div>
         </header>

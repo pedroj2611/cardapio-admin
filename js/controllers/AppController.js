@@ -30,14 +30,150 @@ export class AppController {
     this.isAdminAutenticado = false;
   }
 
+  // Duração da sessão de administrador: exatamente 20 minutos em milissegundos (1.200.000 ms)
+  static DURACAO_SESSAO_MS = 20 * 60 * 1000;
+
+  // Salva no localStorage o status de autenticação junto com o timestamp atual
+  salvarSessaoAdmin() {
+    try {
+      const sessao = {
+        autenticado: true,
+        timestamp: Date.now() // Hora exata em que o login foi feito
+      };
+      localStorage.setItem("cardapio_admin_session", JSON.stringify(sessao));
+      localStorage.setItem("cardapio_active_view", "admin");
+      this.isAdminAutenticado = true;
+    } catch (e) {
+      console.error("Erro ao salvar sessão admin no localStorage:", e);
+    }
+  }
+
+  // Verifica se o login de admin ainda é válido (não ultrapassou os 20 minutos)
+  verificarSessaoAdmin(notificarExpiracao = false) {
+    try {
+      const dados = localStorage.getItem("cardapio_admin_session");
+      if (!dados) {
+        this.isAdminAutenticado = false;
+        return false;
+      }
+
+      const sessao = JSON.parse(dados);
+      if (!sessao || !sessao.autenticado || !sessao.timestamp) {
+        this.limparSessaoAdmin();
+        return false;
+      }
+
+      const agora = Date.now();
+      const tempoDecorrido = agora - sessao.timestamp;
+
+      if (tempoDecorrido < AppController.DURACAO_SESSAO_MS) {
+        this.isAdminAutenticado = true;
+        return true;
+      } else {
+        // Ultrapassou 20 minutos: limpa e exige a senha novamente
+        this.limparSessaoAdmin();
+        if (notificarExpiracao) {
+          ToastView.mostrarToast("Sua sessão de admin expirou após 20 minutos. Faça login novamente.", "⏳");
+        }
+        return false;
+      }
+    } catch (e) {
+      this.limparSessaoAdmin();
+      return false;
+    }
+  }
+
+  // Remove a sessão do localStorage e redefine as credenciais
+  limparSessaoAdmin() {
+    this.isAdminAutenticado = false;
+    try {
+      localStorage.removeItem("cardapio_admin_session");
+      localStorage.setItem("cardapio_active_view", "public");
+    } catch (e) {}
+  }
+
+  // Encerramento voluntário da sessão de administrador
+  encerrarSessaoAdminManual() {
+    this.limparSessaoAdmin();
+    this.exibirTelaPublica();
+    ToastView.mostrarToast("Sessão de administrador encerrada com sucesso!", "🔒");
+  }
+
+  // Retorna o tempo restante formatado (ex: "18m 42s")
+  obterTempoRestanteSessao() {
+    try {
+      const dados = localStorage.getItem("cardapio_admin_session");
+      if (!dados) return null;
+      const sessao = JSON.parse(dados);
+      if (!sessao || !sessao.timestamp) return null;
+      const restanteMs = AppController.DURACAO_SESSAO_MS - (Date.now() - sessao.timestamp);
+      if (restanteMs <= 0) return null;
+      const minutos = Math.floor(restanteMs / 60000);
+      const segundos = Math.floor((restanteMs % 60000) / 1000);
+      return `${minutos}m ${segundos < 10 ? '0' : ''}${segundos}s`;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Atualiza o crachá visual de tempo restante da sessão no topo do admin
+  atualizarIndicadorSessao() {
+    const badge = document.getElementById("admin-session-badge");
+    if (!badge) return;
+
+    if (!this.verificarSessaoAdmin(false)) {
+      badge.textContent = "⏱️ Sessão expirada";
+      badge.style.borderColor = "#e74c3c";
+      badge.style.color = "#e74c3c";
+      badge.style.background = "rgba(231, 76, 60, 0.15)";
+      return;
+    }
+
+    const restante = this.obterTempoRestanteSessao();
+    if (restante) {
+      badge.textContent = `⏱️ Sessão: ${restante}`;
+      badge.style.borderColor = "#2ecc71";
+      badge.style.color = "#2ecc71";
+      badge.style.background = "rgba(46, 204, 113, 0.15)";
+    }
+  }
+
+  // Restaura o estado da aplicação ao atualizar a página (F5)
+  restaurarEstadoSessao() {
+    const sessaoValida = this.verificarSessaoAdmin(false);
+    const telaAtiva = localStorage.getItem("cardapio_active_view");
+
+    if (sessaoValida && telaAtiva === "admin") {
+      this.exibirTelaAdmin(false);
+      const tempo = this.obterTempoRestanteSessao();
+      if (tempo) {
+        ToastView.mostrarToast(`Sessão admin restaurada (${tempo} restantes)`, "⏱️");
+      }
+    } else {
+      this.exibirTelaPublica(false);
+    }
+  }
+
   iniciar() {
     this.configurarPWA();
     this.configurarEventos();
     this.configurarEventosAdmin();
     this.configurarSincronizacaoPedidos();
+    this.restaurarEstadoSessao();
     this.atualizarInterface();
     this.adminView.renderizarTabela();
     this.renderizarAdminProdutos();
+
+    // Verificação periódica automática a cada 15 segundos
+    setInterval(() => {
+      if (this.isAdminAutenticado) {
+        if (!this.verificarSessaoAdmin(true)) {
+          this.exibirTelaPublica();
+        } else {
+          this.atualizarIndicadorSessao();
+        }
+      }
+    }, 15000);
   }
 
   atualizarInterface() {
@@ -86,7 +222,7 @@ export class AppController {
     btnsConfig.forEach(btn => {
       if (btn) {
         btn.addEventListener("click", () => {
-          if (this.isAdminAutenticado) {
+          if (this.verificarSessaoAdmin(false)) {
             this.exibirTelaAdmin();
           } else {
             abrirAuthAdmin();
@@ -121,14 +257,14 @@ export class AppController {
       });
     }
 
-    // Ação de validação da senha fixa "admin"
+    // Ação de validação da senha fixa "admin" com salvamento de sessão por 20 min
     const efetuarLogin = () => {
       const senha = inputSenha ? inputSenha.value.trim() : "";
       if (senha === "admin") {
-        this.isAdminAutenticado = true;
+        this.salvarSessaoAdmin();
         this.modalView.fecharModal(modalAuth);
         this.exibirTelaAdmin();
-        ToastView.mostrarToast("Acesso Admin liberado!", "🔑");
+        ToastView.mostrarToast("Acesso Admin liberado! Sessão válida por 20 minutos.", "🔑");
       } else {
         if (errorMsg) errorMsg.style.display = "block";
         if (inputSenha) {
@@ -158,7 +294,7 @@ export class AppController {
     btnsPedidos.forEach(btn => {
       if (btn) {
         btn.addEventListener("click", () => {
-          if (this.isAdminAutenticado) {
+          if (this.verificarSessaoAdmin(false)) {
             this.exibirTelaAdmin();
           } else {
             abrirAuthAdmin();
@@ -167,7 +303,7 @@ export class AppController {
       }
     });
 
-    // Voltar para o Cardápio (revoga credencial temporária)
+    // Voltar para o Cardápio (mantém sessão ativa por 20 min se desejar retornar)
     const btnSairAdmin = document.getElementById("btn-sair-admin");
     const btnsCardapio = [
       document.getElementById("nav-item-cardapio"),
@@ -181,6 +317,21 @@ export class AppController {
     btnsCardapio.forEach(btn => {
       if (btn) btn.addEventListener("click", () => this.exibirTelaPublica());
     });
+
+    // Botão de Logout Explicito do Admin (encerra a sessão e apaga do localStorage)
+    const btnLogoutAdmin = document.getElementById("btn-logout-admin");
+    if (btnLogoutAdmin) {
+      btnLogoutAdmin.addEventListener("click", () => {
+        ToastView.solicitarConfirmacao(
+          "Encerrar Sessão?",
+          "Deseja realmente sair e invalidar a sessão de administrador?",
+          "🔒",
+          () => {
+            this.encerrarSessaoAdminManual();
+          }
+        );
+      });
+    }
 
     // Dark Mode Toggle
     const toggleDarkMode = document.getElementById("toggle-dark-mode");
@@ -217,6 +368,11 @@ export class AppController {
     const tbodyAdmin = document.getElementById("admin-orders-table-body");
     if (tbodyAdmin) {
       tbodyAdmin.addEventListener("click", (e) => {
+        if (!this.verificarSessaoAdmin(true)) {
+          this.exibirTelaPublica();
+          return;
+        }
+
         const btnConcluir = e.target.closest(".btn-concluir-ped");
         const btnCancelar = e.target.closest(".btn-cancelar-ped");
 
@@ -231,6 +387,10 @@ export class AppController {
             `Deseja realmente remover o pedido #${id}?`,
             "🗑️",
             () => {
+              if (!this.verificarSessaoAdmin(true)) {
+                this.exibirTelaPublica();
+                return;
+              }
               this.adminView.cancelarPedido(id);
               ToastView.mostrarToast(`Pedido #${id} removido!`, "🗑️");
             }
@@ -243,6 +403,11 @@ export class AppController {
     const btnLimparConcluidos = document.getElementById("btn-limpar-pedidos-concluidos");
     if (btnLimparConcluidos) {
       btnLimparConcluidos.addEventListener("click", () => {
+        if (!this.verificarSessaoAdmin(true)) {
+          this.exibirTelaPublica();
+          return;
+        }
+
         const concluidos = this.adminView.pedidos.filter(p => p.concluido).length;
         if (concluidos === 0) {
           ToastView.mostrarToast("Nenhum pedido concluído para limpar!", "ℹ️");
@@ -253,6 +418,10 @@ export class AppController {
           `Deseja remover ${concluidos} pedido(s) concluído(s) da lista?`,
           "🧹",
           () => {
+            if (!this.verificarSessaoAdmin(true)) {
+              this.exibirTelaPublica();
+              return;
+            }
             this.adminView.limparConcluidos();
             ToastView.mostrarToast("Pedidos concluídos removidos!", "🧹");
           }
@@ -264,6 +433,11 @@ export class AppController {
     const btnResetarPedidos = document.getElementById("btn-resetar-pedidos");
     if (btnResetarPedidos) {
       btnResetarPedidos.addEventListener("click", () => {
+        if (!this.verificarSessaoAdmin(true)) {
+          this.exibirTelaPublica();
+          return;
+        }
+
         if (this.adminView.pedidos.length === 0) {
           ToastView.mostrarToast("A lista de pedidos já está vazia!", "ℹ️");
           return;
@@ -273,6 +447,10 @@ export class AppController {
           "Deseja realmente apagar todos os pedidos do sistema? O monitoramento ficará vazio.",
           "🗑️",
           () => {
+            if (!this.verificarSessaoAdmin(true)) {
+              this.exibirTelaPublica();
+              return;
+            }
             this.adminView.limparTodos();
             ToastView.mostrarToast("Todos os pedidos foram removidos!", "🗑️");
           }
@@ -284,6 +462,11 @@ export class AppController {
     const btnSimularPedido = document.getElementById("btn-admin-simular-pedido");
     if (btnSimularPedido) {
       btnSimularPedido.addEventListener("click", () => {
+        if (!this.verificarSessaoAdmin(true)) {
+          this.exibirTelaPublica();
+          return;
+        }
+
         this.adminView.adicionarPedido({
           nome: "Pedro (Teste)",
           tipo: "Mesa",
@@ -299,6 +482,11 @@ export class AppController {
     const btnAdminConfigLoja = document.getElementById("btn-admin-config-loja");
     if (btnAdminConfigLoja) {
       btnAdminConfigLoja.addEventListener("click", () => {
+        if (!this.verificarSessaoAdmin(true)) {
+          this.exibirTelaPublica();
+          return;
+        }
+
         this.modalView.preencherFormConfig(this.configModel.obter());
         this.modalView.abrirModal(this.modalView.modalConfig);
       });
@@ -328,6 +516,11 @@ export class AppController {
     const tbodyProdAdmin = document.getElementById("admin-products-table-body");
     if (tbodyProdAdmin) {
       tbodyProdAdmin.addEventListener("click", (e) => {
+        if (!this.verificarSessaoAdmin(true)) {
+          this.exibirTelaPublica();
+          return;
+        }
+
         const btnEditar = e.target.closest(".btn-editar-preco-prod");
         const btnExcluir = e.target.closest(".btn-excluir-prod-admin");
 
@@ -347,6 +540,10 @@ export class AppController {
               `Deseja remover "${prod.nome}" permanentemente do cardápio?`,
               "🗑️",
               () => {
+                if (!this.verificarSessaoAdmin(true)) {
+                  this.exibirTelaPublica();
+                  return;
+                }
                 this.productModel.excluir(id);
                 this.cartModel.removerItem(id);
                 this.atualizarInterface();
@@ -363,6 +560,11 @@ export class AppController {
     const btnSalvarNovo = document.getElementById("btn-salvar-novo");
     if (btnSalvarNovo) {
       btnSalvarNovo.addEventListener("click", () => {
+        if (!this.verificarSessaoAdmin(true)) {
+          this.exibirTelaPublica();
+          return;
+        }
+
         const nome = document.getElementById("novo-nome")?.value.trim();
         const categoria = document.getElementById("nova-categoria")?.value || "lanches";
         const preco = parseFloat(document.getElementById("novo-preco")?.value);
@@ -494,7 +696,16 @@ export class AppController {
     }
   }
 
-  exibirTelaAdmin() {
+  exibirTelaAdmin(salvarEstado = true) {
+    if (!this.verificarSessaoAdmin(true)) {
+      this.exibirTelaPublica();
+      return;
+    }
+
+    if (salvarEstado) {
+      localStorage.setItem("cardapio_active_view", "admin");
+    }
+
     const publicView = document.getElementById("public-view");
     const adminView = document.getElementById("admin-dashboard-view");
 
@@ -508,10 +719,14 @@ export class AppController {
 
     this.adminView.renderizarTabela();
     this.renderizarAdminProdutos();
+    this.atualizarIndicadorSessao();
   }
 
-  exibirTelaPublica() {
-    this.isAdminAutenticado = false; // Bloqueia o acesso de admin ao retornar ao cardápio público
+  exibirTelaPublica(salvarEstado = true) {
+    if (salvarEstado) {
+      localStorage.setItem("cardapio_active_view", "public");
+    }
+
     const publicView = document.getElementById("public-view");
     const adminView = document.getElementById("admin-dashboard-view");
 
@@ -757,6 +972,12 @@ export class AppController {
   }
 
   salvarEdicaoProduto() {
+    if (!this.verificarSessaoAdmin(true)) {
+      this.modalView.fecharModal(this.modalView.modalEditar);
+      this.exibirTelaPublica();
+      return;
+    }
+
     const id = parseInt(document.getElementById("edit-id").value);
     const nome = document.getElementById("edit-nome").value.trim();
     const categoria = document.getElementById("edit-categoria").value;
@@ -778,6 +999,12 @@ export class AppController {
   }
 
   salvarConfiguracoesLoja() {
+    if (!this.verificarSessaoAdmin(true)) {
+      this.modalView.fecharModal(this.modalView.modalConfig);
+      this.exibirTelaPublica();
+      return;
+    }
+
     const nomeLoja = document.getElementById("config-nome-loja").value.trim();
     const whatsapp = document.getElementById("config-whatsapp").value.trim();
     const taxaEntrega = parseFloat(document.getElementById("config-taxa-entrega").value);
