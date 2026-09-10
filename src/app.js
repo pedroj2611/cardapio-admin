@@ -22,7 +22,7 @@ const PRODUTOS_PADRAO = [
     id: 2,
     nome: "Smash Burger Duplo",
     categoria: "lanches",
-    preco: 28.50,
+    preco: 28.00,
     icone: "🍔",
     imagem: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80",
     badge: "Chef Special",
@@ -132,6 +132,12 @@ function carregarProdutos() {
       localStorage.setItem("cardapio_pro_produtos", JSON.stringify(PRODUTOS_PADRAO));
       return [...PRODUTOS_PADRAO];
     }
+    lista.forEach(p => {
+      if (p.id === 2 && (p.preco === 2 || p.preco === 2.00 || p.preco === 28.50)) {
+        p.preco = 28.00;
+      }
+    });
+    localStorage.setItem("cardapio_pro_produtos", JSON.stringify(lista));
     return lista;
   } catch (e) {
     return [...PRODUTOS_PADRAO];

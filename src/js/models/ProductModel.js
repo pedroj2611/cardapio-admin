@@ -19,7 +19,7 @@ export const PRODUTOS_PADRAO = [
     id: 2,
     nome: "Smash Burger Duplo",
     categoria: "lanches",
-    preco: 2.00,
+    preco: 28.00,
     icone: "🍔",
     imagem: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80",
     badge: "Chef Special",
@@ -118,6 +118,10 @@ export class ProductModel {
         } else {
           if (!lista[idx].imagem && pPadrao.imagem) lista[idx].imagem = pPadrao.imagem;
           if (!lista[idx].badge && pPadrao.badge) lista[idx].badge = pPadrao.badge;
+          // Atualiza o preço do Smash Burger Duplo se estiver com o valor de teste antigo de R$ 2,00
+          if (lista[idx].id === 2 && (lista[idx].preco === 2 || lista[idx].preco === 2.00 || lista[idx].preco === 28.50)) {
+            lista[idx].preco = 28.00;
+          }
         }
       });
 
