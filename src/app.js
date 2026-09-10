@@ -101,10 +101,10 @@ const PRODUTOS_PADRAO = [
 ];
 
 const CONFIG_PADRAO = {
-  nomeLoja: "Sabor & Arte Gourmet",
+  nomeLoja: "Hambúrguer dos Amigos",
   whatsapp: "5579999820686",
-  taxaEntrega: 5.00,
-  chavePix: "pix@saborearte.com.br"
+  taxaEntrega: 0,
+  chavePix: "pedrojoaquimbisposantana1897@gmail.com"
 };
 
 // ==========================================================================
@@ -122,34 +122,25 @@ let acaoConfirmacaoPendente = null;
 // ==========================================================================
 function carregarProdutos() {
   try {
-    const salvos = localStorage.getItem("cardapio_gourmet_v2_produtos") || localStorage.getItem("cardapio_pro_produtos");
+    const salvos = localStorage.getItem("cardapio_pro_produtos");
     if (!salvos) {
-      localStorage.setItem("cardapio_gourmet_v2_produtos", JSON.stringify(PRODUTOS_PADRAO));
+      localStorage.setItem("cardapio_pro_produtos", JSON.stringify(PRODUTOS_PADRAO));
       return [...PRODUTOS_PADRAO];
     }
-    let lista = JSON.parse(salvos);
-
-    PRODUTOS_PADRAO.forEach(pPadrao => {
-      const idx = lista.findIndex(item => item.id === pPadrao.id);
-      if (idx === -1) {
-        lista.push({ ...pPadrao });
-      } else {
-        if (!lista[idx].imagem && pPadrao.imagem) lista[idx].imagem = pPadrao.imagem;
-        if (!lista[idx].badge && pPadrao.badge) lista[idx].badge = pPadrao.badge;
-      }
-    });
-
-    localStorage.setItem("cardapio_gourmet_v2_produtos", JSON.stringify(lista));
+    const lista = JSON.parse(salvos);
+    if (!Array.isArray(lista) || lista.length === 0) {
+      localStorage.setItem("cardapio_pro_produtos", JSON.stringify(PRODUTOS_PADRAO));
+      return [...PRODUTOS_PADRAO];
+    }
     return lista;
   } catch (e) {
-    console.error("Erro ao carregar produtos:", e);
     return [...PRODUTOS_PADRAO];
   }
 }
 
 function salvarProdutos() {
   try {
-    localStorage.setItem("cardapio_gourmet_v2_produtos", JSON.stringify(produtos));
+    localStorage.setItem("cardapio_pro_produtos", JSON.stringify(produtos));
   } catch (e) {
     console.error("Erro ao salvar produtos:", e);
   }
@@ -158,9 +149,9 @@ function salvarProdutos() {
 function carregarCarrinho() {
   try {
     const salvos = localStorage.getItem("cardapio_pro_carrinho");
-    return salvos ? JSON.parse(salvos) : [];
+    if (!salvos) return [];
+    return JSON.parse(salvos);
   } catch (e) {
-    console.error("Erro ao carregar carrinho:", e);
     return [];
   }
 }
@@ -178,10 +169,19 @@ function carregarConfig() {
     const salvos = localStorage.getItem("cardapio_pro_config");
     if (!salvos) return { ...CONFIG_PADRAO };
     const conf = JSON.parse(salvos);
+    if (!conf.nomeLoja || conf.nomeLoja === "Sabor & Cia Gourmet" || conf.nomeLoja === "Sabor & Arte Gourmet") {
+      conf.nomeLoja = CONFIG_PADRAO.nomeLoja;
+    }
     if (!conf.whatsapp || conf.whatsapp === "5579999999999") {
       conf.whatsapp = CONFIG_PADRAO.whatsapp;
-      localStorage.setItem("cardapio_pro_config", JSON.stringify(conf));
     }
+    if (conf.taxaEntrega === 5 || conf.taxaEntrega === undefined || conf.taxaEntrega === null || isNaN(Number(conf.taxaEntrega))) {
+      conf.taxaEntrega = 0;
+    }
+    if (!conf.chavePix || conf.chavePix.includes("pix@") || conf.chavePix.includes("saborearte") || conf.chavePix.includes("hamburguerdosamigos")) {
+      conf.chavePix = CONFIG_PADRAO.chavePix;
+    }
+    localStorage.setItem("cardapio_pro_config", JSON.stringify(conf));
     return conf;
   } catch (e) {
     return { ...CONFIG_PADRAO };
@@ -549,10 +549,11 @@ function fecharModalConfig() {
 }
 
 function salvarConfiguracoesLoja() {
-  const nome = document.getElementById("config-nome-loja").value.trim() || CONFIG_PADRAO.nomeLoja;
-  const wa = document.getElementById("config-whatsapp").value.replace(/\D/g, "") || CONFIG_PADRAO.whatsapp;
-  const taxa = parseFloat(document.getElementById("config-taxa-entrega").value) || 0;
-  const pix = document.getElementById("config-chave-pix").value.trim() || CONFIG_PADRAO.chavePix;
+  const nome = document.getElementById("config-nome-loja")?.value.trim() || CONFIG_PADRAO.nomeLoja;
+  const wa = document.getElementById("config-whatsapp")?.value.replace(/\D/g, "") || CONFIG_PADRAO.whatsapp;
+  const taxaVal = document.getElementById("config-taxa-entrega")?.value;
+  const taxa = (taxaVal === "" || isNaN(parseFloat(taxaVal))) ? 0 : parseFloat(taxaVal);
+  const pix = document.getElementById("config-chave-pix")?.value.trim() || CONFIG_PADRAO.chavePix;
 
   configLoja = {
     nomeLoja: nome,
@@ -564,7 +565,7 @@ function salvarConfiguracoesLoja() {
   salvarConfig();
   atualizarInterface();
   fecharModalConfig();
-  mostrarToast("Configurações da loja salvas!", "⚙️");
+  mostrarToast("Configurações salvas com sucesso!", "⚙️");
 }
 
 // ==========================================================================
@@ -577,7 +578,13 @@ function atualizarInterface() {
   const elPixChave = document.getElementById("pix-chave-texto");
 
   if (elNomeLoja) elNomeLoja.textContent = configLoja.nomeLoja;
-  if (elTaxaBadge) elTaxaBadge.textContent = `🛵 Entrega ${formatarPreco(configLoja.taxaEntrega)}`;
+  if (elTaxaBadge) {
+    if (!configLoja.taxaEntrega || Number(configLoja.taxaEntrega) === 0) {
+      elTaxaBadge.textContent = "🛵 Entrega Grátis";
+    } else {
+      elTaxaBadge.textContent = `🛵 Entrega ${formatarPreco(configLoja.taxaEntrega)}`;
+    }
+  }
   if (elPixChave) elPixChave.textContent = configLoja.chavePix;
 
   renderizarProdutos();

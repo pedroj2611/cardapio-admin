@@ -40,7 +40,7 @@ export class ModalView {
     }
   }
 
-  atualizarCamposAtendimento(taxaEntrega = 5.00) {
+  atualizarCamposAtendimento(taxaEntrega = 0) {
     if (!this.tipoAtendimentoSelect) return;
     const tipo = this.tipoAtendimentoSelect.value;
 
@@ -86,10 +86,15 @@ export class ModalView {
   }
 
   preencherFormConfig(config) {
-    document.getElementById("config-nome-loja").value = config.nomeLoja || "";
-    document.getElementById("config-whatsapp").value = config.whatsapp || "";
-    document.getElementById("config-taxa-entrega").value = config.taxaEntrega || 0;
-    document.getElementById("config-chave-pix").value = config.chavePix || "";
+    const nomeInput = document.getElementById("config-nome-loja");
+    const whatsInput = document.getElementById("config-whatsapp");
+    const taxaInput = document.getElementById("config-taxa-entrega");
+    const pixInput = document.getElementById("config-chave-pix");
+
+    if (nomeInput) nomeInput.value = config.nomeLoja || "";
+    if (whatsInput) whatsInput.value = config.whatsapp || "";
+    if (taxaInput) taxaInput.value = (config.taxaEntrega !== undefined && config.taxaEntrega !== null) ? config.taxaEntrega : 0;
+    if (pixInput) pixInput.value = config.chavePix || "pedrojoaquimbisposantana1897@gmail.com";
   }
 
   atualizarHeaderConfig(config) {
@@ -98,7 +103,13 @@ export class ModalView {
     const elPixChave = document.getElementById("pix-chave-texto");
 
     if (elNomeLoja) elNomeLoja.textContent = config.nomeLoja;
-    if (elTaxaBadge) elTaxaBadge.textContent = `🛵 Entrega ${formatarPreco(config.taxaEntrega)}`;
+    if (elTaxaBadge) {
+      if (!config.taxaEntrega || Number(config.taxaEntrega) === 0) {
+        elTaxaBadge.textContent = "🛵 Entrega Grátis";
+      } else {
+        elTaxaBadge.textContent = `🛵 Entrega ${formatarPreco(config.taxaEntrega)}`;
+      }
+    }
     if (elPixChave) elPixChave.textContent = config.chavePix;
   }
 }

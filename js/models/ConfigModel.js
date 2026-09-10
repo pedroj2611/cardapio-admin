@@ -32,8 +32,12 @@ export class ConfigModel {
       if (!config.whatsapp || config.whatsapp === "5579999999999") {
         config.whatsapp = CONFIG_PADRAO.whatsapp;
       }
-      // Atualiza chave pix antiga
-      if (!config.chavePix || config.chavePix.includes("pix@hamburguerdosamigos") || config.chavePix.includes("pix@saborearte")) {
+      // Força frete grátis se estiver com a taxa antiga de 5 reais ou indefinida
+      if (config.taxaEntrega === 5 || config.taxaEntrega === undefined || config.taxaEntrega === null || isNaN(Number(config.taxaEntrega))) {
+        config.taxaEntrega = 0;
+      }
+      // Atualiza chave pix antiga para a chave solicitada pelo usuário
+      if (!config.chavePix || config.chavePix.includes("pix@") || config.chavePix.includes("saborearte") || config.chavePix.includes("hamburguerdosamigos")) {
         config.chavePix = CONFIG_PADRAO.chavePix;
       }
       localStorage.setItem("cardapio_pro_config", JSON.stringify(config));

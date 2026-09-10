@@ -155,6 +155,9 @@ export class AppController {
   }
 
   iniciar() {
+    window.appController = this;
+    window.salvarConfiguracoesLoja = () => this.salvarConfiguracoesLoja();
+
     this.configurarPWA();
     this.configurarEventos();
     this.configurarEventosAdmin();
@@ -965,11 +968,22 @@ export class AppController {
 
     const btnFecharConfig = document.getElementById("btn-fechar-config");
     const btnSalvarConfig = document.getElementById("btn-salvar-config");
+    const formConfig = document.getElementById("form-config");
+
     if (btnFecharConfig) {
       btnFecharConfig.addEventListener("click", () => this.modalView.fecharModal(this.modalView.modalConfig));
     }
     if (btnSalvarConfig) {
-      btnSalvarConfig.addEventListener("click", () => this.salvarConfiguracoesLoja());
+      btnSalvarConfig.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.salvarConfiguracoesLoja();
+      });
+    }
+    if (formConfig) {
+      formConfig.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.salvarConfiguracoesLoja();
+      });
     }
   }
 
@@ -1001,17 +1015,11 @@ export class AppController {
   }
 
   salvarConfiguracoesLoja() {
-    if (!this.verificarSessaoAdmin(true)) {
-      this.modalView.fecharModal(this.modalView.modalConfig);
-      this.exibirTelaPublica();
-      return;
-    }
-
     const nomeLoja = document.getElementById("config-nome-loja")?.value.trim() || CONFIG_PADRAO.nomeLoja;
     const whatsapp = document.getElementById("config-whatsapp")?.value.trim() || CONFIG_PADRAO.whatsapp;
     const taxaInput = document.getElementById("config-taxa-entrega")?.value;
-    const taxaEntrega = isNaN(parseFloat(taxaInput)) ? 0 : parseFloat(taxaInput);
-    const chavePix = document.getElementById("config-chave-pix")?.value.trim() || "";
+    const taxaEntrega = (taxaInput === "" || isNaN(parseFloat(taxaInput))) ? 0 : parseFloat(taxaInput);
+    const chavePix = document.getElementById("config-chave-pix")?.value.trim() || CONFIG_PADRAO.chavePix;
 
     const novosDados = { nomeLoja, whatsapp, taxaEntrega, chavePix };
     this.configModel.salvarConfig(novosDados);
@@ -1068,7 +1076,7 @@ export class AppController {
     texto += `----------------------------------------\n`;
     texto += `💰 *Subtotal:* ${formatarPreco(subtotalValor)}\n`;
     if (ehDelivery) {
-      texto += `🛵 *Taxa de Entrega:* ${formatarPreco(taxaEntrega)}\n`;
+      texto += `🛵 *Taxa de Entrega:* ${taxaEntrega === 0 ? "Grátis" : formatarPreco(taxaEntrega)}\n`;
     }
     texto += `✨ *TOTAL A PAGAR:* ${formatarPreco(totalGeral)}\n`;
     texto += `----------------------------------------\n`;

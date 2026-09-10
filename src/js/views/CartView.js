@@ -59,7 +59,9 @@ export class CartView {
     }
 
     if (this.modalSubtotalValor) this.modalSubtotalValor.textContent = formatarPreco(totais.subtotalValor);
-    if (this.modalTaxaValor) this.modalTaxaValor.textContent = formatarPreco(totais.taxaEntrega);
+    if (this.modalTaxaValor) {
+      this.modalTaxaValor.textContent = (totais.taxaEntrega === 0) ? "Grátis" : formatarPreco(totais.taxaEntrega);
+    }
     if (this.modalValorTotal) this.modalValorTotal.textContent = formatarPreco(totais.totalGeral);
   }
 }

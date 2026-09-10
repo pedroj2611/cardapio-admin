@@ -2,8 +2,8 @@
 // SERVICE WORKER (PWA - FANESE: CACHE V8 & ATUALIZAÇÃO IMEDIATA)
 // ==========================================================================
 
-// Nome da "caixa" do cache (v15)
-const CACHE = "cardapio-admin-v15";
+// Nome da "caixa" do cache (v16)
+const CACHE = "cardapio-admin-v16";
 
 // Arquivos que o app precisa para funcionar offline.
 const ARQUIVOS = [
