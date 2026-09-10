@@ -11,6 +11,7 @@ export class ModalView {
     this.modalPedido = document.getElementById("modal-pedido");
     this.modalEditar = document.getElementById("modal-editar-produto");
     this.modalConfig = document.getElementById("modal-configuracoes");
+    this.modalSincronizar = document.getElementById("modal-sincronizar");
 
     this.tipoAtendimentoSelect = document.getElementById("tipo-atendimento");
     this.formaPagamentoSelect = document.getElementById("forma-pagamento");

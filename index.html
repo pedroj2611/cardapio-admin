@@ -201,6 +201,9 @@
             <span id="admin-session-badge" style="font-size: 0.78rem; background: rgba(46, 204, 113, 0.15); border: 1px solid #2ecc71; color: #2ecc71; font-weight: 700; padding: 6px 10px; border-radius: 6px;" title="Tempo restante da sua sessão de administrador">
               ⏱️ Sessão: 20 min
             </span>
+            <button id="btn-admin-sync-top" class="btn-admin-golden" style="background: linear-gradient(135deg, #27ae60, #2ecc71); border-color: #27ae60; color: #fff;" title="Sincronizar dados e alterações com o celular">
+              <span>📲 Sincronizar</span>
+            </button>
             <button id="btn-sair-admin" class="btn-admin-golden" title="Ir para o Cardápio Público">
               <span>🍽️ Cardápio</span>
             </button>
@@ -397,6 +400,9 @@
                 Administração do restaurante, taxas, pagamentos e organização dos pratos.
               </p>
               <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button id="btn-admin-sincronizar" class="btn-admin-golden" style="width: 100%; justify-content: center; font-size: 0.82rem; padding: 10px; background: linear-gradient(135deg, #27ae60, #2ecc71); border-color: #27ae60; color: #fff;">
+                  <span>📱 Sincronizar com Celular</span>
+                </button>
                 <button id="btn-admin-config-loja" class="btn-admin-golden" style="width: 100%; justify-content: center; font-size: 0.82rem; padding: 10px;">
                   <span>⚙️ Configurar Restaurante</span>
                 </button>
@@ -686,9 +692,103 @@
             <input type="text" id="config-chave-pix" placeholder="Ex: pix@saborearte.com.br ou CNPJ">
           </div>
         </form>
+        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color, #30363d);">
+          <h4 style="font-size: 0.88rem; margin: 0 0 6px 0; color: var(--dark, #f0f6fc); display: flex; align-items: center; gap: 6px;">
+            <span>📲 Sincronização entre Dispositivos</span>
+          </h4>
+          <p style="font-size: 0.78rem; color: var(--text-muted, #8b949e); margin-bottom: 10px; line-height: 1.4;">
+            Transfira as alterações deste aparelho para o seu celular ou outro dispositivo.
+          </p>
+          <button type="button" id="btn-abrir-sync-via-config" class="btn-admin-golden" style="width: 100%; justify-content: center; font-size: 0.82rem; padding: 10px; background: linear-gradient(135deg, #27ae60, #2ecc71); border-color: #27ae60; color: #fff;">
+            <span>📱 Abrir Sincronização com Celular</span>
+          </button>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" id="btn-salvar-config" class="btn-adicionar-produto" style="width: 100%;">Salvar Configurações</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- MODAL DE SINCRONIZAÇÃO ENTRE DISPOSITIVOS (PC / CELULAR) -->
+  <dialog id="modal-sincronizar" class="modal-dialog">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <div class="modal-header-title">
+          <span class="modal-icon">📲</span>
+          <div>
+            <h3 class="modal-title">Sincronizar com Celular</h3>
+            <p class="modal-sub">Transfira seus produtos, preços e configurações do PC para o celular</p>
+          </div>
+        </div>
+        <button id="btn-fechar-sincronizar" class="btn-fechar" aria-label="Fechar sincronização">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+        
+        <!-- MÉTODO 1: LINK DIRETO & WHATSAPP (MUITO PRÁTICO) -->
+        <div style="background: rgba(46, 204, 113, 0.08); border: 1px solid #2ecc71; border-radius: 12px; padding: 16px;">
+          <h4 style="margin: 0 0 6px 0; color: #2ecc71; display: flex; align-items: center; gap: 6px; font-size: 0.95rem;">
+            <span>🚀 Método 1: Enviar Link para seu WhatsApp</span>
+          </h4>
+          <p style="font-size: 0.82rem; color: var(--text-muted, #a0aec0); margin-bottom: 12px; line-height: 1.4;">
+            Clique no botão verde abaixo para enviar o link com todos os seus produtos e preços direto para o seu WhatsApp. Ao abrir o link no celular, o cardápio é atualizado na hora!
+          </p>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" id="btn-sync-whatsapp" class="btn-action-submit" style="flex: 1; min-width: 200px; justify-content: center; background: #25D366; border-color: #25D366; color: #fff; font-weight: 700; padding: 10px 14px;">
+              <span>💬 Enviar para meu WhatsApp</span>
+            </button>
+            <button type="button" id="btn-sync-copiar-link" class="btn-admin-golden" style="flex: 1; min-width: 150px; justify-content: center; padding: 10px 14px;">
+              <span>📋 Copiar Link</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- MÉTODO 2: QR CODE NA TELA DO COMPUTADOR -->
+        <div style="background: var(--bg-card, #1a202c); border: 1px solid var(--border-color, #2d3748); border-radius: 12px; padding: 16px; text-align: center;">
+          <h4 style="margin: 0 0 6px 0; color: var(--dark, #e2e8f0); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.95rem;">
+            <span>📷 Método 2: Apontar a Câmera do Celular</span>
+          </h4>
+          <p style="font-size: 0.82rem; color: var(--text-muted, #a0aec0); margin-bottom: 12px;">
+            Aponte a câmera do seu smartphone para o QR Code abaixo para abrir o cardápio sincronizado:
+          </p>
+          <div id="sync-qrcode-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 10px 0;">
+            <img id="sync-qrcode-img" src="" alt="QR Code de Sincronização" style="width: 190px; height: 190px; border-radius: 10px; background: white; padding: 8px; border: 2px solid #e2e8f0; display: none;">
+            <div id="sync-qrcode-loading" style="color: var(--text-muted, #718096); font-size: 0.82rem; padding: 15px;">Gerando QR Code...</div>
+          </div>
+        </div>
+
+        <!-- MÉTODO 3: ARQUIVO BACKUP JSON OU CÓDIGO MANUAL -->
+        <details style="background: var(--bg-card, #171923); border: 1px solid var(--border-color, #2d3748); border-radius: 12px; padding: 12px;">
+          <summary style="cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--dark, #cbd5e0);">
+            🛠️ Método 3: Arquivo Backup ou Código Manual
+          </summary>
+          <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" id="btn-sync-exportar-json" class="btn-admin-outline" style="flex: 1; padding: 8px 12px; font-size: 0.8rem; justify-content: center;">
+                <span>💾 Baixar Backup (.json)</span>
+              </button>
+              <label class="btn-admin-outline" style="flex: 1; padding: 8px 12px; font-size: 0.8rem; justify-content: center; cursor: pointer; margin: 0; display: flex; align-items: center;">
+                <span>📥 Restaurar Backup (.json)</span>
+                <input type="file" id="input-sync-arquivo" accept=".json" style="display: none;">
+              </label>
+            </div>
+            <div>
+              <label for="textarea-sync-code" style="font-size: 0.78rem; color: var(--text-muted, #a0aec0); display: block; margin-bottom: 4px;">Código de Sincronização:</label>
+              <textarea id="textarea-sync-code" rows="3" style="width: 100%; border-radius: 6px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; font-family: monospace; font-size: 0.75rem; padding: 8px;" placeholder="Cole o código aqui se desejar importar manualmente..."></textarea>
+              <button type="button" id="btn-sync-aplicar-codigo" class="btn-admin-golden" style="margin-top: 6px; width: 100%; justify-content: center; font-size: 0.82rem; padding: 8px;">
+                <span>Aplicar Código Colado</span>
+              </button>
+            </div>
+          </div>
+        </details>
+
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: flex-end;">
+        <button type="button" id="btn-fechar-sync-modal" class="btn-action-cancel" style="padding: 8px 18px;">
+          <span>Fechar</span>
+        </button>
       </div>
     </div>
   </dialog>

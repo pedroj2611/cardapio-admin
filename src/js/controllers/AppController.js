@@ -159,7 +159,9 @@ export class AppController {
     this.configurarEventos();
     this.configurarEventosAdmin();
     this.configurarSincronizacaoPedidos();
+    this.configurarSincronizacaoDispositivos();
     this.restaurarEstadoSessao();
+    this.verificarParametroSincronizacao();
     this.atualizarInterface();
     this.adminView.renderizarTabela();
     this.renderizarAdminProdutos();
@@ -1099,6 +1101,294 @@ export class AppController {
 
     // Notificação visual do pedido concluído
     ToastView.mostrarToast(`Pedido #${novoPed.id} de "${nome}" enviado ao WhatsApp e salvo com sucesso!`, "📲");
+  }
+
+  // ==========================================================================
+  // SINCRONIZAÇÃO ENTRE DISPOSITIVOS (PC <-> CELULAR)
+  // ==========================================================================
+
+  gerarPayloadSincronizacao() {
+    return {
+      produtos: this.productModel.obterTodos(),
+      config: this.configModel.obter(),
+      timestamp: Date.now()
+    };
+  }
+
+  codificarSincronizacao(data) {
+    try {
+      const json = JSON.stringify(data);
+      const bytes = new TextEncoder().encode(json);
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    } catch (e) {
+      console.error("Erro ao codificar sincronização:", e);
+      return null;
+    }
+  }
+
+  decodificarSincronizacao(b64) {
+    try {
+      const binary = atob(b64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      const json = new TextDecoder().decode(bytes);
+      return JSON.parse(json);
+    } catch (e) {
+      console.error("Erro ao decodificar sincronização:", e);
+      return null;
+    }
+  }
+
+  obterLinkSincronizacao() {
+    const payload = this.gerarPayloadSincronizacao();
+    const b64 = this.codificarSincronizacao(payload);
+    if (!b64) return null;
+    const base = window.location.origin + window.location.pathname;
+    return `${base}#sync=${encodeURIComponent(b64)}`;
+  }
+
+  abrirModalSincronizar() {
+    if (!this.modalView.modalSincronizar) return;
+
+    const payload = this.gerarPayloadSincronizacao();
+    const b64 = this.codificarSincronizacao(payload);
+    const link = this.obterLinkSincronizacao();
+
+    const textarea = document.getElementById("textarea-sync-code");
+    if (textarea) textarea.value = b64 || "";
+
+    const btnWhats = document.getElementById("btn-sync-whatsapp");
+    if (btnWhats && link) {
+      btnWhats.onclick = () => {
+        const msg = `*Cardápio Atualizado do PC*\n\nAbra o link abaixo no seu celular para atualizar produtos e configurações:\n\n${link}`;
+        const whatsUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+        window.open(whatsUrl, "_blank");
+      };
+    }
+
+    const btnCopiar = document.getElementById("btn-sync-copiar-link");
+    if (btnCopiar && link) {
+      btnCopiar.onclick = () => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(link).then(() => {
+            ToastView.mostrarToast("Link de sincronização copiado!", "📋");
+          }).catch(() => {
+            if (textarea) {
+              textarea.select();
+              document.execCommand("copy");
+              ToastView.mostrarToast("Link copiado para a área de transferência!", "📋");
+            }
+          });
+        } else if (textarea) {
+          textarea.select();
+          document.execCommand("copy");
+          ToastView.mostrarToast("Link copiado para a área de transferência!", "📋");
+        }
+      };
+    }
+
+    // QR Code
+    const imgQr = document.getElementById("sync-qrcode-img");
+    const loadingQr = document.getElementById("sync-qrcode-loading");
+    if (imgQr && loadingQr) {
+      if (link && link.length <= 2500) {
+        loadingQr.style.display = "block";
+        loadingQr.textContent = "Gerando QR Code...";
+        imgQr.style.display = "none";
+
+        imgQr.onload = () => {
+          loadingQr.style.display = "none";
+          imgQr.style.display = "block";
+        };
+        imgQr.onerror = () => {
+          loadingQr.textContent = "Use o botão 'Copiar Link' ou 'Enviar para meu WhatsApp' acima!";
+          loadingQr.style.display = "block";
+          imgQr.style.display = "none";
+        };
+        imgQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(link)}`;
+      } else {
+        imgQr.style.display = "none";
+        loadingQr.textContent = "Use os botões de Link ou WhatsApp acima para sincronizar!";
+        loadingQr.style.display = "block";
+      }
+    }
+
+    this.modalView.abrirModal(this.modalView.modalSincronizar);
+  }
+
+  aplicarDadosSincronizados(dados) {
+    try {
+      if (dados.produtos && Array.isArray(dados.produtos) && dados.produtos.length > 0) {
+        localStorage.setItem("cardapio_gourmet_v2_produtos", JSON.stringify(dados.produtos));
+        this.productModel.produtos = [...dados.produtos];
+      }
+      if (dados.config) {
+        localStorage.setItem("cardapio_pro_config", JSON.stringify(dados.config));
+        this.configModel.config = { ...dados.config };
+      }
+      this.atualizarInterface();
+      this.modalView.atualizarHeaderConfig(this.configModel.obter());
+      this.adminView.renderizarTabela();
+      this.renderizarAdminProdutos();
+
+      ToastView.mostrarToast("Cardápio sincronizado com sucesso!", "✨");
+    } catch (e) {
+      console.error("Erro ao aplicar sincronização:", e);
+      ToastView.mostrarToast("Erro ao aplicar sincronização.", "⚠️");
+    }
+  }
+
+  configurarSincronizacaoDispositivos() {
+    const btnsAbrir = [
+      document.getElementById("btn-admin-sincronizar"),
+      document.getElementById("btn-admin-sync-top"),
+      document.getElementById("btn-abrir-sync-via-config")
+    ];
+
+    btnsAbrir.forEach(btn => {
+      if (btn) {
+        btn.addEventListener("click", () => {
+          this.abrirModalSincronizar();
+        });
+      }
+    });
+
+    const btnsFechar = [
+      document.getElementById("btn-fechar-sincronizar"),
+      document.getElementById("btn-fechar-sync-modal")
+    ];
+
+    btnsFechar.forEach(btn => {
+      if (btn) {
+        btn.addEventListener("click", () => {
+          this.modalView.fecharModal(this.modalView.modalSincronizar);
+        });
+      }
+    });
+
+    if (this.modalView.modalSincronizar) {
+      this.modalView.modalSincronizar.addEventListener("click", (e) => {
+        const rect = this.modalView.modalSincronizar.getBoundingClientRect();
+        const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height
+          && rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+        if (!isInDialog) {
+          this.modalView.fecharModal(this.modalView.modalSincronizar);
+        }
+      });
+    }
+
+    // Exportar JSON
+    const btnExportarJson = document.getElementById("btn-sync-exportar-json");
+    if (btnExportarJson) {
+      btnExportarJson.addEventListener("click", () => {
+        const payload = this.gerarPayloadSincronizacao();
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `cardapio_backup_${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        ToastView.mostrarToast("Arquivo de backup baixado!", "💾");
+      });
+    }
+
+    // Importar JSON
+    const inputArquivo = document.getElementById("input-sync-arquivo");
+    if (inputArquivo) {
+      inputArquivo.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          try {
+            const dados = JSON.parse(evt.target.result);
+            if (dados && (dados.produtos || dados.config)) {
+              this.aplicarDadosSincronizados(dados);
+              this.modalView.fecharModal(this.modalView.modalSincronizar);
+            } else {
+              ToastView.mostrarToast("Arquivo de backup inválido!", "⚠️");
+            }
+          } catch (err) {
+            ToastView.mostrarToast("Erro ao ler arquivo JSON!", "⚠️");
+          }
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    // Aplicar código colado
+    const btnAplicarCodigo = document.getElementById("btn-sync-aplicar-codigo");
+    if (btnAplicarCodigo) {
+      btnAplicarCodigo.addEventListener("click", () => {
+        const code = document.getElementById("textarea-sync-code")?.value.trim();
+        if (!code) {
+          ToastView.mostrarToast("Cole o código de sincronização no campo!", "⚠️");
+          return;
+        }
+        let dados = null;
+        try {
+          if (code.startsWith("{")) {
+            dados = JSON.parse(code);
+          } else {
+            dados = this.decodificarSincronizacao(code);
+          }
+        } catch (e) {
+          ToastView.mostrarToast("Código de sincronização inválido!", "⚠️");
+          return;
+        }
+
+        if (dados && (dados.produtos || dados.config)) {
+          this.aplicarDadosSincronizados(dados);
+          this.modalView.fecharModal(this.modalView.modalSincronizar);
+        } else {
+          ToastView.mostrarToast("Nenhum dado encontrado no código!", "⚠️");
+        }
+      });
+    }
+  }
+
+  verificarParametroSincronizacao() {
+    try {
+      const hash = window.location.hash;
+      if (!hash || !hash.includes("sync=")) return;
+
+      const raw = hash.split("sync=")[1];
+      if (!raw) return;
+
+      const dados = this.decodificarSincronizacao(decodeURIComponent(raw));
+      if (!dados || (!dados.produtos && !dados.config)) return;
+
+      const totalProds = (dados.produtos && Array.isArray(dados.produtos)) ? dados.produtos.length : 0;
+      const nomeLoja = (dados.config && dados.config.nomeLoja) ? dados.config.nomeLoja : "Restaurante";
+
+      setTimeout(() => {
+        ToastView.solicitarConfirmacao(
+          "Sincronizar do PC?",
+          `Detectamos ${totalProds} produtos e configurações de "${nomeLoja}" enviados do computador. Deseja atualizar este celular agora?`,
+          "📲",
+          () => {
+            this.aplicarDadosSincronizados(dados);
+            try {
+              history.replaceState(null, "", window.location.pathname + window.location.search);
+            } catch (e) {}
+          },
+          () => {
+            try {
+              history.replaceState(null, "", window.location.pathname + window.location.search);
+            } catch (e) {}
+          }
+        );
+      }, 600);
+    } catch (e) {
+      console.error("Erro ao verificar parâmetro de sincronização:", e);
+    }
   }
 }
 
