@@ -187,9 +187,12 @@ export class AdminView {
       tr.innerHTML = `
         <td><strong>${ped.hora || "Hoje"}</strong></td>
         <td>
-          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+          <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
             ${ehNovo ? '<span style="background: #2ecc71; color: #fff; font-size: 0.68rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px;">NOVO</span>' : ''}
-            <span style="font-weight: 600; color: #ffffff;">👤 ${nomeExibicao}</span>
+            <span style="font-weight: 700; color: var(--text-main, #1e293b); font-size: 0.95rem; display: inline-flex; align-items: center; gap: 6px;">
+              <span style="font-size: 1rem;">👤</span>
+              <strong style="color: var(--text-main, #1e293b);">${nomeExibicao}</strong>
+            </span>
           </div>
         </td>
         <td><span class="status-tag ${badgeClass}">${ped.local || "Balcão"}</span></td>
