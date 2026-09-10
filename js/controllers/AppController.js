@@ -1007,12 +1007,15 @@ export class AppController {
       return;
     }
 
-    const nomeLoja = document.getElementById("config-nome-loja").value.trim();
-    const whatsapp = document.getElementById("config-whatsapp").value.trim();
-    const taxaEntrega = parseFloat(document.getElementById("config-taxa-entrega").value);
-    const chavePix = document.getElementById("config-chave-pix").value.trim();
+    const nomeLoja = document.getElementById("config-nome-loja")?.value.trim() || CONFIG_PADRAO.nomeLoja;
+    const whatsapp = document.getElementById("config-whatsapp")?.value.trim() || CONFIG_PADRAO.whatsapp;
+    const taxaInput = document.getElementById("config-taxa-entrega")?.value;
+    const taxaEntrega = isNaN(parseFloat(taxaInput)) ? 0 : parseFloat(taxaInput);
+    const chavePix = document.getElementById("config-chave-pix")?.value.trim() || "";
 
-    this.configModel.salvar({ nomeLoja, whatsapp, taxaEntrega, chavePix });
+    const novosDados = { nomeLoja, whatsapp, taxaEntrega, chavePix };
+    this.configModel.salvarConfig(novosDados);
+    this.modalView.atualizarHeaderConfig(this.configModel.obter());
     this.atualizarInterface();
     this.modalView.fecharModal(this.modalView.modalConfig);
     ToastView.mostrarToast("Configurações salvas com sucesso!", "⚙️");
