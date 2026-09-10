@@ -237,6 +237,35 @@ export class AdminView {
   }
 
   // Limpar todas as tarefas/pedidos já concluídos usando filter (FANESE Aula 05 Parte 2)
+  obterExcluidos() {
+    try {
+      const salvos = localStorage.getItem("cardapio_pedidos_excluidos");
+      return salvos ? JSON.parse(salvos) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  registrarExcluido(idOuUid) {
+    if (!idOuUid) return;
+    try {
+      const excluidos = this.obterExcluidos();
+      const str = String(idOuUid);
+      if (!excluidos.includes(str)) {
+        excluidos.push(str);
+        if (excluidos.length > 200) excluidos.shift();
+        localStorage.setItem("cardapio_pedidos_excluidos", JSON.stringify(excluidos));
+      }
+    } catch (e) {}
+  }
+
+  foiExcluido(idOuUid) {
+    if (!idOuUid) return false;
+    const excluidos = this.obterExcluidos();
+    return excluidos.includes(String(idOuUid));
+  }
+
+  // Limpar todas as tarefas/pedidos já concluídos usando filter (FANESE Aula 05 Parte 2)
   limparConcluidos() {
     this.pedidos = this.pedidos.filter(function (p) {
       return !p.concluido;
@@ -247,6 +276,7 @@ export class AdminView {
 
   // Limpar todos os pedidos do sistema (FANESE)
   limparTodos() {
+    this.pedidos.forEach(p => this.registrarExcluido(p.uid || p.id));
     this.pedidos = [];
     this.salvarPedidos();
     this.renderizarTabela();
@@ -256,6 +286,8 @@ export class AdminView {
   cancelarPedido(id) {
     const index = this.pedidos.findIndex(p => p.id === id);
     if (index !== -1) {
+      const ped = this.pedidos[index];
+      this.registrarExcluido(ped.uid || ped.id);
       this.pedidos.splice(index, 1);
       this.salvarPedidos();
       this.renderizarTabela();
@@ -287,7 +319,9 @@ export class AdminView {
 
     const novoPedido = {
       id: String(proximoNumero).padStart(4, "0"),
-      hora: `Hoje ${horaFormatada}`,
+      uid: dadosPedido.uid || `ped_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      timestamp: Date.now(),
+      hora: dadosPedido.hora || `Hoje ${horaFormatada}`,
       cliente: nomeCliente,
       atendente: nomeCliente, // Compatibilidade com mockups anteriores
       local: localFormatado,

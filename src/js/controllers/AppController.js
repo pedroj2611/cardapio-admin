@@ -162,6 +162,7 @@ export class AppController {
     this.configurarEventos();
     this.configurarEventosAdmin();
     this.configurarSincronizacaoPedidos();
+    this.configurarSincronizacaoNuvem();
     this.configurarSincronizacaoDispositivos();
     this.restaurarEstadoSessao();
     this.verificarParametroSincronizacao();
@@ -472,14 +473,15 @@ export class AppController {
           return;
         }
 
-        this.adminView.adicionarPedido({
+        const novoPed = this.adminView.adicionarPedido({
           nome: "Pedro (Teste)",
           tipo: "Mesa",
           local: "Mesa 02",
           itensTexto: "1x X-Bacon Artesanal, 1x Coca-Cola",
           totalGeral: 39.40
         });
-        ToastView.mostrarToast("Pedido de teste adicionado ao topo!", "🛎️");
+        this.enviarPedidoNuvem(novoPed);
+        ToastView.mostrarToast("Pedido de teste adicionado e enviado para a nuvem!", "🛎️");
       });
     }
 
@@ -630,6 +632,233 @@ export class AppController {
     } catch (e) {}
   }
 
+  // ==========================================================================
+  // SINCRONIZAÇÃO EM TEMPO REAL DE PEDIDOS NA NUVEM (CELULAR <-> PC)
+  // ==========================================================================
+
+  solicitarPermissaoNotificacao() {
+    try {
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+    } catch (e) {}
+  }
+
+  exibirNotificacaoNavegador(pedido) {
+    try {
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(`🍔 Novo Pedido #${pedido.id} - Hambúrguer dos Amigos`, {
+          body: `${pedido.cliente} fez um pedido: ${pedido.itens} (${pedido.local}). Total: ${formatarPreco(pedido.total)}`,
+          icon: "icons/icon-192.png"
+        });
+      }
+    } catch (e) {}
+  }
+
+  tocarSomAlertaPedido() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === "suspended") {
+        ctx.resume();
+      }
+
+      const agora = ctx.currentTime;
+
+      // Primeiro tom (Ding - 659.25 Hz - E5)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(659.25, agora);
+      gain1.gain.setValueAtTime(0.25, agora);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, agora + 0.35);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(agora);
+      osc1.stop(agora + 0.35);
+
+      // Segundo tom (Dong - 880 Hz - A5)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(880, agora + 0.15);
+      gain2.gain.setValueAtTime(0.3, agora + 0.15);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, agora + 0.7);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(agora + 0.15);
+      osc2.stop(agora + 0.7);
+    } catch (e) {
+      console.log("Notificação sonora não executada:", e);
+    }
+  }
+
+  async enviarPedidoNuvem(pedido) {
+    if (!pedido) return;
+    try {
+      const payload = {
+        tipo: "NOVO_PEDIDO",
+        pedido: pedido,
+        origem: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? "Celular" : "PC",
+        timestamp: Date.now()
+      };
+
+      await fetch("https://ntfy.sh/cardapio_pedroj2611_pedidos", {
+        method: "POST",
+        headers: {
+          "Title": `Novo Pedido #${pedido.id} - ${pedido.cliente}`,
+          "Priority": "high",
+          "Tags": "hamburger,bell,package"
+        },
+        body: JSON.stringify(payload)
+      });
+      console.log(`[Nuvem] Pedido #${pedido.id} enviado para a nuvem em tempo real!`);
+    } catch (err) {
+      console.warn("[Nuvem] Falha de conexão ao enviar pedido para a nuvem:", err);
+    }
+  }
+
+  receberPedidoNuvem(pedido, tocarAlerta = true) {
+    if (!pedido || !pedido.id) return;
+
+    // Se o pedido já foi excluído manualmente pelo admin, não o reintroduz
+    if (this.adminView.foiExcluido(pedido.uid || pedido.id)) {
+      return;
+    }
+
+    const pedidosAtuais = this.adminView.carregarPedidos();
+
+    // Evita duplicatas conferindo UID, ID + Cliente ou Cliente + Total + Itens
+    const jaExiste = pedidosAtuais.some(p => {
+      if (pedido.uid && p.uid && pedido.uid === p.uid) return true;
+      if (p.id === pedido.id && p.cliente === pedido.cliente) return true;
+      if (p.cliente === pedido.cliente && Math.abs((p.total || 0) - (pedido.total || 0)) < 0.01 && p.itens === pedido.itens) return true;
+      return false;
+    });
+
+    if (jaExiste) return;
+
+    // Se o ID já existir para outro cliente, ajusta o número sequencial local
+    const idEmUso = pedidosAtuais.some(p => p.id === pedido.id);
+    if (idEmUso) {
+      const maxId = pedidosAtuais.length > 0 ? Math.max(...pedidosAtuais.map(p => parseInt(p.id) || 0)) : 0;
+      pedido.id = String(maxId + 1).padStart(4, "0");
+    }
+
+    pedido.novo = true;
+    pedido.concluido = false;
+
+    // Adiciona o novo pedido no topo da lista
+    pedidosAtuais.unshift(pedido);
+    this.adminView.pedidos = pedidosAtuais;
+    this.adminView.salvarPedidos();
+    this.adminView.renderizarTabela();
+
+    if (tocarAlerta) {
+      this.tocarSomAlertaPedido();
+      ToastView.mostrarToast(`🔔 Novo pedido recebido do celular: #${pedido.id} (${pedido.cliente})!`, "🛎️");
+      this.exibirNotificacaoNavegador(pedido);
+    }
+  }
+
+  configurarSincronizacaoNuvem() {
+    const TOPICO = "cardapio_pedroj2611_pedidos";
+    const urlSse = `https://ntfy.sh/${TOPICO}/sse`;
+    const urlPoll = `https://ntfy.sh/${TOPICO}/json?poll=1&since=24h`;
+
+    const atualizarStatusUi = (conectado) => {
+      const el = document.getElementById("status-sync-nuvem");
+      if (el) {
+        if (conectado) {
+          el.innerHTML = "🟢 Nuvem Conectada (Ao Vivo)";
+          el.style.color = "#2ecc71";
+          el.style.borderColor = "#2ecc71";
+          el.style.background = "rgba(46, 204, 113, 0.15)";
+        } else {
+          el.innerHTML = "🟡 Reconectando Nuvem...";
+          el.style.color = "#f39c12";
+          el.style.borderColor = "#f39c12";
+          el.style.background = "rgba(243, 156, 18, 0.15)";
+        }
+      }
+    };
+
+    // 1. Busca pedidos recentes na nuvem (últimas 24h)
+    const buscarHistoricoNuvem = async () => {
+      try {
+        const res = await fetch(urlPoll);
+        if (!res.ok) return;
+        const text = await res.text();
+        if (!text) return;
+        const lines = text.trim().split("\n");
+        lines.forEach(line => {
+          try {
+            const obj = JSON.parse(line);
+            if (obj.event === "message" && obj.message) {
+              const data = JSON.parse(obj.message);
+              const ped = data.pedido || data;
+              this.receberPedidoNuvem(ped, false);
+            }
+          } catch (e) {}
+        });
+        atualizarStatusUi(true);
+      } catch (e) {
+        console.warn("[Nuvem] Erro ao sincronizar pedidos da nuvem:", e);
+      }
+    };
+
+    // Executa busca inicial imediata
+    buscarHistoricoNuvem();
+
+    // 2. Conecta canal Server-Sent Events (SSE) em tempo real instantâneo
+    try {
+      if (window.EventSource) {
+        const sse = new EventSource(urlSse);
+
+        sse.onopen = () => {
+          console.log("[Nuvem] Conexão de pedidos em tempo real estabelecida!");
+          atualizarStatusUi(true);
+        };
+
+        sse.onmessage = (event) => {
+          try {
+            const obj = JSON.parse(event.data);
+            if (obj.event === "message" && obj.message) {
+              const data = JSON.parse(obj.message);
+              const ped = data.pedido || data;
+              this.receberPedidoNuvem(ped, true);
+            }
+          } catch (err) {
+            console.warn("[Nuvem] Erro ao decodificar pedido SSE:", err);
+          }
+        };
+
+        sse.onerror = () => {
+          atualizarStatusUi(false);
+        };
+      }
+    } catch (err) {
+      console.warn("[Nuvem] EventSource não suportado no ambiente:", err);
+    }
+
+    // 3. Polling de redundância a cada 15 segundos
+    setInterval(() => {
+      buscarHistoricoNuvem();
+    }, 15000);
+
+    // 4. Botão manual "🔄 Sincronizar Nuvem"
+    const btnSyncNuvem = document.getElementById("btn-sincronizar-nuvem-agora");
+    if (btnSyncNuvem) {
+      btnSyncNuvem.addEventListener("click", async () => {
+        btnSyncNuvem.textContent = "⏳ Sincronizando...";
+        await buscarHistoricoNuvem();
+        btnSyncNuvem.textContent = "🔄 Sincronizar Nuvem";
+        ToastView.mostrarToast("Monitoramento atualizado com a nuvem!", "☁️");
+      });
+    }
+  }
+
   configurarPWA() {
     // 1. Suporte a instalação PWA (beforeinstallprompt - FANESE Aula 03 & 04)
     let deferredPrompt = null;
@@ -725,6 +954,7 @@ export class AppController {
     this.adminView.renderizarTabela();
     this.renderizarAdminProdutos();
     this.atualizarIndicadorSessao();
+    this.solicitarPermissaoNotificacao();
   }
 
   exibirTelaPublica(salvarEstado = true) {
@@ -1097,6 +1327,9 @@ export class AppController {
       itensTexto: resumoItensTexto,
       totalGeral: totalGeral
     });
+
+    // Envia o pedido para a nuvem em tempo real (para o Admin no PC receber na hora!)
+    this.enviarPedidoNuvem(novoPed);
 
     // Abre o WhatsApp com a mensagem do pedido formatada
     try {
