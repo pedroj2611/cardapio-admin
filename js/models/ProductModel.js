@@ -19,7 +19,7 @@ export const PRODUTOS_PADRAO = [
     id: 2,
     nome: "Smash Burger Duplo",
     categoria: "lanches",
-    preco: 28.50,
+    preco: 2.00,
     icone: "🍔",
     imagem: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80",
     badge: "Chef Special",
@@ -104,9 +104,9 @@ export class ProductModel {
 
   carregarProdutos() {
     try {
-      const salvos = localStorage.getItem("cardapio_gourmet_v2_produtos") || localStorage.getItem("cardapio_pro_produtos");
+      const salvos = localStorage.getItem("cardapio_gourmet_v3_produtos");
       if (!salvos) {
-        localStorage.setItem("cardapio_gourmet_v2_produtos", JSON.stringify(PRODUTOS_PADRAO));
+        localStorage.setItem("cardapio_gourmet_v3_produtos", JSON.stringify(PRODUTOS_PADRAO));
         return [...PRODUTOS_PADRAO];
       }
       let lista = JSON.parse(salvos);
@@ -121,7 +121,7 @@ export class ProductModel {
         }
       });
 
-      localStorage.setItem("cardapio_gourmet_v2_produtos", JSON.stringify(lista));
+      localStorage.setItem("cardapio_gourmet_v3_produtos", JSON.stringify(lista));
       return lista;
     } catch (e) {
       console.error("Erro ao carregar produtos:", e);
@@ -131,7 +131,7 @@ export class ProductModel {
 
   salvarProdutos() {
     try {
-      localStorage.setItem("cardapio_gourmet_v2_produtos", JSON.stringify(this.produtos));
+      localStorage.setItem("cardapio_gourmet_v3_produtos", JSON.stringify(this.produtos));
     } catch (e) {
       console.error("Erro ao salvar produtos:", e);
     }

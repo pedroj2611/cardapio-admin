@@ -1225,7 +1225,7 @@ export class AppController {
   aplicarDadosSincronizados(dados) {
     try {
       if (dados.produtos && Array.isArray(dados.produtos) && dados.produtos.length > 0) {
-        localStorage.setItem("cardapio_gourmet_v2_produtos", JSON.stringify(dados.produtos));
+        localStorage.setItem("cardapio_gourmet_v3_produtos", JSON.stringify(dados.produtos));
         this.productModel.produtos = [...dados.produtos];
       }
       if (dados.config) {
