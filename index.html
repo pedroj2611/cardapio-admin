@@ -289,15 +289,25 @@
               </details>
             </section>
 
-            <!-- TABELA CENTRAL DE MONITORAMENTO DE PEDIDOS -->
+            <!-- TABELA CENTRAL DE MONITORAMENTO DE PEDIDOS (AV1 - MINHAS TAREFAS PRO) -->
             <section class="admin-table-container">
-              <div class="table-header-row">
-                <h3 class="table-title">Monitoramento de Pedidos</h3>
-                <div class="table-filter-dropdowns">
-                  <select id="filter-hora-select" class="admin-select">
-                    <option value="">Hora do Pedido ▾</option>
-                    <option value="recentes">Mais recentes</option>
-                    <option value="antigos">Mais antigos</option>
+              <div class="table-header-row" style="flex-wrap: wrap; gap: 12px;">
+                <div>
+                  <h3 class="table-title">Monitoramento de Pedidos (Tarefas PRO · AV1)</h3>
+                  <p style="font-size: 0.76rem; color: #888e99; margin-top: 2px;">
+                    Prioridade colorida, prazo de entrega, busca, ordenação dinâmica e painel de resumo.
+                  </p>
+                </div>
+                <div class="table-filter-dropdowns" style="flex-wrap: wrap; gap: 8px;">
+                  <div class="admin-search-wrapper" style="min-width: 220px;">
+                    <span class="search-icon-input">🔎</span>
+                    <input type="text" id="busca" placeholder="Pesquisar pedidos..." style="width: 100%;">
+                  </div>
+                  <select id="ordenar" class="admin-select" title="Ordenar tarefas/pedidos">
+                    <option value="prioridade">Ordenar: prioridade</option>
+                    <option value="prazo">Ordenar: prazo</option>
+                    <option value="recentes">Ordenar: recentes</option>
+                    <option value="antigos">Ordenar: mais antigos</option>
                   </select>
                   <select id="filter-status-select" class="admin-select">
                     <option value="">Todos os locais ▾</option>
@@ -306,6 +316,17 @@
                     <option value="Balcão">Balcão</option>
                   </select>
                 </div>
+              </div>
+
+              <!-- PAINEL DE RESUMO DA AV1 (TOTAL, PENDENTES, CONCLUÍDAS E ATRASADAS - SLIDE 10 E 13) -->
+              <div class="resumo-av1" id="resumo-pedidos-av1">
+                <div class="resumo-item"><span>Total:</span> <b id="r-total">0</b></div>
+                <span style="opacity: 0.3;">•</span>
+                <div class="resumo-item"><span>Pendentes:</span> <b id="r-pendentes">0</b></div>
+                <span style="opacity: 0.3;">•</span>
+                <div class="resumo-item"><span>Concluídas:</span> <b id="r-concluidas">0</b></div>
+                <span style="opacity: 0.3;">•</span>
+                <div class="resumo-item destaque-atrasada"><span>Atrasadas:</span> <b id="r-atrasadas">0</b></div>
               </div>
 
               <!-- BARRA DE CONTADOR E LIMPEZA DE PEDIDOS CONCLUÍDOS (FANESE AULA 05) -->
@@ -320,8 +341,11 @@
                   <button type="button" id="btn-sincronizar-nuvem-agora" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: #3498db; border-color: #3498db; cursor: pointer;" title="Buscar novos pedidos feitos no celular agora">
                     🔄 Sincronizar Nuvem
                   </button>
-                  <button type="button" id="btn-admin-simular-pedido" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: #2ecc71; border-color: #2ecc71; cursor: pointer;" title="Adicionar pedido de teste para verificação imediata">
-                    ➕ Pedido Teste
+                  <button type="button" id="btn-admin-simular-pedido" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: #2ecc71; border-color: #2ecc71; cursor: pointer;" title="Adicionar pedido normal de teste">
+                    ➕ Pedido Normal
+                  </button>
+                  <button type="button" id="btn-admin-simular-atrasado" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: #e5484d; border-color: #e5484d; cursor: pointer;" title="Adicionar pedido com prazo vencido para testar aviso de ATRASADA">
+                    ⚠️ Pedido Atrasado (Teste)
                   </button>
                   <button type="button" id="btn-limpar-pedidos-concluidos" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: var(--teal-bright); border-color: var(--teal-bright); cursor: pointer;">
                     🧹 Limpar concluídos
@@ -336,12 +360,12 @@
                 <table class="admin-table">
                   <thead>
                     <tr>
-                      <th>Hora do Pedido</th>
+                      <th style="width: 100px;">Prioridade</th>
+                      <th style="min-width: 140px;">Hora / Prazo</th>
                       <th>Cliente</th>
                       <th>Mesa/Delivery</th>
                       <th>Itens</th>
                       <th>Total</th>
-                      <th>Tempo Decorrido</th>
                       <th>Ações</th>
                     </tr>
                   </thead>

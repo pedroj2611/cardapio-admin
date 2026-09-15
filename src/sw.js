@@ -2,13 +2,14 @@
 // SERVICE WORKER (PWA - FANESE: CACHE V8 & ATUALIZAÇÃO IMEDIATA)
 // ==========================================================================
 
-// Nome da "caixa" do cache (v19)
-const CACHE = "cardapio-admin-v19";
+// Nome da "caixa" do cache (AV1 - v20)
+const CACHE = "cardapio-admin-v20";
 
 // Arquivos que o app precisa para funcionar offline.
 const ARQUIVOS = [
   "./",
   "./index.html",
+  "./QuemSomos.txt",
   "./css/base.css",
   "./css/components.css",
   "./css/modals.css",
@@ -35,7 +36,7 @@ self.addEventListener("install", function (evento) {
   self.skipWaiting(); // Não espera as outras abas fecharem
   evento.waitUntil(
     caches.open(CACHE).then(function (cache) {
-      console.log("[SW] Armazenando no cache v17:", CACHE);
+      console.log("[SW] Armazenando no cache AV1:", CACHE);
       return cache.addAll(ARQUIVOS);
     })
   );

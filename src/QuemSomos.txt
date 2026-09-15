@@ -1,0 +1,16 @@
+QuemSomos.txt
+========================================================================
+AV1 · PROVA PRÁTICA (PWA) — FANESE
+Disciplina: Programação para Dispositivos Móveis
+Professor: Márcio Rodrigo
+========================================================================
+
+Componentes do grupo:
+1) Pedro Joaquim Bispo Santana       - Matrícula: 2510207
+2) Carlos Henrique dos Santos Fonseca - Matrícula: 2510194
+
+Link do Projeto Publicado (HTTPS):
+https://pedroj2611.github.io/cardapio-admin/
+
+Repositório GitHub:
+https://github.com/pedroj2611/cardapio-admin

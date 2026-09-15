@@ -6,6 +6,22 @@
 
 import { formatarPreco } from "./ProductView.js";
 
+// ==========================================================================
+// FUNÇÕES AUXILIARES DA AV1 (FANESE - MINHAS TAREFAS PRO)
+// ==========================================================================
+
+// Devolve a data de hoje como texto "aaaa-mm-dd" (Slide 11 da AV1)
+export function hojeTexto() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// Diz se a tarefa/pedido está atrasada (tem prazo, não está feita e o prazo já passou)
+export function estaAtrasada(tarefa) {
+  const prazo = tarefa.vence || tarefa.prazo || "";
+  const feito = tarefa.concluido ?? tarefa.feito ?? false;
+  return prazo !== "" && !feito && prazo < hojeTexto();
+}
+
 export const PEDIDOS_INICIAIS = [
   {
     id: "0001",
@@ -16,7 +32,10 @@ export const PEDIDOS_INICIAIS = [
     total: 32.90,
     tempo: "15 min",
     status: "Aberto",
-    concluido: false
+    concluido: false,
+    prioridade: "alta",
+    vence: "2026-09-14", // Data passada para demonstrar a tag "ATRASADA" da AV1
+    criadaEm: "2026-09-14T11:30:00.000Z"
   },
   {
     id: "0002",
@@ -27,7 +46,10 @@ export const PEDIDOS_INICIAIS = [
     total: 35.00,
     tempo: "20 min",
     status: "Mesa 05",
-    concluido: false
+    concluido: false,
+    prioridade: "media",
+    vence: "2026-09-15",
+    criadaEm: "2026-09-15T11:45:00.000Z"
   },
   {
     id: "0003",
@@ -38,7 +60,10 @@ export const PEDIDOS_INICIAIS = [
     total: 72.00,
     tempo: "25 min",
     status: "Delivery",
-    concluido: false
+    concluido: false,
+    prioridade: "alta",
+    vence: "2026-09-16",
+    criadaEm: "2026-09-15T12:00:00.000Z"
   },
   {
     id: "0004",
@@ -49,7 +74,10 @@ export const PEDIDOS_INICIAIS = [
     total: 47.90,
     tempo: "10 min",
     status: "Mesa 07",
-    concluido: false
+    concluido: false,
+    prioridade: "baixa",
+    vence: "2026-09-17",
+    criadaEm: "2026-09-15T12:15:00.000Z"
   },
   {
     id: "0005",
@@ -60,7 +88,10 @@ export const PEDIDOS_INICIAIS = [
     total: 24.00,
     tempo: "5 min",
     status: "Balcão",
-    concluido: false
+    concluido: true,
+    prioridade: "baixa",
+    vence: "2026-09-15",
+    criadaEm: "2026-09-15T12:30:00.000Z"
   }
 ];
 
@@ -76,14 +107,20 @@ export class AdminView {
     this.tbodyProdutos = document.getElementById("admin-products-table-body");
   }
 
-  // Carrega os pedidos do localStorage com try/catch (FANESE Aula 04 & 05)
+  // Carrega os pedidos do localStorage com try/catch (FANESE Aula 04 & 05 e AV1)
   carregarPedidos() {
     try {
       const salvos = localStorage.getItem("cardapio_admin_pedidos");
       if (salvos) {
         const parsed = JSON.parse(salvos);
         if (Array.isArray(parsed)) {
-          return parsed;
+          // Garante que pedidos já salvos tenham os campos da AV1 preenchidos
+          return parsed.map(p => ({
+            ...p,
+            prioridade: p.prioridade || "media",
+            vence: p.vence || hojeTexto(),
+            criadaEm: p.criadaEm || new Date().toISOString()
+          }));
         }
       }
       localStorage.setItem("cardapio_admin_pedidos", JSON.stringify(PEDIDOS_INICIAIS));
@@ -119,7 +156,39 @@ export class AdminView {
     }
   }
 
-  renderizarTabela(filtroBusca = "", filtroStatus = "", filtroHora = "") {
+  // Atualiza o painel de resumo: total, pendentes, concluídas e atrasadas (Slide 13 da AV1)
+  atualizarResumo() {
+    let pendentes = 0;
+    let concluidas = 0;
+    let atrasadas = 0;
+
+    for (let i = 0; i < this.pedidos.length; i++) {
+      const p = this.pedidos[i];
+      if (p.concluido) {
+        concluidas = concluidas + 1;
+      } else {
+        pendentes = pendentes + 1;
+      }
+      if (estaAtrasada(p)) {
+        atrasadas = atrasadas + 1;
+      }
+    }
+
+    const rTotal = document.getElementById("r-total");
+    const rPendentes = document.getElementById("r-pendentes");
+    const rConcluidas = document.getElementById("r-concluidas");
+    const rAtrasadas = document.getElementById("r-atrasadas");
+
+    if (rTotal) rTotal.textContent = this.pedidos.length;
+    if (rPendentes) rPendentes.textContent = pendentes;
+    if (rConcluidas) rConcluidas.textContent = concluidas;
+    if (rAtrasadas) rAtrasadas.textContent = atrasadas;
+
+    this.atualizarContador();
+    this.atualizarCards();
+  }
+
+  renderizarTabela(filtroBusca = "", filtroStatus = "", filtroOrdenacao = "prioridade") {
     if (!this.tbody) {
       this.tbody = document.getElementById("admin-orders-table-body");
     }
@@ -130,17 +199,25 @@ export class AdminView {
 
     let lista = [...this.pedidos];
 
+    // 1) Busca por texto (Slide 12 da AV1: filter + indexOf)
     if (filtroBusca) {
-      const termo = filtroBusca.toLowerCase();
-      lista = lista.filter(p => 
-        String(p.atendente || "").toLowerCase().includes(termo) ||
-        String(p.cliente || "").toLowerCase().includes(termo) ||
-        String(p.local || "").toLowerCase().includes(termo) ||
-        String(p.itens || "").toLowerCase().includes(termo) ||
-        String(p.id || "").toLowerCase().includes(termo)
-      );
+      const termo = filtroBusca.trim().toLowerCase();
+      if (termo !== "") {
+        lista = lista.filter(function (p) {
+          const textoGeral = (
+            (p.atendente || "") + " " +
+            (p.cliente || "") + " " +
+            (p.local || "") + " " +
+            (p.itens || "") + " " +
+            (p.id || "") + " " +
+            (p.prioridade || "")
+          ).toLowerCase();
+          return textoGeral.indexOf(termo) !== -1;
+        });
+      }
     }
 
+    // 2) Filtro por local/status
     if (filtroStatus) {
       const sTermo = filtroStatus.toLowerCase();
       lista = lista.filter(p => 
@@ -149,7 +226,29 @@ export class AdminView {
       );
     }
 
-    if (filtroHora === "antigos") {
+    // 3) Ordenação escolhida (Slide 12 da AV1: sort numa cópia com slice)
+    const ordem = { alta: 0, media: 1, baixa: 2 };
+    lista = lista.slice();
+
+    if (filtroOrdenacao === "prioridade") {
+      lista.sort(function (a, b) {
+        const pa = ordem[a.prioridade || "media"] ?? 1;
+        const pb = ordem[b.prioridade || "media"] ?? 1;
+        return pa - pb;
+      });
+    } else if (filtroOrdenacao === "prazo") {
+      lista.sort(function (a, b) {
+        const va = (a.vence || "") === "" ? "9999-99-99" : a.vence;
+        const vb = (b.vence || "") === "" ? "9999-99-99" : b.vence;
+        return va < vb ? -1 : (va > vb ? 1 : 0);
+      });
+    } else if (filtroOrdenacao === "recentes") {
+      lista.sort(function (a, b) {
+        const ca = a.criadaEm || a.hora || "";
+        const cb = b.criadaEm || b.hora || "";
+        return cb < ca ? -1 : (cb > ca ? 1 : 0);
+      });
+    } else if (filtroOrdenacao === "antigos") {
       lista.reverse();
     }
 
@@ -164,8 +263,7 @@ export class AdminView {
           </td>
         </tr>
       `;
-      this.atualizarContador();
-      this.atualizarCards();
+      this.atualizarResumo();
       return;
     }
 
@@ -183,9 +281,24 @@ export class AdminView {
 
       const nomeExibicao = ped.cliente || ped.atendente || "Cliente Online";
       const ehNovo = ped.novo && !ped.concluido;
+      const ehAtrasada = estaAtrasada(ped);
+      const prioridadeNome = (ped.prioridade || "media").toLowerCase();
 
       tr.innerHTML = `
-        <td><strong>${ped.hora || "Hoje"}</strong></td>
+        <td>
+          <span class="badge-prioridade ${prioridadeNome}">
+            ${prioridadeNome.toUpperCase()}
+          </span>
+        </td>
+        <td>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <strong>${ped.hora || "Hoje"}</strong>
+            <div style="font-size: 0.74rem; color: #888e99; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+              <span>Prazo: ${ped.vence || "Hoje"}</span>
+              ${ehAtrasada ? '<span class="atrasada">ATRASADA</span>' : ''}
+            </div>
+          </div>
+        </td>
         <td>
           <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
             ${ehNovo ? '<span style="background: #2ecc71; color: #fff; font-size: 0.68rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px;">NOVO</span>' : ''}
@@ -196,9 +309,8 @@ export class AdminView {
           </div>
         </td>
         <td><span class="status-tag ${badgeClass}">${ped.local || "Balcão"}</span></td>
-        <td style="max-width: 220px; font-size: 0.85rem; line-height: 1.35;">${ped.itens || "-"}</td>
+        <td style="max-width: 200px; font-size: 0.85rem; line-height: 1.35;">${ped.itens || "-"}</td>
         <td><strong style="color: var(--primary-gold, #f1c40f); font-size: 0.95rem;">${formatarPreco(ped.total || 0)}</strong></td>
-        <td>${ped.tempo || "Recente"}</td>
         <td>
           <div class="action-btn-group">
             <button class="btn-action-outline btn-concluir-ped ${ped.concluido ? 'concluido' : ''}" data-id="${ped.id}" title="Marcar como concluído/aberto">
@@ -214,9 +326,9 @@ export class AdminView {
       this.tbody.appendChild(tr);
     });
 
-    this.atualizarContador();
-    this.atualizarCards();
+    this.atualizarResumo();
   }
+
 
   atualizarCards() {
     const totalPedidos = this.pedidos.length;
@@ -333,7 +445,10 @@ export class AdminView {
       tempo: "Recente",
       status: dadosPedido.tipo || "Aberto",
       concluido: false,
-      novo: true
+      novo: true,
+      prioridade: dadosPedido.prioridade || "media",
+      vence: dadosPedido.vence || hojeTexto(),
+      criadaEm: dadosPedido.criadaEm || new Date().toISOString()
     };
 
     this.pedidos.unshift(novoPedido); // Adiciona no início para aparecer no topo do monitoramento

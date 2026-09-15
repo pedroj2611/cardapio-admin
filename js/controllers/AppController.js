@@ -347,16 +347,16 @@ export class AppController {
       });
     }
 
-    // Eventos dentro do Painel Admin (Filtros, Busca e Tabela)
-    const adminSearchInput = document.getElementById("admin-search-input");
+    // Eventos dentro do Painel Admin (Filtros, Busca e Tabela - FANESE AV1)
+    const adminSearchInput = document.getElementById("busca") || document.getElementById("admin-search-input");
     const filterStatusSelect = document.getElementById("filter-status-select");
-    const filterHoraSelect = document.getElementById("filter-hora-select");
+    const filterOrdenarSelect = document.getElementById("ordenar") || document.getElementById("filter-hora-select");
 
     const aplicarFiltrosAdmin = () => {
       const buscaVal = adminSearchInput ? adminSearchInput.value.trim() : "";
       const statusVal = filterStatusSelect ? filterStatusSelect.value : "";
-      const horaVal = filterHoraSelect ? filterHoraSelect.value : "";
-      this.adminView.renderizarTabela(buscaVal, statusVal, horaVal);
+      const ordenarVal = filterOrdenarSelect ? filterOrdenarSelect.value : "prioridade";
+      this.adminView.renderizarTabela(buscaVal, statusVal, ordenarVal);
     };
 
     if (adminSearchInput) {
@@ -367,8 +367,8 @@ export class AppController {
       filterStatusSelect.addEventListener("change", aplicarFiltrosAdmin);
     }
 
-    if (filterHoraSelect) {
-      filterHoraSelect.addEventListener("change", aplicarFiltrosAdmin);
+    if (filterOrdenarSelect) {
+      filterOrdenarSelect.addEventListener("change", aplicarFiltrosAdmin);
     }
 
     const tbodyAdmin = document.getElementById("admin-orders-table-body");
@@ -473,15 +473,46 @@ export class AppController {
           return;
         }
 
+        const hojeStr = new Date().toISOString().slice(0, 10);
         const novoPed = this.adminView.adicionarPedido({
-          nome: "Pedro (Teste)",
+          nome: "Pedro e Carlos (Normal)",
           tipo: "Mesa",
           local: "Mesa 02",
-          itensTexto: "1x X-Bacon Artesanal, 1x Coca-Cola",
-          totalGeral: 39.40
+          itensTexto: "1x Smash Burger Duplo + 1x Suco",
+          totalGeral: 38.00,
+          prioridade: "media",
+          vence: hojeStr
         });
         this.enviarPedidoNuvem(novoPed);
-        ToastView.mostrarToast("Pedido de teste adicionado e enviado para a nuvem!", "🛎️");
+        ToastView.mostrarToast("Pedido de teste (Normal) adicionado!", "🛎️");
+      });
+    }
+
+    // Botão Simular Pedido Atrasado (FANESE AV1 - Teste da tag ATRASADA)
+    const btnSimularAtrasado = document.getElementById("btn-admin-simular-atrasado");
+    if (btnSimularAtrasado) {
+      btnSimularAtrasado.addEventListener("click", () => {
+        if (!this.verificarSessaoAdmin(true)) {
+          this.exibirTelaPublica();
+          return;
+        }
+
+        // Data de ontem para acionar a verificação estaAtrasada()
+        const ontem = new Date();
+        ontem.setDate(ontem.getDate() - 1);
+        const ontemStr = ontem.toISOString().slice(0, 10);
+
+        const novoPed = this.adminView.adicionarPedido({
+          nome: "Carlos Henrique (Urgente)",
+          tipo: "Delivery",
+          local: "Delivery (Centro)",
+          itensTexto: "2x X-Bacon Artesanal Gourmet",
+          totalGeral: 65.80,
+          prioridade: "alta",
+          vence: ontemStr
+        });
+        this.enviarPedidoNuvem(novoPed);
+        ToastView.mostrarToast("⚠️ Pedido com prazo vencido criado (Tag ATRASADA ativa)!", "⏰");
       });
     }
 

@@ -51,7 +51,8 @@ const filesToCopy = [
   'index.html',
   'app.js',
   'sw.js',
-  'manifest.json'
+  'manifest.json',
+  'QuemSomos.txt'
 ];
 
 filesToCopy.forEach(file => {
