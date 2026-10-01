@@ -34,6 +34,7 @@ export const PEDIDOS_INICIAIS = [
     status: "Aberto",
     concluido: false,
     prioridade: "alta",
+    categoria: "trabalho",
     vence: "2026-09-14", // Data passada para demonstrar a tag "ATRASADA" da AV1
     criadaEm: "2026-09-14T11:30:00.000Z"
   },
@@ -48,6 +49,7 @@ export const PEDIDOS_INICIAIS = [
     status: "Mesa 05",
     concluido: false,
     prioridade: "media",
+    categoria: "pessoal",
     vence: "2026-09-15",
     criadaEm: "2026-09-15T11:45:00.000Z"
   },
@@ -62,6 +64,7 @@ export const PEDIDOS_INICIAIS = [
     status: "Delivery",
     concluido: false,
     prioridade: "alta",
+    categoria: "casa",
     vence: "2026-09-16",
     criadaEm: "2026-09-15T12:00:00.000Z"
   },
@@ -76,6 +79,7 @@ export const PEDIDOS_INICIAIS = [
     status: "Mesa 07",
     concluido: false,
     prioridade: "baixa",
+    categoria: "estudos",
     vence: "2026-09-17",
     criadaEm: "2026-09-15T12:15:00.000Z"
   },
@@ -90,6 +94,7 @@ export const PEDIDOS_INICIAIS = [
     status: "Balcão",
     concluido: true,
     prioridade: "baixa",
+    categoria: "trabalho",
     vence: "2026-09-15",
     criadaEm: "2026-09-15T12:30:00.000Z"
   }
@@ -114,10 +119,11 @@ export class AdminView {
       if (salvos) {
         const parsed = JSON.parse(salvos);
         if (Array.isArray(parsed)) {
-          // Garante que pedidos já salvos tenham os campos da AV1 preenchidos
+          // Garante que pedidos já salvos tenham os campos da AV1 e Aula 07 preenchidos
           return parsed.map(p => ({
             ...p,
             prioridade: p.prioridade || "media",
+            categoria: p.categoria || "trabalho",
             vence: p.vence || hojeTexto(),
             criadaEm: p.criadaEm || new Date().toISOString()
           }));
@@ -188,7 +194,20 @@ export class AdminView {
     this.atualizarCards();
   }
 
-  renderizarTabela(filtroBusca = "", filtroStatus = "", filtroOrdenacao = "prioridade") {
+  // Atualiza a barra de progresso (% de tarefas concluídas) (FANESE Aula 07 - Passo 25)
+  atualizarProgresso() {
+    let concluidas = 0;
+    for (let i = 0; i < this.pedidos.length; i++) {
+      if (this.pedidos[i].concluido) concluidas = concluidas + 1;
+    }
+    const pct = this.pedidos.length === 0 ? 0 : Math.round((concluidas / this.pedidos.length) * 100);
+    const barra = document.getElementById("barra");
+    const progressoTexto = document.getElementById("progresso-texto");
+    if (barra) barra.style.width = pct + "%";
+    if (progressoTexto) progressoTexto.textContent = pct + "% concluído";
+  }
+
+  renderizarTabela(filtroBusca = "", filtroStatus = "", filtroOrdenacao = "prioridade", filtroCategoria = "todas") {
     if (!this.tbody) {
       this.tbody = document.getElementById("admin-orders-table-body");
     }
@@ -210,7 +229,8 @@ export class AdminView {
             (p.local || "") + " " +
             (p.itens || "") + " " +
             (p.id || "") + " " +
-            (p.prioridade || "")
+            (p.prioridade || "") + " " +
+            (p.categoria || "")
           ).toLowerCase();
           return textoGeral.indexOf(termo) !== -1;
         });
@@ -226,7 +246,14 @@ export class AdminView {
       );
     }
 
-    // 3) Ordenação escolhida (Slide 12 da AV1: sort numa cópia com slice)
+    // 3) Filtro por categoria (Aula 07 - Passo 23)
+    if (filtroCategoria && filtroCategoria !== "todas") {
+      lista = lista.filter(function (t) {
+        return (t.categoria || "trabalho").toLowerCase() === filtroCategoria.toLowerCase();
+      });
+    }
+
+    // 4) Ordenação escolhida (Slide 12 da AV1: sort numa cópia com slice)
     const ordem = { alta: 0, media: 1, baixa: 2 };
     lista = lista.slice();
 
@@ -258,12 +285,13 @@ export class AdminView {
     if (lista.length === 0) {
       this.tbody.innerHTML = `
         <tr>
-          <td colspan="7" class="vazio" style="text-align: center; padding: 28px; color: #888e99;">
+          <td colspan="8" class="vazio" style="text-align: center; padding: 28px; color: #888e99;">
             Sua lista de pedidos está vazia no momento.
           </td>
         </tr>
       `;
       this.atualizarResumo();
+      this.atualizarProgresso();
       return;
     }
 
@@ -283,11 +311,17 @@ export class AdminView {
       const ehNovo = ped.novo && !ped.concluido;
       const ehAtrasada = estaAtrasada(ped);
       const prioridadeNome = (ped.prioridade || "media").toLowerCase();
+      const categoriaNome = (ped.categoria || "trabalho").toLowerCase();
 
       tr.innerHTML = `
         <td>
           <span class="badge-prioridade ${prioridadeNome}">
             ${prioridadeNome.toUpperCase()}
+          </span>
+        </td>
+        <td>
+          <span class="categoria ${categoriaNome}">
+            ${categoriaNome}
           </span>
         </td>
         <td>
@@ -327,6 +361,7 @@ export class AdminView {
     });
 
     this.atualizarResumo();
+    this.atualizarProgresso();
   }
 
 
@@ -447,6 +482,7 @@ export class AdminView {
       concluido: false,
       novo: true,
       prioridade: dadosPedido.prioridade || "media",
+      categoria: dadosPedido.categoria || "trabalho",
       vence: dadosPedido.vence || hojeTexto(),
       criadaEm: dadosPedido.criadaEm || new Date().toISOString()
     };

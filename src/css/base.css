@@ -42,16 +42,48 @@
   --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-heading: 'Outfit', system-ui, sans-serif;
   --transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Variáveis de tema da Aula 07 */
+  --bg: #f1f7f7;
+  --card: #ffffff;
+  --ink: #06282b;
+  --ink-soft: #3c5c5f;
+  --linha: #cfe2e2;
+  --marca: #1c96a0;
 }
 
-/* VARIÁVEIS DE MODO ESCURO */
-body.dark-mode {
+/* VARIÁVEIS DE TEMA ESCURO (FANESE AULA 07 - SLIDE 07) */
+:root[data-theme="escuro"], body.dark-mode {
+  --bg: #0e1b1d;
+  --card: #13272a;
+  --ink: #e8f1f1;
+  --ink-soft: #9fb8b8;
+  --linha: #284745;
+  --marca: #2bb3bd;
+
   --bg-body: #0b0e11;
   --bg-card: #161a1e;
   --text-main: #f1f5f9;
   --text-muted: #94a3b8;
   --border: #262b32;
   --border-focus: #3b424c;
+}
+
+/* VARIÁVEIS DE TEMA CLARO (FANESE AULA 07) */
+:root[data-theme="claro"] {
+  --bg: #f1f7f7;
+  --card: #ffffff;
+  --ink: #06282b;
+  --ink-soft: #3c5c5f;
+  --linha: #cfe2e2;
+  --marca: #1c96a0;
+
+  --bg-body: #f8fafc;
+  --bg-card: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --border-focus: #cbd5e1;
 }
 
 /* RESET E PREVENÇÃO DE OVERFLOW */

@@ -339,24 +339,58 @@ export class AppController {
       });
     }
 
-    // Dark Mode Toggle
+    // ---- TEMA CLARO/ESCURO (FANESE AULA 07 - SLIDES 07, 08 E 09) ----
+    const btnTema = document.getElementById("tema");
     const toggleDarkMode = document.getElementById("toggle-dark-mode");
-    if (toggleDarkMode) {
-      toggleDarkMode.addEventListener("change", (e) => {
-        document.body.classList.toggle("dark-mode", e.target.checked);
+
+    const aplicarTema = (tema) => {
+      document.documentElement.setAttribute("data-theme", tema);
+      const ehEscuro = tema === "escuro";
+      document.body.classList.toggle("dark-mode", ehEscuro);
+      if (btnTema) btnTema.textContent = ehEscuro ? "☀️" : "🌙";
+      if (toggleDarkMode) toggleDarkMode.checked = ehEscuro;
+    };
+
+    const carregarTema = () => {
+      let tema = localStorage.getItem("tema");
+      if (!tema) {
+        const prefereEscuro = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        tema = prefereEscuro ? "escuro" : "claro";
+      }
+      aplicarTema(tema);
+    };
+
+    if (btnTema) {
+      btnTema.addEventListener("click", () => {
+        const atual = document.documentElement.getAttribute("data-theme") || (document.body.classList.contains("dark-mode") ? "escuro" : "claro");
+        const novo = atual === "escuro" ? "claro" : "escuro";
+        aplicarTema(novo);
+        localStorage.setItem("tema", novo);
       });
     }
 
-    // Eventos dentro do Painel Admin (Filtros, Busca e Tabela - FANESE AV1)
+    if (toggleDarkMode) {
+      toggleDarkMode.addEventListener("change", (e) => {
+        const novo = e.target.checked ? "escuro" : "claro";
+        aplicarTema(novo);
+        localStorage.setItem("tema", novo);
+      });
+    }
+
+    carregarTema();
+
+    // Eventos dentro do Painel Admin (Filtros, Busca e Tabela - FANESE AV1 e Aula 07)
     const adminSearchInput = document.getElementById("busca") || document.getElementById("admin-search-input");
     const filterStatusSelect = document.getElementById("filter-status-select");
     const filterOrdenarSelect = document.getElementById("ordenar") || document.getElementById("filter-hora-select");
+    const filtroCategoriaSelect = document.getElementById("filtroCategoria");
 
     const aplicarFiltrosAdmin = () => {
       const buscaVal = adminSearchInput ? adminSearchInput.value.trim() : "";
       const statusVal = filterStatusSelect ? filterStatusSelect.value : "";
       const ordenarVal = filterOrdenarSelect ? filterOrdenarSelect.value : "prioridade";
-      this.adminView.renderizarTabela(buscaVal, statusVal, ordenarVal);
+      const catVal = filtroCategoriaSelect ? filtroCategoriaSelect.value : "todas";
+      this.adminView.renderizarTabela(buscaVal, statusVal, ordenarVal, catVal);
     };
 
     if (adminSearchInput) {
@@ -369,6 +403,10 @@ export class AppController {
 
     if (filterOrdenarSelect) {
       filterOrdenarSelect.addEventListener("change", aplicarFiltrosAdmin);
+    }
+
+    if (filtroCategoriaSelect) {
+      filtroCategoriaSelect.addEventListener("change", aplicarFiltrosAdmin);
     }
 
     const tbodyAdmin = document.getElementById("admin-orders-table-body");
@@ -464,7 +502,7 @@ export class AppController {
       });
     }
 
-    // Botão Simular Pedido de Teste no Admin
+    // Botão Simular Pedido de Teste no Admin (Aula 07 - Categorias)
     const btnSimularPedido = document.getElementById("btn-admin-simular-pedido");
     if (btnSimularPedido) {
       btnSimularPedido.addEventListener("click", () => {
@@ -474,6 +512,9 @@ export class AppController {
         }
 
         const hojeStr = new Date().toISOString().slice(0, 10);
+        const catSelect = document.getElementById("categoria");
+        const catEscolhida = catSelect ? catSelect.value : "trabalho";
+
         const novoPed = this.adminView.adicionarPedido({
           nome: "Pedro e Carlos (Normal)",
           tipo: "Mesa",
@@ -481,14 +522,15 @@ export class AppController {
           itensTexto: "1x Smash Burger Duplo + 1x Suco",
           totalGeral: 38.00,
           prioridade: "media",
+          categoria: catEscolhida,
           vence: hojeStr
         });
         this.enviarPedidoNuvem(novoPed);
-        ToastView.mostrarToast("Pedido de teste (Normal) adicionado!", "🛎️");
+        ToastView.mostrarToast(`Pedido de teste adicionado na categoria "${catEscolhida}"!`, "🛎️");
       });
     }
 
-    // Botão Simular Pedido Atrasado (FANESE AV1 - Teste da tag ATRASADA)
+    // Botão Simular Pedido Atrasado (FANESE AV1 & Aula 07)
     const btnSimularAtrasado = document.getElementById("btn-admin-simular-atrasado");
     if (btnSimularAtrasado) {
       btnSimularAtrasado.addEventListener("click", () => {
@@ -502,6 +544,9 @@ export class AppController {
         ontem.setDate(ontem.getDate() - 1);
         const ontemStr = ontem.toISOString().slice(0, 10);
 
+        const catSelect = document.getElementById("categoria");
+        const catEscolhida = catSelect ? catSelect.value : "casa";
+
         const novoPed = this.adminView.adicionarPedido({
           nome: "Carlos Henrique (Urgente)",
           tipo: "Delivery",
@@ -509,10 +554,11 @@ export class AppController {
           itensTexto: "2x X-Bacon Artesanal Gourmet",
           totalGeral: 65.80,
           prioridade: "alta",
+          categoria: catEscolhida,
           vence: ontemStr
         });
         this.enviarPedidoNuvem(novoPed);
-        ToastView.mostrarToast("⚠️ Pedido com prazo vencido criado (Tag ATRASADA ativa)!", "⏰");
+        ToastView.mostrarToast(`⚠️ Pedido atrasado criado na categoria "${catEscolhida}"!`, "⏰");
       });
     }
 

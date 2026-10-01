@@ -17,5 +17,8 @@
   "license": "MIT",
   "devDependencies": {
     "docx": "^9.7.1"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0"
   }
 }
