@@ -380,21 +380,42 @@ export class AppController {
     carregarTema();
 
     // Eventos dentro do Painel Admin (Filtros, Busca e Tabela - FANESE AV1 e Aula 07)
-    const adminSearchInput = document.getElementById("busca") || document.getElementById("admin-search-input");
+    const adminSearchInputHeader = document.getElementById("admin-search-input");
+    const adminSearchInputBusca = document.getElementById("busca");
     const filterStatusSelect = document.getElementById("filter-status-select");
     const filterOrdenarSelect = document.getElementById("ordenar") || document.getElementById("filter-hora-select");
     const filtroCategoriaSelect = document.getElementById("filtroCategoria");
 
-    const aplicarFiltrosAdmin = () => {
-      const buscaVal = adminSearchInput ? adminSearchInput.value.trim() : "";
+    const aplicarFiltrosAdmin = (termoForcado) => {
+      let buscaVal = "";
+      if (typeof termoForcado === "string") {
+        buscaVal = termoForcado;
+      } else if (adminSearchInputBusca) {
+        buscaVal = adminSearchInputBusca.value.trim();
+      } else if (adminSearchInputHeader) {
+        buscaVal = adminSearchInputHeader.value.trim();
+      }
+
       const statusVal = filterStatusSelect ? filterStatusSelect.value : "";
       const ordenarVal = filterOrdenarSelect ? filterOrdenarSelect.value : "prioridade";
       const catVal = filtroCategoriaSelect ? filtroCategoriaSelect.value : "todas";
       this.adminView.renderizarTabela(buscaVal, statusVal, ordenarVal, catVal);
     };
 
-    if (adminSearchInput) {
-      adminSearchInput.addEventListener("input", aplicarFiltrosAdmin);
+    if (adminSearchInputHeader) {
+      adminSearchInputHeader.addEventListener("input", (e) => {
+        const val = e.target.value.trim();
+        if (adminSearchInputBusca) adminSearchInputBusca.value = val;
+        aplicarFiltrosAdmin(val);
+      });
+    }
+
+    if (adminSearchInputBusca) {
+      adminSearchInputBusca.addEventListener("input", (e) => {
+        const val = e.target.value.trim();
+        if (adminSearchInputHeader) adminSearchInputHeader.value = val;
+        aplicarFiltrosAdmin(val);
+      });
     }
 
     if (filterStatusSelect) {
