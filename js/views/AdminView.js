@@ -25,6 +25,8 @@ export function estaAtrasada(tarefa) {
 export const PEDIDOS_INICIAIS = [
   {
     id: "0001",
+    texto: "João Silva: 1x X-Bacon Artesanal",
+    feito: false,
     hora: "Hoje 11:30",
     atendente: "João Silva",
     local: "Aberto",
@@ -40,6 +42,8 @@ export const PEDIDOS_INICIAIS = [
   },
   {
     id: "0002",
+    texto: "Ana Souza: 1x Smash Burger + 1x Coca",
+    feito: false,
     hora: "Hoje 11:45",
     atendente: "Ana Souza",
     local: "Mesa 05",
@@ -55,6 +59,8 @@ export const PEDIDOS_INICIAIS = [
   },
   {
     id: "0003",
+    texto: "Carlos Lima: 2x Batata Rústica + 2x Suco",
+    feito: false,
     hora: "Hoje 12:00",
     atendente: "Carlos Lima",
     local: "Delivery",
@@ -70,6 +76,8 @@ export const PEDIDOS_INICIAIS = [
   },
   {
     id: "0004",
+    texto: "Mario Santos: 1x Chicken Crispy + 1x Brownie",
+    feito: false,
     hora: "Hoje 12:15",
     atendente: "Mario Santos",
     local: "Mesa 07",
@@ -85,6 +93,8 @@ export const PEDIDOS_INICIAIS = [
   },
   {
     id: "0005",
+    texto: "Juliana Silva: 2x Heineken Long Neck",
+    feito: true,
     hora: "Hoje 12:30",
     atendente: "Juliana Silva",
     local: "Balcão",
@@ -104,32 +114,50 @@ export class AdminView {
   constructor() {
     this.pedidos = this.carregarPedidos();
     this.tbody = document.getElementById("admin-orders-table-body");
+    this.listaPwa = document.getElementById("lista");
     this.elTotais = document.getElementById("admin-card-totais");
     this.elVendas = document.getElementById("admin-card-vendas");
     this.elTempo = document.getElementById("admin-card-tempo");
     this.elPendentes = document.getElementById("admin-card-pendentes");
     this.elContador = document.getElementById("contador-pedidos");
+    this.elContadorAula05 = document.getElementById("contador");
     this.tbodyProdutos = document.getElementById("admin-products-table-body");
+
+    // Expor variáveis e funções globais no window para compatibilidade total com a Aula 05
+    window.tarefas = this.pedidos;
+    window.salvar = () => this.salvarPedidos();
+    window.carregar = () => this.carregarPedidos();
+    window.mostrar = () => this.renderizarTabela();
+    window.atualizarContador = () => this.atualizarContador();
   }
 
   // Carrega os pedidos do localStorage com try/catch (FANESE Aula 04 & 05 e AV1)
   carregarPedidos() {
     try {
-      const salvos = localStorage.getItem("cardapio_admin_pedidos");
+      const salvos = localStorage.getItem("cardapio_admin_pedidos") || localStorage.getItem("tarefas");
       if (salvos) {
         const parsed = JSON.parse(salvos);
         if (Array.isArray(parsed)) {
-          // Garante que pedidos já salvos tenham os campos da AV1 e Aula 07 preenchidos
-          return parsed.map(p => ({
-            ...p,
-            prioridade: p.prioridade || "media",
-            categoria: p.categoria || "trabalho",
-            vence: p.vence || hojeTexto(),
-            criadaEm: p.criadaEm || new Date().toISOString()
-          }));
+          // Garante que pedidos já salvos tenham os campos de objeto { texto, feito } da Aula 05
+          return parsed.map((p, idx) => {
+            const textoFormatado = p.texto || (p.cliente ? `${p.cliente}: ${p.itens || ''}` : `Tarefa #${idx + 1}`);
+            const estaFeito = Boolean(p.feito ?? p.concluido ?? false);
+            return {
+              ...p,
+              id: p.id || String(idx + 1).padStart(4, "0"),
+              texto: textoFormatado,
+              feito: estaFeito,
+              concluido: estaFeito,
+              prioridade: p.prioridade || "media",
+              categoria: p.categoria || "trabalho",
+              vence: p.vence || hojeTexto(),
+              criadaEm: p.criadaEm || new Date().toISOString()
+            };
+          });
         }
       }
       localStorage.setItem("cardapio_admin_pedidos", JSON.stringify(PEDIDOS_INICIAIS));
+      localStorage.setItem("tarefas", JSON.stringify(PEDIDOS_INICIAIS.map(p => ({ texto: p.texto, feito: p.feito }))));
       return [...PEDIDOS_INICIAIS];
     } catch (e) {
       console.error("Erro ao carregar pedidos:", e);
@@ -141,6 +169,8 @@ export class AdminView {
   salvarPedidos() {
     try {
       localStorage.setItem("cardapio_admin_pedidos", JSON.stringify(this.pedidos));
+      localStorage.setItem("tarefas", JSON.stringify(this.pedidos.map(p => ({ texto: p.texto || (p.cliente ? `${p.cliente}: ${p.itens || ''}` : "Tarefa"), feito: Boolean(p.feito ?? p.concluido ?? false) }))));
+      window.tarefas = this.pedidos;
     } catch (e) {
       console.error("Erro ao salvar pedidos:", e);
     }
@@ -150,9 +180,13 @@ export class AdminView {
   atualizarContador() {
     let pendentes = 0;
     for (let i = 0; i < this.pedidos.length; i++) {
-      if (!this.pedidos[i].concluido) {
+      if (!this.pedidos[i].feito && !this.pedidos[i].concluido) {
         pendentes = pendentes + 1;
       }
+    }
+    const elContadorAula05 = document.getElementById("contador") || this.elContadorAula05;
+    if (elContadorAula05) {
+      elContadorAula05.textContent = "Faltam " + pendentes + " de " + this.pedidos.length;
     }
     if (this.elContador) {
       this.elContador.textContent = "Faltam " + pendentes + " de " + this.pedidos.length + " pedidos a atender";
@@ -281,12 +315,55 @@ export class AdminView {
 
     this.tbody.innerHTML = "";
 
+    // Renderiza a lista padrão da Aula 05 no elemento <ul id="lista">
+    const listaEl = document.getElementById("lista") || this.listaPwa;
+    if (listaEl) {
+      listaEl.innerHTML = "";
+
+      if (this.pedidos.length === 0) {
+        listaEl.innerHTML = "<p class='vazio'>Sua lista está vazia. Adicione a primeira tarefa!</p>";
+      } else {
+        for (let i = 0; i < this.pedidos.length; i++) {
+          const tarefa = this.pedidos[i];
+
+          const item = document.createElement("li");
+          if (tarefa.feito || tarefa.concluido) {
+            item.classList.add("feita");
+          }
+
+          const texto = document.createElement("span");
+          texto.textContent = tarefa.texto || (tarefa.cliente ? `${tarefa.cliente}: ${tarefa.itens || ''}` : "Tarefa");
+          texto.addEventListener("click", () => {
+            tarefa.feito = !tarefa.feito;
+            tarefa.concluido = tarefa.feito;
+            this.salvarPedidos();
+            this.renderizarTabela();
+          });
+
+          const apagar = document.createElement("button");
+          apagar.textContent = "🗑";
+          apagar.className = "apagar";
+          apagar.setAttribute("aria-label", "Apagar tarefa");
+          apagar.title = "Apagar tarefa";
+          apagar.addEventListener("click", () => {
+            this.pedidos.splice(i, 1);
+            this.salvarPedidos();
+            this.renderizarTabela();
+          });
+
+          item.appendChild(texto);
+          item.appendChild(apagar);
+          listaEl.appendChild(item);
+        }
+      }
+    }
+
     // Estado vazio com classe .vazio (FANESE Aula 05 Parte 2)
     if (lista.length === 0) {
       this.tbody.innerHTML = `
         <tr>
           <td colspan="8" class="vazio" style="text-align: center; padding: 28px; color: #888e99;">
-            Sua lista de pedidos está vazia no momento.
+            <p class="vazio">Sua lista está vazia. Adicione a primeira tarefa!</p>
           </td>
         </tr>
       `;
@@ -297,7 +374,7 @@ export class AdminView {
 
     lista.forEach(ped => {
       const tr = document.createElement("tr");
-      if (ped.concluido) {
+      if (ped.concluido || ped.feito) {
         tr.classList.add("pedido-concluido");
       }
 
@@ -308,7 +385,7 @@ export class AdminView {
       else if (localStr.includes("balcão") || localStr.includes("balcao")) badgeClass = "aberto";
 
       const nomeExibicao = ped.cliente || ped.atendente || "Cliente Online";
-      const ehNovo = ped.novo && !ped.concluido;
+      const ehNovo = ped.novo && !ped.concluido && !ped.feito;
       const ehAtrasada = estaAtrasada(ped);
       const prioridadeNome = (ped.prioridade || "media").toLowerCase();
       const categoriaNome = (ped.categoria || "trabalho").toLowerCase();
@@ -347,8 +424,8 @@ export class AdminView {
         <td><strong style="color: var(--primary-gold, #f1c40f); font-size: 0.95rem;">${formatarPreco(ped.total || 0)}</strong></td>
         <td>
           <div class="action-btn-group">
-            <button class="btn-action-outline btn-concluir-ped ${ped.concluido ? 'concluido' : ''}" data-id="${ped.id}" title="Marcar como concluído/aberto">
-              ${ped.concluido ? "✔ Concluído" : "Marcar Pronto"}
+            <button class="btn-action-outline btn-concluir-ped ${(ped.concluido || ped.feito) ? 'concluido' : ''}" data-id="${ped.id}" title="Marcar como concluído/aberto">
+              ${(ped.concluido || ped.feito) ? "✔ Concluído" : "Marcar Pronto"}
             </button>
             <button class="btn-action-cancel btn-cancelar-ped" data-id="${ped.id}" title="Apagar pedido">
               🗑 Apagar
@@ -368,7 +445,7 @@ export class AdminView {
   atualizarCards() {
     const totalPedidos = this.pedidos.length;
     const totalVendas = this.pedidos.reduce((acc, p) => acc + (Number(p.total) || 0), 0);
-    const pendentes = this.pedidos.filter(p => !p.concluido).length;
+    const pendentes = this.pedidos.filter(p => !p.concluido && !p.feito).length;
 
     if (this.elTotais) this.elTotais.textContent = totalPedidos;
     if (this.elVendas) this.elVendas.textContent = formatarPreco(totalVendas);
@@ -380,7 +457,8 @@ export class AdminView {
   alternarConcluido(id) {
     const ped = this.pedidos.find(p => p.id === id);
     if (ped) {
-      ped.concluido = !ped.concluido;
+      ped.feito = !ped.feito;
+      ped.concluido = ped.feito;
       this.salvarPedidos();
       this.renderizarTabela();
     }
@@ -417,8 +495,8 @@ export class AdminView {
 
   // Limpar todas as tarefas/pedidos já concluídos usando filter (FANESE Aula 05 Parte 2)
   limparConcluidos() {
-    this.pedidos = this.pedidos.filter(function (p) {
-      return !p.concluido;
+    this.pedidos = this.pedidos.filter(function (t) {
+      return !t.feito && !t.concluido;
     });
     this.salvarPedidos();
     this.renderizarTabela();

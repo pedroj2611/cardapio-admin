@@ -992,3 +992,110 @@ document.addEventListener("DOMContentLoaded", () => {
   configurarEventos();
   atualizarInterface();
 });
+
+// ==========================================================================
+// FANESE AULA 05: CONCLUIR, APAGAR, CONTADOR, LIMPAR E ESTADO VAZIO
+// ==========================================================================
+(function() {
+  const campo = document.getElementById("campo");
+  const botao = document.getElementById("botao");
+  const lista = document.getElementById("lista");
+  const contador = document.getElementById("contador");
+  const limpar = document.getElementById("limpar");
+
+  if (!campo || !botao || !lista) return;
+
+  // Cada tarefa é um objeto: { texto, feito }.
+  let tarefas = [];
+
+  function salvar() {
+    localStorage.setItem("tarefas", JSON.stringify(tarefas));
+  }
+
+  function carregar() {
+    const salvas = localStorage.getItem("tarefas");
+    if (salvas) {
+      try {
+        tarefas = JSON.parse(salvas);
+      } catch (erro) {
+        tarefas = [];
+      }
+    }
+    mostrar();
+  }
+
+  function atualizarContador() {
+    let pendentes = 0;
+    for (let i = 0; i < tarefas.length; i++) {
+      if (!tarefas[i].feito) {
+        pendentes = pendentes + 1;
+      }
+    }
+    if (contador) {
+      contador.textContent = "Faltam " + pendentes + " de " + tarefas.length;
+    }
+  }
+
+  function mostrar() {
+    lista.innerHTML = "";
+
+    if (tarefas.length === 0) {
+      lista.innerHTML = "<p class='vazio'>Sua lista está vazia. Adicione a primeira tarefa!</p>";
+    }
+
+    for (let i = 0; i < tarefas.length; i++) {
+      const tarefa = tarefas[i];
+
+      const item = document.createElement("li");
+      if (tarefa.feito) {
+        item.classList.add("feita");
+      }
+
+      const texto = document.createElement("span");
+      texto.textContent = tarefa.texto;
+      texto.addEventListener("click", function () {
+        tarefa.feito = !tarefa.feito;
+        salvar();
+        mostrar();
+      });
+
+      const apagar = document.createElement("button");
+      apagar.textContent = "🗑";
+      apagar.className = "apagar";
+      apagar.addEventListener("click", function () {
+        tarefas.splice(i, 1);
+        salvar();
+        mostrar();
+      });
+
+      item.appendChild(texto);
+      item.appendChild(apagar);
+      lista.appendChild(item);
+    }
+
+    atualizarContador();
+  }
+
+  botao.addEventListener("click", function () {
+    const texto = campo.value;
+    if (texto === "") return;
+    tarefas.push({ texto: texto, feito: false });
+    salvar();
+    mostrar();
+    campo.value = "";
+  });
+
+  if (limpar) {
+    limpar.addEventListener("click", function () {
+      tarefas = tarefas.filter(function (t) {
+        return !t.feito;
+      });
+      salvar();
+      mostrar();
+    });
+  }
+
+  // Ao abrir, carrega o que estava salvo
+  carregar();
+})();
+

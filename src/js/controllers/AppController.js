@@ -452,7 +452,7 @@ export class AppController {
           return;
         }
 
-        const concluidos = this.adminView.pedidos.filter(p => p.concluido).length;
+        const concluidos = this.adminView.pedidos.filter(p => p.concluido || p.feito).length;
         if (concluidos === 0) {
           ToastView.mostrarToast("Nenhum pedido concluído para limpar!", "ℹ️");
           return;
@@ -470,6 +470,65 @@ export class AppController {
             ToastView.mostrarToast("Pedidos concluídos removidos!", "🧹");
           }
         );
+      });
+    }
+
+    // Botão Limpar Concluídas (FANESE Aula 05 Parte 2: #limpar)
+    const btnLimparAula05 = document.getElementById("limpar");
+    if (btnLimparAula05) {
+      btnLimparAula05.addEventListener("click", () => {
+        const concluidas = this.adminView.pedidos.filter(t => t.feito || t.concluido).length;
+        if (concluidas === 0) {
+          ToastView.mostrarToast("Nenhuma tarefa concluída para limpar!", "ℹ️");
+          return;
+        }
+        this.adminView.limparConcluidos();
+        ToastView.mostrarToast("Tarefas concluídas removidas!", "🧹");
+      });
+    }
+
+    // Adicionar nova tarefa com campo e botão (FANESE Aula 05 - Passo 17: #campo e #botao)
+    const campo = document.getElementById("campo");
+    const botao = document.getElementById("botao");
+    if (botao && campo) {
+      const adicionarNovaTarefaPWA = () => {
+        const texto = campo.value.trim();
+        if (texto === "") return;
+        const hojeTxt = new Date().toISOString().slice(0, 10);
+        const horaFormatada = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+        const novoItem = {
+          id: String(Date.now()).slice(-4),
+          uid: `ped_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+          texto: texto,
+          feito: false,
+          concluido: false,
+          cliente: texto,
+          atendente: "Admin",
+          local: "Balcão",
+          itens: texto,
+          total: 0,
+          hora: `Hoje ${horaFormatada}`,
+          tempo: "Recente",
+          status: "Aberto",
+          novo: true,
+          prioridade: "media",
+          categoria: "trabalho",
+          vence: hojeTxt,
+          criadaEm: new Date().toISOString()
+        };
+        this.adminView.pedidos.push(novoItem);
+        this.adminView.salvarPedidos();
+        this.adminView.renderizarTabela();
+        campo.value = "";
+        ToastView.mostrarToast("Tarefa adicionada: " + texto, "📝");
+      };
+
+      botao.addEventListener("click", adicionarNovaTarefaPWA);
+      campo.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          adicionarNovaTarefaPWA();
+        }
       });
     }
 
