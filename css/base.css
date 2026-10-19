@@ -133,6 +133,14 @@ body.modal-open {
   width: calc(100% - var(--sidebar-width));
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+.sidebar.collapsed ~ .main-workspace,
+.sidebar-app.collapsed ~ .main-workspace,
+.app-layout.sidebar-collapsed .main-workspace {
+  margin-left: 70px;
+  width: calc(100% - 70px);
 }
 
 .view-panel {

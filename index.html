@@ -31,34 +31,37 @@
   <div class="app-layout" id="app-layout">
 
     <!-- MENU LATERAL (SIDEBAR DARK ESTILO MOCKUP - VISÍVEL NO DESKTOP) -->
-    <aside class="sidebar-app" id="sidebar-app">
+    <aside class="sidebar-app sidebar" id="sidebar-app">
       <div class="sidebar-header">
         <div class="sidebar-logo-box">
           <img src="icons/logo.png" alt="Hambúrguer dos Amigos" class="sidebar-logo-img">
         </div>
-        <div class="sidebar-brand-info">
+        <div class="sidebar-brand-info menu-label">
           <h2 class="sidebar-title">HAMBÚRGUER</h2>
           <span class="sidebar-subtitle">DOS AMIGOS</span>
         </div>
+        <button type="button" id="btnToggleSidebar" class="btn-toggle-sidebar" title="Recolher / Expandir menu" aria-label="Alternar menu lateral">
+          ☰
+        </button>
       </div>
 
       <nav class="sidebar-nav">
-        <button class="sidebar-item active" id="nav-item-cardapio" data-tab="cardapio">
+        <button class="sidebar-item active" id="nav-item-cardapio" data-tab="cardapio" data-tooltip="Cardápio" title="Cardápio">
           <span class="sidebar-icon">🎛️</span>
-          <span>Cardápio</span>
+          <span class="menu-label">Cardápio</span>
         </button>
-        <button class="sidebar-item" id="nav-item-configuracoes" data-tab="configuracoes">
+        <button class="sidebar-item" id="nav-item-configuracoes" data-tab="configuracoes" data-tooltip="Configurações" title="Configurações">
           <span class="sidebar-icon">⚙️</span>
-          <span>Configurações</span>
+          <span class="menu-label">Configurações</span>
         </button>
-        <button class="sidebar-item" id="btn-instalar-pwa" style="display: none; background: rgba(28, 150, 160, 0.18); border: 1px dashed #34d0db; color: #34d0db;">
+        <button class="sidebar-item" id="btn-instalar-pwa" data-tooltip="Instalar App" title="Instalar App" style="display: none; background: rgba(28, 150, 160, 0.18); border: 1px dashed #34d0db; color: #34d0db;">
           <span class="sidebar-icon">📲</span>
-          <span>Instalar App</span>
+          <span class="menu-label">Instalar App</span>
         </button>
       </nav>
 
       <div class="sidebar-footer">
-        <div class="version-badges">
+        <div class="version-badges menu-label">
           <p>Versão 1.0.0 (PWA)</p>
           <p>Versão Admin 1.0.0</p>
         </div>

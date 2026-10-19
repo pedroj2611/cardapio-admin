@@ -1034,7 +1034,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("tarefas", JSON.stringify(tarefas));
   }
 
-  // Carrega as tarefas salvas ao abrir o app.
+  // Carrega as tarefas salvas e o estado da sidebar ao abrir o app.
   function carregar() {
     const salvas = localStorage.getItem("tarefas");
     if (salvas) {
@@ -1044,6 +1044,17 @@ document.addEventListener("DOMContentLoaded", () => {
         tarefas = [];
       }
     }
+
+    const sidebar = document.getElementById("sidebar-app") || document.querySelector(".sidebar");
+    const appLayout = document.getElementById("app-layout");
+    const sidebarCollapsedSalvo = localStorage.getItem("sidebarCollapsed") === "true";
+    if (sidebar) {
+      sidebar.classList.toggle("collapsed", sidebarCollapsedSalvo);
+    }
+    if (appLayout) {
+      appLayout.classList.toggle("sidebar-collapsed", sidebarCollapsedSalvo);
+    }
+
     mostrar();
   }
 
@@ -1463,6 +1474,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const abaSalva = localStorage.getItem("abaAtiva");
   if (abaSalva && document.getElementById(abaSalva)) {
     ativarAba(abaSalva);
+  }
+
+  // ---- Sidebar Retrátil (Collapsible Sidebar) com persistência no localStorage ----
+  const btnToggleSidebar = document.getElementById("btnToggleSidebar");
+  const sidebarEl = document.getElementById("sidebar-app") || document.querySelector(".sidebar");
+  const appLayoutEl = document.getElementById("app-layout");
+
+  if (btnToggleSidebar && sidebarEl) {
+    btnToggleSidebar.addEventListener("click", function () {
+      const isCollapsed = sidebarEl.classList.toggle("collapsed");
+      if (appLayoutEl) {
+        appLayoutEl.classList.toggle("sidebar-collapsed", isCollapsed);
+      }
+      localStorage.setItem("sidebarCollapsed", isCollapsed);
+    });
   }
 
   carregarTema();

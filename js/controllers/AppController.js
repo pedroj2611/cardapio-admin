@@ -659,6 +659,33 @@ export class AppController {
       ativarAbaAdmin(abaSalvaAdmin);
     }
 
+    // ---- Sidebar Retrátil (Collapsible Sidebar) com persistência no localStorage ----
+    const btnToggleSidebar = document.getElementById("btnToggleSidebar");
+    const sidebarEl = document.getElementById("sidebar-app") || document.querySelector(".sidebar");
+    const appLayoutEl = document.getElementById("app-layout");
+
+    const aplicarEstadoSidebarSalvo = () => {
+      const isCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
+      if (sidebarEl) {
+        sidebarEl.classList.toggle("collapsed", isCollapsed);
+      }
+      if (appLayoutEl) {
+        appLayoutEl.classList.toggle("sidebar-collapsed", isCollapsed);
+      }
+    };
+
+    if (btnToggleSidebar && sidebarEl) {
+      btnToggleSidebar.addEventListener("click", () => {
+        const isCollapsed = sidebarEl.classList.toggle("collapsed");
+        if (appLayoutEl) {
+          appLayoutEl.classList.toggle("sidebar-collapsed", isCollapsed);
+        }
+        localStorage.setItem("sidebarCollapsed", isCollapsed);
+      });
+    }
+
+    aplicarEstadoSidebarSalvo();
+
     // Ações de Gestão do Sistema e Cardápio (Painel Admin)
     const btnAdminConfigLoja = document.getElementById("btn-admin-config-loja");
     if (btnAdminConfigLoja) {
