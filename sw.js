@@ -1,9 +1,9 @@
 // ==========================================================================
-// SERVICE WORKER (PWA - FANESE: CACHE V8 & ATUALIZAÇÃO IMEDIATA)
+// SERVICE WORKER (PWA - FANESE AULA 08: CACHE V7 & ATUALIZAÇÃO IMEDIATA)
 // ==========================================================================
 
-// Nome da "caixa" do cache (Aula 05 / PWA - v22)
-const CACHE = "cardapio-admin-v22";
+// Nome da "caixa" do cache. Troque para v2, v3... ao mudar os arquivos (Aula 08 - Passo 29).
+const CACHE = "minhas-tarefas-v7";
 
 // Arquivos que o app precisa para funcionar offline.
 const ARQUIVOS = [

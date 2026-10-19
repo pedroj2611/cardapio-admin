@@ -994,24 +994,47 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ==========================================================================
-// FANESE AULA 05: CONCLUIR, APAGAR, CONTADOR, LIMPAR E ESTADO VAZIO
+// FANESE AULA 05, 07 E 08: TAREFAS PRO, CATEGORIAS, TEMA, BACKUP E SUBTAREFAS
 // ==========================================================================
 (function() {
   const campo = document.getElementById("campo");
+  const prioridade = document.getElementById("prioridade");
+  const prazo = document.getElementById("prazo");
   const botao = document.getElementById("botao");
+  const busca = document.getElementById("busca");
+  const ordenar = document.getElementById("ordenar");
   const lista = document.getElementById("lista");
   const contador = document.getElementById("contador");
   const limpar = document.getElementById("limpar");
+  const fTodas = document.getElementById("f-todas");
+  const fPendentes = document.getElementById("f-pendentes");
+  const fConcluidas = document.getElementById("f-concluidas");
+  const rTotal = document.getElementById("r-total");
+  const rPendentes = document.getElementById("r-pendentes");
+  const rConcluidas = document.getElementById("r-concluidas");
+  const rAtrasadas = document.getElementById("r-atrasadas");
+  const categoria = document.getElementById("categoria");
+  const filtroCategoria = document.getElementById("filtroCategoria");
+  const barra = document.getElementById("barra");
+  const progressoTexto = document.getElementById("progresso-texto");
+  const btnTema = document.getElementById("tema");
+  const botaoExportar = document.getElementById("exportar");
+  const botaoImportar = document.getElementById("importar");
+  const inputArquivo = document.getElementById("arquivo");
 
   if (!campo || !botao || !lista) return;
 
-  // Cada tarefa é um objeto: { texto, feito }.
+  // Cada tarefa é um objeto com vários campos.
   let tarefas = [];
+  // Qual filtro está ativo agora ("todas", "pendentes" ou "concluidas").
+  let filtro = "todas";
 
+  // Salva a lista no navegador.
   function salvar() {
     localStorage.setItem("tarefas", JSON.stringify(tarefas));
   }
 
+  // Carrega as tarefas salvas ao abrir o app.
   function carregar() {
     const salvas = localStorage.getItem("tarefas");
     if (salvas) {
@@ -1022,6 +1045,16 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
     mostrar();
+  }
+
+  // Devolve a data de hoje como texto "aaaa-mm-dd".
+  function hojeTexto() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  // Diz se a tarefa está atrasada (tem prazo, não está feita e o prazo já passou).
+  function estaAtrasada(tarefa) {
+    return Boolean(tarefa.vence) && tarefa.vence !== "" && !tarefa.feito && tarefa.vence < hojeTexto();
   }
 
   function atualizarContador() {
@@ -1036,22 +1069,120 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Atualiza o resumo: total, pendentes, concluídas e atrasadas.
+  function atualizarResumo() {
+    let pendentes = 0;
+    let concluidas = 0;
+    let atrasadas = 0;
+    for (let i = 0; i < tarefas.length; i++) {
+      if (tarefas[i].feito) {
+        concluidas = concluidas + 1;
+      } else {
+        pendentes = pendentes + 1;
+      }
+      if (estaAtrasada(tarefas[i])) {
+        atrasadas = atrasadas + 1;
+      }
+    }
+    if (rTotal) rTotal.textContent = tarefas.length;
+    if (rPendentes) rPendentes.textContent = pendentes;
+    if (rConcluidas) rConcluidas.textContent = concluidas;
+    if (rAtrasadas) rAtrasadas.textContent = atrasadas;
+  }
+
+  // Atualiza a barra de progresso (% de tarefas concluídas).
+  function atualizarProgresso() {
+    let concluidas = 0;
+    for (let i = 0; i < tarefas.length; i++) {
+      if (tarefas[i].feito) concluidas = concluidas + 1;
+    }
+    const pct = tarefas.length === 0 ? 0 : Math.round((concluidas / tarefas.length) * 100);
+    if (barra) barra.style.width = pct + "%";
+    if (progressoTexto) progressoTexto.textContent = pct + "% concluído";
+  }
+
+  // Destaca visualmente o botão do filtro que está ativo.
+  function marcarFiltroAtivo() {
+    if (fTodas) fTodas.classList.remove("ativo");
+    if (fPendentes) fPendentes.classList.remove("ativo");
+    if (fConcluidas) fConcluidas.classList.remove("ativo");
+    if (filtro === "todas" && fTodas) fTodas.classList.add("ativo");
+    if (filtro === "pendentes" && fPendentes) fPendentes.classList.add("ativo");
+    if (filtro === "concluidas" && fConcluidas) fConcluidas.classList.add("ativo");
+  }
+
+  // Desenha na tela as tarefas (busca + filtro + ordenação + subtarefas).
   function mostrar() {
     lista.innerHTML = "";
 
-    if (tarefas.length === 0) {
-      lista.innerHTML = "<p class='vazio'>Sua lista está vazia. Adicione a primeira tarefa!</p>";
+    // 1) Busca por texto.
+    let visiveis = tarefas;
+    const termo = busca ? busca.value.trim().toLowerCase() : "";
+    if (termo !== "") {
+      visiveis = visiveis.filter(function (t) {
+        return (t.texto || "").toLowerCase().indexOf(termo) !== -1;
+      });
     }
 
-    for (let i = 0; i < tarefas.length; i++) {
-      const tarefa = tarefas[i];
+    // 2) Filtro (todas / pendentes / concluídas).
+    if (filtro === "pendentes") {
+      visiveis = visiveis.filter(function (t) { return !t.feito; });
+    }
+    if (filtro === "concluidas") {
+      visiveis = visiveis.filter(function (t) { return t.feito; });
+    }
+
+    // Filtro por categoria (se não for "todas").
+    if (filtroCategoria && filtroCategoria.value !== "todas") {
+      visiveis = visiveis.filter(function (t) { return t.categoria === filtroCategoria.value; });
+    }
+
+    // 3) Ordenação escolhida. slice() faz uma cópia.
+    const ordem = { alta: 0, media: 1, baixa: 2 };
+    visiveis = visiveis.slice();
+    const ordVal = ordenar ? ordenar.value : "prioridade";
+    if (ordVal === "prioridade") {
+      visiveis.sort(function (a, b) {
+        return (ordem[a.prioridade] ?? 1) - (ordem[b.prioridade] ?? 1);
+      });
+    }
+    if (ordVal === "prazo") {
+      visiveis.sort(function (a, b) {
+        const va = !a.vence || a.vence === "" ? "9999-99-99" : a.vence;
+        const vb = !b.vence || b.vence === "" ? "9999-99-99" : b.vence;
+        return va < vb ? -1 : (va > vb ? 1 : 0);
+      });
+    }
+    if (ordVal === "recentes") {
+      visiveis.sort(function (a, b) {
+        return (b.criadaEm || "") < (a.criadaEm || "") ? -1 : ((b.criadaEm || "") > (a.criadaEm || "") ? 1 : 0);
+      });
+    }
+
+    // 4) Estado vazio.
+    if (visiveis.length === 0) {
+      lista.innerHTML = "<p class='vazio'>Nenhuma tarefa para mostrar aqui.</p>";
+    }
+
+    // 5) Desenha cada tarefa visível.
+    for (let i = 0; i < visiveis.length; i++) {
+      const tarefa = visiveis[i];
 
       const item = document.createElement("li");
       if (tarefa.feito) {
         item.classList.add("feita");
       }
 
+      const etiqueta = document.createElement("span");
+      etiqueta.className = "prioridade " + (tarefa.prioridade || "media");
+      etiqueta.textContent = tarefa.prioridade || "media";
+
+      const chip = document.createElement("span");
+      chip.className = "categoria " + (tarefa.categoria || "pessoal");
+      chip.textContent = tarefa.categoria || "pessoal";
+
       const texto = document.createElement("span");
+      texto.className = "texto";
       texto.textContent = tarefa.texto;
       texto.addEventListener("click", function () {
         tarefa.feito = !tarefa.feito;
@@ -1059,43 +1190,249 @@ document.addEventListener("DOMContentLoaded", () => {
         mostrar();
       });
 
+      const info = document.createElement("span");
+      info.className = "info";
+      let textoInfo = tarefa.criadaEm ? new Date(tarefa.criadaEm).toLocaleDateString("pt-BR") : "";
+      if (tarefa.vence && tarefa.vence !== "") {
+        textoInfo = textoInfo + " · vence " + new Date(tarefa.vence).toLocaleDateString("pt-BR");
+      }
+      info.textContent = textoInfo;
+
+      item.appendChild(etiqueta);
+      item.appendChild(chip);
+      item.appendChild(texto);
+
+      if (estaAtrasada(tarefa)) {
+        const atraso = document.createElement("span");
+        atraso.className = "atrasada";
+        atraso.textContent = "Atrasada";
+        item.appendChild(atraso);
+      }
+
+      item.appendChild(info);
+
+      const editar = document.createElement("button");
+      editar.textContent = "✏️";
+      editar.className = "editar";
+      editar.addEventListener("click", function () {
+        const novo = prompt("Editar tarefa:", tarefa.texto);
+        if (novo !== null && novo.trim() !== "") {
+          tarefa.texto = novo.trim();
+          salvar();
+          mostrar();
+        }
+      });
+
       const apagar = document.createElement("button");
       apagar.textContent = "🗑";
       apagar.className = "apagar";
       apagar.addEventListener("click", function () {
-        tarefas.splice(i, 1);
+        tarefas = tarefas.filter(function (t) { return t.id !== tarefa.id; });
         salvar();
         mostrar();
       });
 
-      item.appendChild(texto);
+      item.appendChild(editar);
       item.appendChild(apagar);
+
+      // --- Subtarefas (os passos da tarefa) ---
+      if (!tarefa.subtarefas) tarefa.subtarefas = [];
+
+      const subBox = document.createElement("div");
+      subBox.className = "subtarefas";
+
+      // Contador de passos (ex.: "1/3 passos").
+      const subContador = document.createElement("div");
+      subContador.className = "sub-contador";
+      const feitasSub = tarefa.subtarefas.filter(function (s) { return s.feito; }).length;
+      subContador.textContent = feitasSub + "/" + tarefa.subtarefas.length + " passos";
+      subBox.appendChild(subContador);
+
+      // Desenha cada passo.
+      for (let j = 0; j < tarefa.subtarefas.length; j++) {
+        const sub = tarefa.subtarefas[j];
+
+        const subItem = document.createElement("div");
+        subItem.className = "sub-item" + (sub.feito ? " sub-feita" : "");
+
+        const check = document.createElement("span");
+        check.className = "sub-check";
+        check.textContent = sub.feito ? "✅" : "⬜";
+        check.addEventListener("click", function () {
+          sub.feito = !sub.feito;
+          salvar();
+          mostrar();
+        });
+
+        const subTexto = document.createElement("span");
+        subTexto.className = "sub-texto";
+        subTexto.textContent = sub.texto;
+
+        const subApagar = document.createElement("button");
+        subApagar.className = "sub-apagar";
+        subApagar.textContent = "×";
+        subApagar.addEventListener("click", function () {
+          tarefa.subtarefas = tarefa.subtarefas.filter(function (s) { return s.id !== sub.id; });
+          salvar();
+          mostrar();
+        });
+
+        subItem.appendChild(check);
+        subItem.appendChild(subTexto);
+        subItem.appendChild(subApagar);
+        subBox.appendChild(subItem);
+      }
+
+      // Campo para adicionar um novo passo.
+      const subForm = document.createElement("div");
+      subForm.className = "sub-form";
+
+      const subInput = document.createElement("input");
+      subInput.className = "sub-input";
+      subInput.placeholder = "Novo passo...";
+
+      const subAdd = document.createElement("button");
+      subAdd.className = "sub-add";
+      subAdd.textContent = "+ Passo";
+      subAdd.addEventListener("click", function () {
+        const txt = subInput.value.trim();
+        if (txt === "") return;
+        tarefa.subtarefas.push({
+          id: Date.now() + "-" + Math.floor(Math.random() * 100000),
+          texto: txt,
+          feito: false
+        });
+        salvar();
+        mostrar();
+      });
+
+      subForm.appendChild(subInput);
+      subForm.appendChild(subAdd);
+      subBox.appendChild(subForm);
+
+      item.appendChild(subBox);
       lista.appendChild(item);
     }
 
     atualizarContador();
+    atualizarResumo();
+    atualizarProgresso();
+    marcarFiltroAtivo();
   }
 
+  // Adiciona uma nova tarefa (com id, prioridade, categoria, prazo, subtarefas e data).
   botao.addEventListener("click", function () {
     const texto = campo.value;
     if (texto === "") return;
-    tarefas.push({ texto: texto, feito: false });
+    tarefas.push({
+      id: Date.now() + "-" + Math.floor(Math.random() * 100000),
+      texto: texto,
+      feito: false,
+      prioridade: prioridade ? prioridade.value : "media",
+      categoria: categoria ? categoria.value : "pessoal",
+      vence: prazo ? prazo.value : "",
+      subtarefas: [],
+      criadaEm: new Date().toISOString()
+    });
     salvar();
     mostrar();
     campo.value = "";
+    if (prazo) prazo.value = "";
   });
 
+  // Remove todas as tarefas já concluídas.
   if (limpar) {
     limpar.addEventListener("click", function () {
-      tarefas = tarefas.filter(function (t) {
-        return !t.feito;
-      });
+      tarefas = tarefas.filter(function (t) { return !t.feito; });
       salvar();
       mostrar();
     });
   }
 
-  // Ao abrir, carrega o que estava salvo
+  // ---- Backup: exportar e importar ----
+
+  // Exporta todas as tarefas para um arquivo .json (download).
+  function exportar() {
+    const dados = JSON.stringify(tarefas, null, 2);
+    const blob = new Blob([dados], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "minhas-tarefas.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Lê um arquivo .json escolhido pelo usuário e carrega as tarefas dele.
+  function importar(arquivo) {
+    const leitor = new FileReader();
+    leitor.onload = function () {
+      try {
+        const lista = JSON.parse(leitor.result);
+        if (Array.isArray(lista)) {
+          tarefas = lista;
+          salvar();
+          mostrar();
+          alert("Tarefas importadas com sucesso!");
+        } else {
+          alert("Esse arquivo nao parece um backup de tarefas.");
+        }
+      } catch (erro) {
+        alert("Nao consegui ler o arquivo. Ele esta correto?");
+      }
+    };
+    leitor.readAsText(arquivo);
+  }
+
+  if (botaoExportar) {
+    botaoExportar.addEventListener("click", exportar);
+  }
+  if (botaoImportar && inputArquivo) {
+    botaoImportar.addEventListener("click", function () {
+      inputArquivo.click();
+    });
+    inputArquivo.addEventListener("change", function () {
+      if (inputArquivo.files.length > 0) {
+        importar(inputArquivo.files[0]);
+      }
+      inputArquivo.value = "";
+    });
+  }
+
+  // Busca e ordenação redesenham a lista.
+  if (busca) busca.addEventListener("input", function () { mostrar(); });
+  if (ordenar) ordenar.addEventListener("change", function () { mostrar(); });
+  if (filtroCategoria) filtroCategoria.addEventListener("change", function () { mostrar(); });
+
+  // Botões de filtro: mudam o filtro e redesenham.
+  if (fTodas) fTodas.addEventListener("click", function () { filtro = "todas"; mostrar(); });
+  if (fPendentes) fPendentes.addEventListener("click", function () { filtro = "pendentes"; mostrar(); });
+  if (fConcluidas) fConcluidas.addEventListener("click", function () { filtro = "concluidas"; mostrar(); });
+
+  // ---- Tema claro/escuro ----
+  function aplicarTema(tema) {
+    document.documentElement.setAttribute("data-theme", tema);
+    if (btnTema) btnTema.textContent = tema === "escuro" ? "☀️" : "🌙";
+  }
+
+  function carregarTema() {
+    let tema = localStorage.getItem("tema");
+    if (!tema) {
+      const prefereEscuro = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      tema = prefereEscuro ? "escuro" : "claro";
+    }
+    aplicarTema(tema);
+  }
+
+  if (btnTema) {
+    btnTema.addEventListener("click", function () {
+      const atual = document.documentElement.getAttribute("data-theme");
+      const novo = atual === "escuro" ? "claro" : "escuro";
+      aplicarTema(novo);
+      localStorage.setItem("tema", novo);
+    });
+  }
+
+  carregarTema();
   carregar();
 })();
-

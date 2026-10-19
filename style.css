@@ -1841,9 +1841,10 @@ tr.pedido-concluido {
 }
 #lista li {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  background: var(--bg-card, #fff);
+  background: var(--card, var(--bg-card, #fff));
   padding: 14px 16px;
   border-radius: 10px;
   border: 1px solid var(--linha, rgba(207, 226, 226, 0.5));
@@ -1854,7 +1855,8 @@ tr.pedido-concluido {
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(0, 63, 67, 0.12);
 }
-#lista li span {
+#lista li .texto,
+#lista li > span:not(.prioridade):not(.categoria):not(.atrasada):not(.info) {
   flex: 1;
   cursor: pointer;
   font-size: 15px;
@@ -1862,7 +1864,8 @@ tr.pedido-concluido {
   transition: color 0.2s;
   user-select: none;
 }
-#lista li.feita span {
+#lista li.feita .texto,
+#lista li.feita > span:not(.prioridade):not(.categoria):not(.atrasada):not(.info) {
   text-decoration: line-through;
   color: #8aa4a4;
 }
@@ -1888,8 +1891,32 @@ tr.pedido-concluido {
   font-weight: 500;
 }
 
+/* ==========================================================================
+   FANESE AULA 08: BACKUP (.JSON) E SUBTAREFAS (PASSOS 27 E 28)
+   ========================================================================== */
 
+/* Barra de backup (exportar / importar) */
+.backup { display: flex; gap: 8px; margin-bottom: 12px; }
+.backup button { flex: 1; padding: 8px; border: 1px solid var(--linha, #cfe2e2);
+                 background: var(--card, var(--bg-card, #ffffff)); color: var(--ink, #06282b);
+                 border-radius: 10px; font-size: 14px; cursor: pointer; }
 
+/* Subtarefas (passos dentro da tarefa) */
+.subtarefas { width: 100%; flex-basis: 100%; margin-top: 8px;
+              border-top: 1px dashed var(--linha, #cfe2e2); padding-top: 8px; }
+.sub-contador { font-size: 11px; color: var(--ink-soft, #3c5c5f); margin-bottom: 6px; }
+.sub-item { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.sub-check { cursor: pointer; font-size: 16px; }
+.sub-texto { flex: 1; font-size: 14px; }
+.sub-item.sub-feita .sub-texto { text-decoration: line-through; color: #8aa4a4; }
+.sub-apagar { border: none; background: transparent; color: #e5484d;
+              font-size: 16px; cursor: pointer; line-height: 1; }
+.sub-form { display: flex; gap: 6px; margin-top: 4px; }
+.sub-input { flex: 1; padding: 6px 8px; border: 1px solid var(--linha, #cfe2e2);
+             background: var(--card, var(--bg-card, #ffffff)); color: var(--ink, #06282b);
+             border-radius: 8px; font-size: 13px; }
+.sub-add { border: none; background: var(--marca, #1c96a0); color: #fff;
+           border-radius: 8px; padding: 6px 10px; font-size: 13px; cursor: pointer; }
 
 
 /* --- modals.css --- */

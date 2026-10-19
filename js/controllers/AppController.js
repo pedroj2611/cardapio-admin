@@ -487,7 +487,7 @@ export class AppController {
       });
     }
 
-    // Adicionar nova tarefa com campo e botão (FANESE Aula 05 - Passo 17: #campo e #botao)
+    // Adicionar nova tarefa com campo e botão (FANESE Aula 05 e Aula 08: #campo e #botao)
     const campo = document.getElementById("campo");
     const botao = document.getElementById("botao");
     if (botao && campo) {
@@ -496,8 +496,9 @@ export class AppController {
         if (texto === "") return;
         const hojeTxt = new Date().toISOString().slice(0, 10);
         const horaFormatada = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+        const catSelect = document.getElementById("categoria");
         const novoItem = {
-          id: String(Date.now()).slice(-4),
+          id: Date.now() + "-" + Math.floor(Math.random() * 100000),
           uid: `ped_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
           texto: texto,
           feito: false,
@@ -512,8 +513,9 @@ export class AppController {
           status: "Aberto",
           novo: true,
           prioridade: "media",
-          categoria: "trabalho",
+          categoria: catSelect ? catSelect.value : "trabalho",
           vence: hojeTxt,
+          subtarefas: [],
           criadaEm: new Date().toISOString()
         };
         this.adminView.pedidos.push(novoItem);
@@ -529,6 +531,28 @@ export class AppController {
           e.preventDefault();
           adicionarNovaTarefaPWA();
         }
+      });
+    }
+
+    // ---- Backup: exportar e importar (FANESE Aula 08 - Passo 27) ----
+    const botaoExportar = document.getElementById("exportar");
+    const botaoImportar = document.getElementById("importar");
+    const inputArquivo = document.getElementById("arquivo");
+
+    if (botaoExportar) {
+      botaoExportar.addEventListener("click", () => {
+        this.adminView.exportar();
+      });
+    }
+    if (botaoImportar && inputArquivo) {
+      botaoImportar.addEventListener("click", () => {
+        inputArquivo.click();
+      });
+      inputArquivo.addEventListener("change", () => {
+        if (inputArquivo.files.length > 0) {
+          this.adminView.importar(inputArquivo.files[0]);
+        }
+        inputArquivo.value = "";
       });
     }
 

@@ -38,6 +38,10 @@ export const PEDIDOS_INICIAIS = [
     prioridade: "alta",
     categoria: "trabalho",
     vence: "2026-09-14", // Data passada para demonstrar a tag "ATRASADA" da AV1
+    subtarefas: [
+      { id: "sub-1", texto: "Separar pão brioche e bacon", feito: true },
+      { id: "sub-2", texto: "Selar burger 180g na chapa", feito: false }
+    ],
     criadaEm: "2026-09-14T11:30:00.000Z"
   },
   {
@@ -55,6 +59,7 @@ export const PEDIDOS_INICIAIS = [
     prioridade: "media",
     categoria: "pessoal",
     vence: "2026-09-15",
+    subtarefas: [],
     criadaEm: "2026-09-15T11:45:00.000Z"
   },
   {
@@ -72,6 +77,7 @@ export const PEDIDOS_INICIAIS = [
     prioridade: "alta",
     categoria: "casa",
     vence: "2026-09-16",
+    subtarefas: [],
     criadaEm: "2026-09-15T12:00:00.000Z"
   },
   {
@@ -89,6 +95,7 @@ export const PEDIDOS_INICIAIS = [
     prioridade: "baixa",
     categoria: "estudos",
     vence: "2026-09-17",
+    subtarefas: [],
     criadaEm: "2026-09-15T12:15:00.000Z"
   },
   {
@@ -106,6 +113,7 @@ export const PEDIDOS_INICIAIS = [
     prioridade: "baixa",
     categoria: "trabalho",
     vence: "2026-09-15",
+    subtarefas: [],
     criadaEm: "2026-09-15T12:30:00.000Z"
   }
 ];
@@ -123,22 +131,24 @@ export class AdminView {
     this.elContadorAula05 = document.getElementById("contador");
     this.tbodyProdutos = document.getElementById("admin-products-table-body");
 
-    // Expor variáveis e funções globais no window para compatibilidade total com a Aula 05
+    // Expor variáveis e funções globais no window para compatibilidade total com as Aulas 05, 07 e 08
     window.tarefas = this.pedidos;
     window.salvar = () => this.salvarPedidos();
     window.carregar = () => this.carregarPedidos();
     window.mostrar = () => this.renderizarTabela();
     window.atualizarContador = () => this.atualizarContador();
+    window.exportar = () => this.exportar();
+    window.importar = (arquivo) => this.importar(arquivo);
   }
 
-  // Carrega os pedidos do localStorage com try/catch (FANESE Aula 04 & 05 e AV1)
+  // Carrega os pedidos do localStorage com try/catch (FANESE Aula 04, 05, 07 e 08)
   carregarPedidos() {
     try {
       const salvos = localStorage.getItem("cardapio_admin_pedidos") || localStorage.getItem("tarefas");
       if (salvos) {
         const parsed = JSON.parse(salvos);
         if (Array.isArray(parsed)) {
-          // Garante que pedidos já salvos tenham os campos de objeto { texto, feito } da Aula 05
+          // Garante que pedidos já salvos tenham os campos de objeto { texto, feito, subtarefas } da Aula 05 e 08
           return parsed.map((p, idx) => {
             const textoFormatado = p.texto || (p.cliente ? `${p.cliente}: ${p.itens || ''}` : `Tarefa #${idx + 1}`);
             const estaFeito = Boolean(p.feito ?? p.concluido ?? false);
@@ -150,14 +160,15 @@ export class AdminView {
               concluido: estaFeito,
               prioridade: p.prioridade || "media",
               categoria: p.categoria || "trabalho",
-              vence: p.vence || hojeTexto(),
+              vence: p.vence ?? hojeTexto(),
+              subtarefas: Array.isArray(p.subtarefas) ? p.subtarefas : [],
               criadaEm: p.criadaEm || new Date().toISOString()
             };
           });
         }
       }
       localStorage.setItem("cardapio_admin_pedidos", JSON.stringify(PEDIDOS_INICIAIS));
-      localStorage.setItem("tarefas", JSON.stringify(PEDIDOS_INICIAIS.map(p => ({ texto: p.texto, feito: p.feito }))));
+      localStorage.setItem("tarefas", JSON.stringify(PEDIDOS_INICIAIS));
       return [...PEDIDOS_INICIAIS];
     } catch (e) {
       console.error("Erro ao carregar pedidos:", e);
@@ -165,15 +176,67 @@ export class AdminView {
     }
   }
 
-  // Salva a lista de pedidos no localStorage com JSON.stringify (FANESE Aula 04 & 05)
+  // Salva a lista de pedidos no localStorage com JSON.stringify (FANESE Aula 04, 05 e 08)
   salvarPedidos() {
     try {
       localStorage.setItem("cardapio_admin_pedidos", JSON.stringify(this.pedidos));
-      localStorage.setItem("tarefas", JSON.stringify(this.pedidos.map(p => ({ texto: p.texto || (p.cliente ? `${p.cliente}: ${p.itens || ''}` : "Tarefa"), feito: Boolean(p.feito ?? p.concluido ?? false) }))));
+      localStorage.setItem("tarefas", JSON.stringify(this.pedidos));
       window.tarefas = this.pedidos;
     } catch (e) {
       console.error("Erro ao salvar pedidos:", e);
     }
+  }
+
+  // Exporta todas as tarefas para um arquivo .json (download) (FANESE Aula 08 - Passo 27)
+  exportar() {
+    const dados = JSON.stringify(this.pedidos, null, 2);
+    const blob = new Blob([dados], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "minhas-tarefas.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Lê um arquivo .json escolhido pelo usuário e carrega as tarefas dele (FANESE Aula 08 - Passo 27)
+  importar(arquivo) {
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      try {
+        const lista = JSON.parse(leitor.result);
+        if (Array.isArray(lista)) {
+          this.pedidos = lista.map((p, idx) => {
+            const textoFormatado = p.texto || (p.cliente ? `${p.cliente}: ${p.itens || ''}` : `Tarefa #${idx + 1}`);
+            const estaFeito = Boolean(p.feito ?? p.concluido ?? false);
+            return {
+              ...p,
+              id: p.id || String(idx + 1).padStart(4, "0"),
+              texto: textoFormatado,
+              cliente: p.cliente || p.atendente || textoFormatado,
+              atendente: p.atendente || p.cliente || textoFormatado,
+              itens: p.itens || textoFormatado,
+              local: p.local || "Balcão",
+              feito: estaFeito,
+              concluido: estaFeito,
+              prioridade: p.prioridade || "media",
+              categoria: p.categoria || "trabalho",
+              vence: p.vence ?? "",
+              subtarefas: Array.isArray(p.subtarefas) ? p.subtarefas : [],
+              criadaEm: p.criadaEm || new Date().toISOString()
+            };
+          });
+          this.salvarPedidos();
+          this.renderizarTabela();
+          alert("Tarefas importadas com sucesso!");
+        } else {
+          alert("Esse arquivo nao parece um backup de tarefas.");
+        }
+      } catch (erro) {
+        alert("Nao consegui ler o arquivo. Ele esta correto?");
+      }
+    };
+    leitor.readAsText(arquivo);
   }
 
   // Conta quantas tarefas/pedidos ainda faltam atender (FANESE Aula 05 Parte 2)
@@ -315,30 +378,50 @@ export class AdminView {
 
     this.tbody.innerHTML = "";
 
-    // Renderiza a lista padrão da Aula 05 no elemento <ul id="lista">
+    // Renderiza a lista padrão da Aula 05 e Aula 08 no elemento <ul id="lista">
     const listaEl = document.getElementById("lista") || this.listaPwa;
     if (listaEl) {
       listaEl.innerHTML = "";
 
-      if (this.pedidos.length === 0) {
+      if (lista.length === 0) {
         listaEl.innerHTML = "<p class='vazio'>Sua lista está vazia. Adicione a primeira tarefa!</p>";
       } else {
-        for (let i = 0; i < this.pedidos.length; i++) {
-          const tarefa = this.pedidos[i];
+        for (let i = 0; i < lista.length; i++) {
+          const tarefa = lista[i];
 
           const item = document.createElement("li");
           if (tarefa.feito || tarefa.concluido) {
             item.classList.add("feita");
           }
 
+          const etiqueta = document.createElement("span");
+          etiqueta.className = "prioridade " + (tarefa.prioridade || "media");
+          etiqueta.textContent = tarefa.prioridade || "media";
+
+          const chip = document.createElement("span");
+          chip.className = "categoria " + (tarefa.categoria || "pessoal");
+          chip.textContent = tarefa.categoria || "pessoal";
+
           const texto = document.createElement("span");
+          texto.className = "texto";
           texto.textContent = tarefa.texto || (tarefa.cliente ? `${tarefa.cliente}: ${tarefa.itens || ''}` : "Tarefa");
           texto.addEventListener("click", () => {
             tarefa.feito = !tarefa.feito;
             tarefa.concluido = tarefa.feito;
             this.salvarPedidos();
-            this.renderizarTabela();
+            this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
           });
+
+          item.appendChild(etiqueta);
+          item.appendChild(chip);
+          item.appendChild(texto);
+
+          if (estaAtrasada(tarefa)) {
+            const atraso = document.createElement("span");
+            atraso.className = "atrasada";
+            atraso.textContent = "Atrasada";
+            item.appendChild(atraso);
+          }
 
           const apagar = document.createElement("button");
           apagar.textContent = "🗑";
@@ -346,13 +429,89 @@ export class AdminView {
           apagar.setAttribute("aria-label", "Apagar tarefa");
           apagar.title = "Apagar tarefa";
           apagar.addEventListener("click", () => {
-            this.pedidos.splice(i, 1);
+            this.pedidos = this.pedidos.filter((t) => t.id !== tarefa.id);
             this.salvarPedidos();
-            this.renderizarTabela();
+            this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
           });
 
-          item.appendChild(texto);
           item.appendChild(apagar);
+
+          // --- Subtarefas (os passos da tarefa) (FANESE Aula 08 - Passo 28) ---
+          if (!tarefa.subtarefas) tarefa.subtarefas = [];
+
+          const subBox = document.createElement("div");
+          subBox.className = "subtarefas";
+
+          // Contador de passos (ex.: "1/3 passos").
+          const subContador = document.createElement("div");
+          subContador.className = "sub-contador";
+          const feitasSub = tarefa.subtarefas.filter(function (s) { return s.feito; }).length;
+          subContador.textContent = feitasSub + "/" + tarefa.subtarefas.length + " passos";
+          subBox.appendChild(subContador);
+
+          // Desenha cada passo.
+          for (let j = 0; j < tarefa.subtarefas.length; j++) {
+            const sub = tarefa.subtarefas[j];
+
+            const subItem = document.createElement("div");
+            subItem.className = "sub-item" + (sub.feito ? " sub-feita" : "");
+
+            const check = document.createElement("span");
+            check.className = "sub-check";
+            check.textContent = sub.feito ? "✅" : "⬜";
+            check.addEventListener("click", () => {
+              sub.feito = !sub.feito;
+              this.salvarPedidos();
+              this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+            });
+
+            const subTexto = document.createElement("span");
+            subTexto.className = "sub-texto";
+            subTexto.textContent = sub.texto;
+
+            const subApagar = document.createElement("button");
+            subApagar.className = "sub-apagar";
+            subApagar.textContent = "×";
+            subApagar.addEventListener("click", () => {
+              tarefa.subtarefas = tarefa.subtarefas.filter(function (s) { return s.id !== sub.id; });
+              this.salvarPedidos();
+              this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+            });
+
+            subItem.appendChild(check);
+            subItem.appendChild(subTexto);
+            subItem.appendChild(subApagar);
+            subBox.appendChild(subItem);
+          }
+
+          // Campo para adicionar um novo passo.
+          const subForm = document.createElement("div");
+          subForm.className = "sub-form";
+
+          const subInput = document.createElement("input");
+          subInput.className = "sub-input";
+          subInput.placeholder = "Novo passo...";
+
+          const subAdd = document.createElement("button");
+          subAdd.className = "sub-add";
+          subAdd.textContent = "+ Passo";
+          subAdd.addEventListener("click", () => {
+            const txt = subInput.value.trim();
+            if (txt === "") return;
+            tarefa.subtarefas.push({
+              id: Date.now() + "-" + Math.floor(Math.random() * 100000),
+              texto: txt,
+              feito: false
+            });
+            this.salvarPedidos();
+            this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+          });
+
+          subForm.appendChild(subInput);
+          subForm.appendChild(subAdd);
+          subBox.appendChild(subForm);
+
+          item.appendChild(subBox);
           listaEl.appendChild(item);
         }
       }
@@ -522,7 +681,7 @@ export class AdminView {
     }
   }
 
-  // Registra um novo pedido feito pelo cliente (FANESE Aulas 04 e 05)
+  // Registra um novo pedido feito pelo cliente (FANESE Aulas 04, 05, 07 e 08)
   adicionarPedido(dadosPedido) {
     this.pedidos = this.carregarPedidos();
 
@@ -562,6 +721,7 @@ export class AdminView {
       prioridade: dadosPedido.prioridade || "media",
       categoria: dadosPedido.categoria || "trabalho",
       vence: dadosPedido.vence || hojeTexto(),
+      subtarefas: Array.isArray(dadosPedido.subtarefas) ? dadosPedido.subtarefas : [],
       criadaEm: dadosPedido.criadaEm || new Date().toISOString()
     };
 
