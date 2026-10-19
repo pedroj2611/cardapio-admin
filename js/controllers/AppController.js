@@ -627,6 +627,38 @@ export class AppController {
       });
     }
 
+    // ---- Navegação por Abas do Painel Admin com persistência no localStorage ----
+    const botoesAbasAdmin = document.querySelectorAll(".tabs-nav .tab-btn");
+    const conteudosAbasAdmin = document.querySelectorAll(".tab-content");
+
+    const ativarAbaAdmin = (idAba) => {
+      if (!idAba) return;
+      const alvo = document.getElementById(idAba);
+      if (!alvo) return;
+
+      botoesAbasAdmin.forEach((btn) => {
+        btn.classList.toggle("active", btn.getAttribute("data-tab") === idAba);
+      });
+
+      conteudosAbasAdmin.forEach((sec) => {
+        sec.classList.toggle("active", sec.id === idAba);
+      });
+
+      localStorage.setItem("abaAtiva", idAba);
+    };
+
+    botoesAbasAdmin.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idAba = btn.getAttribute("data-tab");
+        ativarAbaAdmin(idAba);
+      });
+    });
+
+    const abaSalvaAdmin = localStorage.getItem("abaAtiva");
+    if (abaSalvaAdmin && document.getElementById(abaSalvaAdmin)) {
+      ativarAbaAdmin(abaSalvaAdmin);
+    }
+
     // Ações de Gestão do Sistema e Cardápio (Painel Admin)
     const btnAdminConfigLoja = document.getElementById("btn-admin-config-loja");
     if (btnAdminConfigLoja) {
@@ -644,6 +676,7 @@ export class AppController {
     const btnAdminGerenciarProds = document.getElementById("btn-admin-gerenciar-produtos");
     if (btnAdminGerenciarProds) {
       btnAdminGerenciarProds.addEventListener("click", () => {
+        ativarAbaAdmin("tab-produtos");
         const sec = document.getElementById("admin-produtos-section");
         if (sec) {
           sec.scrollIntoView({ behavior: "smooth" });
@@ -1165,16 +1198,16 @@ export class AppController {
         if (campoBusca) campoBusca.value = "";
         this.termoBusca = "";
         this.categoriaAtiva = "todos";
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.cat === "todos"));
+        document.querySelectorAll(".tab-btn[data-cat]").forEach(b => b.classList.toggle("active", b.dataset.cat === "todos"));
         if (btnLimparBusca) btnLimparBusca.style.display = "none";
         this.atualizarInterface();
       });
     }
 
-    // Abas de categorias
-    document.querySelectorAll(".tab-btn").forEach(btn => {
+    // Abas de categorias do cardápio
+    document.querySelectorAll(".tab-btn[data-cat]").forEach(btn => {
       btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-btn[data-cat]").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         this.categoriaAtiva = btn.dataset.cat;
         this.atualizarInterface();

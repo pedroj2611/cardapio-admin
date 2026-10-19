@@ -1918,6 +1918,71 @@ tr.pedido-concluido {
 .sub-add { border: none; background: var(--marca, #1c96a0); color: #fff;
            border-radius: 8px; padding: 6px 10px; font-size: 13px; cursor: pointer; }
 
+/* ==========================================================================
+   NAVEGAÇÃO POR ABAS (TABS) DO PAINEL ADMIN (UI/UX SEM ROLAGEM EXCESSIVA)
+   ========================================================================== */
+.tabs-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border, #cfe2e2);
+  border-radius: var(--radius-md, 12px);
+  padding: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.tabs-nav .tab-btn {
+  flex: 1;
+  min-width: 180px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted, #3c5c5f);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tabs-nav .tab-btn:hover {
+  background: rgba(28, 150, 160, 0.08);
+  color: var(--text-main, #06282b);
+}
+
+.tabs-nav .tab-btn.active {
+  background: var(--marca, #1c96a0);
+  color: #ffffff;
+  border-color: var(--marca, #1c96a0);
+  box-shadow: 0 4px 12px rgba(28, 150, 160, 0.28);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fadeInTab 0.22s ease;
+}
+
+@keyframes fadeInTab {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
 
 /* --- modals.css --- */
 /* ==========================================================================

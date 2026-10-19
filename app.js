@@ -904,15 +904,15 @@ function configurarEventos() {
       if (campoBusca) campoBusca.value = "";
       termoBusca = "";
       categoriaAtiva = "todos";
-      const tabBtns = document.querySelectorAll(".tab-btn");
+      const tabBtns = document.querySelectorAll(".tab-btn[data-cat]");
       tabBtns.forEach(b => b.classList.toggle("active", b.dataset.cat === "todos"));
       if (btnLimparBusca) btnLimparBusca.style.display = "none";
       renderizarProdutos();
     });
   }
 
-  // Abas de categorias
-  const tabBtns = document.querySelectorAll(".tab-btn");
+  // Abas de categorias do cardápio
+  const tabBtns = document.querySelectorAll(".tab-btn[data-cat]");
   tabBtns.forEach(btn => {
     btn.addEventListener("click", () => {
       tabBtns.forEach(b => b.classList.remove("active"));
@@ -1433,6 +1433,39 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ---- Navegação por Abas (Tabs) com persistência no localStorage ----
+  const botoesAbas = document.querySelectorAll(".tabs-nav .tab-btn");
+  const conteudosAbas = document.querySelectorAll(".tab-content");
+
+  function ativarAba(idAba) {
+    if (!idAba) return;
+    const alvo = document.getElementById(idAba);
+    if (!alvo) return;
+
+    botoesAbas.forEach(function (btn) {
+      btn.classList.toggle("active", btn.getAttribute("data-tab") === idAba);
+    });
+
+    conteudosAbas.forEach(function (sec) {
+      sec.classList.toggle("active", sec.id === idAba);
+    });
+
+    localStorage.setItem("abaAtiva", idAba);
+  }
+
+  botoesAbas.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const idAba = btn.getAttribute("data-tab");
+      ativarAba(idAba);
+    });
+  });
+
+  const abaSalva = localStorage.getItem("abaAtiva");
+  if (abaSalva && document.getElementById(abaSalva)) {
+    ativarAba(abaSalva);
+  }
+
   carregarTema();
   carregar();
 })();
+
