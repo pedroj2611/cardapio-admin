@@ -1132,7 +1132,7 @@ input:checked + .slider-toggle:before {
 .admin-dashboard-container {
   padding: 24px 28px;
   width: 100%;
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -1228,17 +1228,19 @@ input:checked + .slider-toggle:before {
   background: var(--secondary-hover);
 }
 
-/* DASHBOARD GRID LAYOUT */
+/* DASHBOARD GRID LAYOUT (100% FULL WIDTH PARA AS ABAS E TABELA DE PEDIDOS) */
 .admin-dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr;
   gap: 24px;
+  width: 100%;
 }
 
 .admin-center-column {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  width: 100%;
   min-width: 0;
 }
 
@@ -1277,7 +1279,7 @@ input:checked + .slider-toggle:before {
   color: var(--text-main);
 }
 
-/* TABELA CENTRAL */
+/* TABELA CENTRAL EM LARGURA TOTAL (FULL WIDTH) */
 .admin-table-container {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -1287,6 +1289,7 @@ input:checked + .slider-toggle:before {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 }
 
 .table-header-row {
@@ -1352,14 +1355,15 @@ input:checked + .slider-toggle:before {
 
 .admin-table {
   width: 100%;
+  table-layout: auto;
   border-collapse: collapse;
   text-align: left;
   font-size: 0.84rem;
 }
 
 .admin-table th {
-  padding: 10px 12px;
-  font-size: 0.73rem;
+  padding: 10px 10px;
+  font-size: 0.72rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -1371,7 +1375,7 @@ input:checked + .slider-toggle:before {
 }
 
 .admin-table td {
-  padding: 10px 12px;
+  padding: 10px 10px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
   color: var(--text-main);
@@ -1392,12 +1396,13 @@ input:checked + .slider-toggle:before {
 .hora-prazo-cell {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  line-height: 1.3;
+  gap: 2px;
+  line-height: 1.25;
+  white-space: nowrap;
 }
 
 .prazo-sub {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   color: var(--text-muted, #888e99);
   display: flex;
   align-items: center;
@@ -1415,7 +1420,7 @@ input:checked + .slider-toggle:before {
 .badge-novo-ped {
   background: #2ecc71;
   color: #ffffff;
-  font-size: 0.66rem;
+  font-size: 0.65rem;
   font-weight: 800;
   padding: 2px 6px;
   border-radius: 4px;
@@ -1428,11 +1433,11 @@ input:checked + .slider-toggle:before {
   gap: 6px;
   font-weight: 700;
   color: var(--text-main, #1e293b);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .cliente-icon {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   flex-shrink: 0;
 }
 
@@ -1442,30 +1447,31 @@ input:checked + .slider-toggle:before {
 }
 
 .itens-pedido-cell {
-  max-width: 220px;
-  font-size: 0.84rem;
-  line-height: 1.4;
+  max-width: 260px;
+  font-size: 0.83rem;
+  line-height: 1.35;
   color: var(--text-main);
 }
 
 .total-pedido-cell {
   white-space: nowrap;
-  font-size: 0.92rem;
+  font-size: 0.94rem;
 }
 
 .total-pedido-cell strong {
-  color: var(--primary-gold, #d97706);
+  color: #16a34a;
+  font-weight: 800;
 }
 
 .status-tag {
   display: inline-block;
-  max-width: 160px;
+  max-width: 155px;
   word-break: break-word;
   padding: 5px 10px;
   border-radius: 10px;
   font-size: 0.72rem;
   font-weight: 800;
-  line-height: 1.35;
+  line-height: 1.3;
   text-align: center;
 }
 
@@ -1488,7 +1494,7 @@ input:checked + .slider-toggle:before {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: nowrap;
 }
 
@@ -1501,9 +1507,9 @@ input:checked + .slider-toggle:before {
   background: transparent;
   border: 1px solid var(--secondary);
   color: var(--secondary);
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 8px;
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
@@ -1524,9 +1530,9 @@ input:checked + .slider-toggle:before {
   background: transparent;
   border: 1px solid #ef4444;
   color: #ef4444;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 8px;
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
@@ -1538,11 +1544,18 @@ input:checked + .slider-toggle:before {
   color: #ffffff;
 }
 
-/* PAINEL LATERAL DIREITO (WIDGETS) */
+/* BLOCOS DE GESTÃO DO SISTEMA E PEDIDOS POR HORA (ORGANIZADOS EM 2 COLUNAS NO RODAPÉ) */
 .admin-side-widgets {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .admin-side-widgets {
+    grid-template-columns: 1fr;
+  }
 }
 
 .admin-widget {
