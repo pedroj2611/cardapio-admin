@@ -1348,6 +1348,31 @@ input:checked + .slider-toggle:before {
 .table-wrapper {
   overflow-x: auto;
   width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-card);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+}
+
+.table-wrapper::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 999px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.75);
 }
 
 .admin-table {
@@ -1359,26 +1384,114 @@ input:checked + .slider-toggle:before {
 
 .admin-table th {
   padding: 10px 12px;
-  font-size: 0.76rem;
+  font-size: 0.73rem;
   font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-muted);
-  border-bottom: 2px solid var(--border);
+  background: rgba(148, 163, 184, 0.06);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
   white-space: nowrap;
 }
 
 .admin-table td {
-  padding: 12px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
   color: var(--text-main);
 }
 
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(28, 150, 160, 0.03);
+}
+
+.admin-table .col-center {
+  text-align: center;
+}
+
+.hora-prazo-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1.3;
+}
+
+.prazo-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted, #888e99);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.cliente-cell-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.badge-novo-ped {
+  background: #2ecc71;
+  color: #ffffff;
+  font-size: 0.66rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.cliente-info-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--text-main, #1e293b);
+  font-size: 0.9rem;
+}
+
+.cliente-icon {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.cliente-nome-txt {
+  color: var(--text-main, #1e293b);
+  line-height: 1.3;
+}
+
+.itens-pedido-cell {
+  max-width: 220px;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: var(--text-main);
+}
+
+.total-pedido-cell {
+  white-space: nowrap;
+  font-size: 0.92rem;
+}
+
+.total-pedido-cell strong {
+  color: var(--primary-gold, #d97706);
+}
+
 .status-tag {
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
+  max-width: 160px;
+  word-break: break-word;
+  padding: 5px 10px;
+  border-radius: 10px;
   font-size: 0.72rem;
   font-weight: 800;
+  line-height: 1.35;
+  text-align: center;
 }
 
 .status-tag.aberto {
@@ -1398,17 +1511,26 @@ input:checked + .slider-toggle:before {
 
 .action-btn-group {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: nowrap;
 }
 
 .btn-action-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 32px;
   background: transparent;
   border: 1px solid var(--secondary);
   color: var(--secondary);
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
   font-size: 0.75rem;
   font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
   transition: var(--transition);
 }
@@ -1419,13 +1541,19 @@ input:checked + .slider-toggle:before {
 }
 
 .btn-action-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 32px;
   background: transparent;
   border: 1px solid #ef4444;
   color: #ef4444;
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
   font-size: 0.75rem;
   font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
   transition: var(--transition);
 }

@@ -550,38 +550,40 @@ export class AdminView {
       const categoriaNome = (ped.categoria || "trabalho").toLowerCase();
 
       tr.innerHTML = `
-        <td>
+        <td class="col-center">
           <span class="badge-prioridade ${prioridadeNome}">
             ${prioridadeNome.toUpperCase()}
           </span>
         </td>
-        <td>
+        <td class="col-center">
           <span class="categoria ${categoriaNome}">
             ${categoriaNome}
           </span>
         </td>
         <td>
-          <div style="display: flex; flex-direction: column; gap: 2px;">
+          <div class="hora-prazo-cell">
             <strong>${ped.hora || "Hoje"}</strong>
-            <div style="font-size: 0.74rem; color: #888e99; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+            <div class="prazo-sub">
               <span>Prazo: ${ped.vence || "Hoje"}</span>
               ${ehAtrasada ? '<span class="atrasada">ATRASADA</span>' : ''}
             </div>
           </div>
         </td>
         <td>
-          <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-            ${ehNovo ? '<span style="background: #2ecc71; color: #fff; font-size: 0.68rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px;">NOVO</span>' : ''}
-            <span style="font-weight: 700; color: var(--text-main, #1e293b); font-size: 0.95rem; display: inline-flex; align-items: center; gap: 6px;">
-              <span style="font-size: 1rem;">👤</span>
-              <strong style="color: var(--text-main, #1e293b);">${nomeExibicao}</strong>
-            </span>
+          <div class="cliente-cell-wrap">
+            ${ehNovo ? '<span class="badge-novo-ped">NOVO</span>' : ''}
+            <div class="cliente-info-row">
+              <span class="cliente-icon">👤</span>
+              <strong class="cliente-nome-txt">${nomeExibicao}</strong>
+            </div>
           </div>
         </td>
-        <td><span class="status-tag ${badgeClass}">${ped.local || "Balcão"}</span></td>
-        <td style="max-width: 200px; font-size: 0.85rem; line-height: 1.35;">${ped.itens || "-"}</td>
-        <td><strong style="color: var(--primary-gold, #f1c40f); font-size: 0.95rem;">${formatarPreco(ped.total || 0)}</strong></td>
-        <td>
+        <td class="col-center">
+          <span class="status-tag ${badgeClass}">${ped.local || "Balcão"}</span>
+        </td>
+        <td class="itens-pedido-cell">${ped.itens || "-"}</td>
+        <td class="total-pedido-cell"><strong>${formatarPreco(ped.total || 0)}</strong></td>
+        <td class="col-center">
           <div class="action-btn-group">
             <button class="btn-action-outline btn-concluir-ped ${(ped.concluido || ped.feito) ? 'concluido' : ''}" data-id="${ped.id}" title="Marcar como concluído/aberto">
               ${(ped.concluido || ped.feito) ? "✔ Concluído" : "Marcar Pronto"}
