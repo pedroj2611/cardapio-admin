@@ -291,24 +291,6 @@ export class AppController {
       });
     }
 
-    // Navegação para Pedidos / Comandas (Monitoramento do Restaurante)
-    const btnsPedidos = [
-      document.getElementById("nav-item-pedidos"),
-      document.getElementById("mob-btn-pedidos")
-    ];
-
-    btnsPedidos.forEach(btn => {
-      if (btn) {
-        btn.addEventListener("click", () => {
-          if (this.verificarSessaoAdmin(false)) {
-            this.exibirTelaAdmin();
-          } else {
-            abrirAuthAdmin();
-          }
-        });
-      }
-    });
-
     // Voltar para o Cardápio (mantém sessão ativa por 20 min se desejar retornar)
     const btnSairAdmin = document.getElementById("btn-sair-admin");
     const btnsCardapio = [
