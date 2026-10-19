@@ -1045,12 +1045,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    const sidebar = document.getElementById("sidebar-app") || document.querySelector(".sidebar");
+    const sidebar = document.querySelector(".sidebar") || document.getElementById("sidebarApp") || document.getElementById("sidebar-app");
     const appLayout = document.getElementById("app-layout");
-    const sidebarCollapsedSalvo = localStorage.getItem("sidebarCollapsed") === "true";
+    const sidebarCollapsedSalvo = localStorage.getItem("sidebarRecolhida") === "true" || localStorage.getItem("sidebarCollapsed") === "true";
     if (sidebar) {
       sidebar.classList.toggle("collapsed", sidebarCollapsedSalvo);
     }
+    document.body.classList.toggle("sidebar-collapsed", sidebarCollapsedSalvo);
     if (appLayout) {
       appLayout.classList.toggle("sidebar-collapsed", sidebarCollapsedSalvo);
     }
@@ -1476,22 +1477,36 @@ document.addEventListener("DOMContentLoaded", () => {
     ativarAba(abaSalva);
   }
 
-  // ---- Sidebar Retrátil (Collapsible Sidebar) com persistência no localStorage ----
-  const btnToggleSidebar = document.getElementById("btnToggleSidebar");
-  const sidebarEl = document.getElementById("sidebar-app") || document.querySelector(".sidebar");
-  const appLayoutEl = document.getElementById("app-layout");
-
-  if (btnToggleSidebar && sidebarEl) {
-    btnToggleSidebar.addEventListener("click", function () {
-      const isCollapsed = sidebarEl.classList.toggle("collapsed");
-      if (appLayoutEl) {
-        appLayoutEl.classList.toggle("sidebar-collapsed", isCollapsed);
-      }
-      localStorage.setItem("sidebarCollapsed", isCollapsed);
-    });
-  }
-
   carregarTema();
   carregar();
 })();
+
+document.addEventListener("DOMContentLoaded", function () {
+  const sidebar = document.querySelector(".sidebar") || document.getElementById("sidebarApp") || document.getElementById("sidebar-app");
+  const btnToggle = document.getElementById("btnToggleSidebar");
+  const appLayout = document.getElementById("app-layout");
+
+  if (btnToggle && sidebar) {
+    // Recupera estado salvo
+    if (localStorage.getItem("sidebarRecolhida") === "true" || localStorage.getItem("sidebarCollapsed") === "true") {
+      sidebar.classList.add("collapsed");
+      document.body.classList.add("sidebar-collapsed");
+      if (appLayout) appLayout.classList.add("sidebar-collapsed");
+    }
+
+    if (!btnToggle.dataset.sidebarBound) {
+      btnToggle.dataset.sidebarBound = "true";
+      btnToggle.addEventListener("click", function (e) {
+        e.preventDefault();
+        sidebar.classList.toggle("collapsed");
+        document.body.classList.toggle("sidebar-collapsed");
+
+        const estaRecolhida = sidebar.classList.contains("collapsed");
+        if (appLayout) appLayout.classList.toggle("sidebar-collapsed", estaRecolhida);
+        localStorage.setItem("sidebarRecolhida", estaRecolhida);
+        localStorage.setItem("sidebarCollapsed", estaRecolhida);
+      });
+    }
+  }
+});
 

@@ -68,7 +68,7 @@ self.addEventListener("fetch", function (evento) {
   }
 
   evento.respondWith(
-    fetch(evento.request)
+    fetch(evento.request, { cache: "no-cache" })
       .then(function (respostaRede) {
         if (respostaRede && respostaRede.status === 200 && respostaRede.type === "basic") {
           const clone = respostaRede.clone();

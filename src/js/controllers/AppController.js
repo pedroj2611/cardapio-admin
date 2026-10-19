@@ -661,26 +661,32 @@ export class AppController {
 
     // ---- Sidebar Retrátil (Collapsible Sidebar) com persistência no localStorage ----
     const btnToggleSidebar = document.getElementById("btnToggleSidebar");
-    const sidebarEl = document.getElementById("sidebar-app") || document.querySelector(".sidebar");
+    const sidebarEl = document.querySelector(".sidebar") || document.getElementById("sidebarApp") || document.getElementById("sidebar-app");
     const appLayoutEl = document.getElementById("app-layout");
 
     const aplicarEstadoSidebarSalvo = () => {
-      const isCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
+      const isCollapsed = localStorage.getItem("sidebarRecolhida") === "true" || localStorage.getItem("sidebarCollapsed") === "true";
       if (sidebarEl) {
         sidebarEl.classList.toggle("collapsed", isCollapsed);
       }
+      document.body.classList.toggle("sidebar-collapsed", isCollapsed);
       if (appLayoutEl) {
         appLayoutEl.classList.toggle("sidebar-collapsed", isCollapsed);
       }
     };
 
-    if (btnToggleSidebar && sidebarEl) {
-      btnToggleSidebar.addEventListener("click", () => {
-        const isCollapsed = sidebarEl.classList.toggle("collapsed");
+    if (btnToggleSidebar && sidebarEl && !btnToggleSidebar.dataset.sidebarBound) {
+      btnToggleSidebar.dataset.sidebarBound = "true";
+      btnToggleSidebar.addEventListener("click", (e) => {
+        e.preventDefault();
+        sidebarEl.classList.toggle("collapsed");
+        const estaRecolhida = sidebarEl.classList.contains("collapsed");
+        document.body.classList.toggle("sidebar-collapsed", estaRecolhida);
         if (appLayoutEl) {
-          appLayoutEl.classList.toggle("sidebar-collapsed", isCollapsed);
+          appLayoutEl.classList.toggle("sidebar-collapsed", estaRecolhida);
         }
-        localStorage.setItem("sidebarCollapsed", isCollapsed);
+        localStorage.setItem("sidebarRecolhida", estaRecolhida);
+        localStorage.setItem("sidebarCollapsed", estaRecolhida);
       });
     }
 

@@ -137,6 +137,8 @@ body.modal-open {
   transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
+body.sidebar-collapsed .main-workspace,
+#sidebarApp.collapsed ~ .main-workspace,
 .sidebar.collapsed ~ .main-workspace,
 .sidebar-app.collapsed ~ .main-workspace,
 .app-layout.sidebar-collapsed .main-workspace {
@@ -1047,21 +1049,32 @@ details[open] .accordion-arrow {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* ESTADO RECOLHIDO DA SIDEBAR (.sidebar.collapsed) */
+/* ESTADO RECOLHIDO DA SIDEBAR (.sidebar.collapsed / #sidebarApp.collapsed / body.sidebar-collapsed) */
+#sidebarApp.collapsed,
 .sidebar.collapsed,
-.sidebar-app.collapsed {
-  width: 70px;
-  padding: 20px 10px;
-  overflow: visible;
+.sidebar-app.collapsed,
+body.sidebar-collapsed .sidebar {
+  width: 70px !important;
+  min-width: 70px !important;
+  max-width: 70px !important;
+  padding: 20px 10px !important;
+  overflow: visible !important;
 }
 
+#sidebarApp.collapsed .menu-label,
 .sidebar.collapsed .menu-label,
-.sidebar-app.collapsed .menu-label {
+.sidebar-app.collapsed .menu-label,
+body.sidebar-collapsed .sidebar .menu-label {
   display: none !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
 }
 
+#sidebarApp.collapsed .sidebar-header,
 .sidebar.collapsed .sidebar-header,
-.sidebar-app.collapsed .sidebar-header {
+.sidebar-app.collapsed .sidebar-header,
+body.sidebar-collapsed .sidebar .sidebar-header {
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -1069,34 +1082,44 @@ details[open] .accordion-arrow {
   padding-bottom: 16px;
 }
 
+#sidebarApp.collapsed .btn-toggle-sidebar,
 .sidebar.collapsed .btn-toggle-sidebar,
-.sidebar-app.collapsed .btn-toggle-sidebar {
+.sidebar-app.collapsed .btn-toggle-sidebar,
+body.sidebar-collapsed .sidebar .btn-toggle-sidebar {
   margin-left: 0;
 }
 
+#sidebarApp.collapsed .sidebar-logo-box,
 .sidebar.collapsed .sidebar-logo-box,
-.sidebar-app.collapsed .sidebar-logo-box {
+.sidebar-app.collapsed .sidebar-logo-box,
+body.sidebar-collapsed .sidebar .sidebar-logo-box {
   width: 36px;
   height: 36px;
   border-radius: 10px;
 }
 
+#sidebarApp.collapsed .sidebar-item,
 .sidebar.collapsed .sidebar-item,
-.sidebar-app.collapsed .sidebar-item {
+.sidebar-app.collapsed .sidebar-item,
+body.sidebar-collapsed .sidebar .sidebar-item {
   justify-content: center;
   padding: 12px 0;
   gap: 0;
 }
 
+#sidebarApp.collapsed .sidebar-footer,
 .sidebar.collapsed .sidebar-footer,
-.sidebar-app.collapsed .sidebar-footer {
+.sidebar-app.collapsed .sidebar-footer,
+body.sidebar-collapsed .sidebar .sidebar-footer {
   border-top: none;
   padding-top: 0;
 }
 
 /* Tooltip simples ao passar o mouse (:hover) quando a sidebar estiver recolhida */
+#sidebarApp.collapsed .sidebar-item::after,
 .sidebar.collapsed .sidebar-item::after,
-.sidebar-app.collapsed .sidebar-item::after {
+.sidebar-app.collapsed .sidebar-item::after,
+body.sidebar-collapsed .sidebar .sidebar-item::after {
   content: attr(data-tooltip);
   position: absolute;
   left: calc(100% + 12px);
@@ -1117,8 +1140,10 @@ details[open] .accordion-arrow {
   z-index: 999;
 }
 
+#sidebarApp.collapsed .sidebar-item:hover::after,
 .sidebar.collapsed .sidebar-item:hover::after,
-.sidebar-app.collapsed .sidebar-item:hover::after {
+.sidebar-app.collapsed .sidebar-item:hover::after,
+body.sidebar-collapsed .sidebar .sidebar-item:hover::after {
   opacity: 1;
   transform: translateY(-50%) translateX(0);
 }

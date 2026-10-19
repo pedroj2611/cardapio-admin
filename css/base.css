@@ -136,6 +136,8 @@ body.modal-open {
   transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
+body.sidebar-collapsed .main-workspace,
+#sidebarApp.collapsed ~ .main-workspace,
 .sidebar.collapsed ~ .main-workspace,
 .sidebar-app.collapsed ~ .main-workspace,
 .app-layout.sidebar-collapsed .main-workspace {

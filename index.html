@@ -21,9 +21,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Estilos MVC Modularizados -->
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/modals.css">
+  <link rel="stylesheet" href="css/base.css?v=8">
+  <link rel="stylesheet" href="css/components.css?v=8">
+  <link rel="stylesheet" href="css/modals.css?v=8">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
@@ -31,7 +32,7 @@
   <div class="app-layout" id="app-layout">
 
     <!-- MENU LATERAL (SIDEBAR DARK ESTILO MOCKUP - VISÍVEL NO DESKTOP) -->
-    <aside class="sidebar-app sidebar" id="sidebar-app">
+    <aside class="sidebar sidebar-app" id="sidebarApp">
       <div class="sidebar-header">
         <div class="sidebar-logo-box">
           <img src="icons/logo.png" alt="Hambúrguer dos Amigos" class="sidebar-logo-img">
@@ -40,9 +41,7 @@
           <h2 class="sidebar-title">HAMBÚRGUER</h2>
           <span class="sidebar-subtitle">DOS AMIGOS</span>
         </div>
-        <button type="button" id="btnToggleSidebar" class="btn-toggle-sidebar" title="Recolher / Expandir menu" aria-label="Alternar menu lateral">
-          ☰
-        </button>
+        <button id="btnToggleSidebar" type="button" class="btn-toggle-sidebar" aria-label="Recolher menu" title="Recolher / Expandir menu">☰</button>
       </div>
 
       <nav class="sidebar-nav">
@@ -914,9 +913,38 @@
         })
         .catch(function (erro) { console.log("Falha ao registrar:", erro); });
     }
+
+    // Controle seguro de alternância da Sidebar Retrátil
+    document.addEventListener("DOMContentLoaded", function () {
+      const sidebar = document.querySelector(".sidebar") || document.getElementById("sidebarApp") || document.getElementById("sidebar-app");
+      const btnToggle = document.getElementById("btnToggleSidebar");
+      const appLayout = document.getElementById("app-layout");
+
+      if (btnToggle && sidebar && !btnToggle.dataset.sidebarBound) {
+        btnToggle.dataset.sidebarBound = "true";
+
+        const salvaRecolhida = localStorage.getItem("sidebarRecolhida") === "true" || localStorage.getItem("sidebarCollapsed") === "true";
+        if (salvaRecolhida) {
+          sidebar.classList.add("collapsed");
+          document.body.classList.add("sidebar-collapsed");
+          if (appLayout) appLayout.classList.add("sidebar-collapsed");
+        }
+
+        btnToggle.addEventListener("click", function (e) {
+          e.preventDefault();
+          sidebar.classList.toggle("collapsed");
+          const estaRecolhida = sidebar.classList.contains("collapsed");
+          document.body.classList.toggle("sidebar-collapsed", estaRecolhida);
+          if (appLayout) appLayout.classList.toggle("sidebar-collapsed", estaRecolhida);
+
+          localStorage.setItem("sidebarRecolhida", estaRecolhida);
+          localStorage.setItem("sidebarCollapsed", estaRecolhida);
+        });
+      }
+    });
   </script>
 
   <!-- CONTROLLER PRINCIPAL (MVC) -->
-  <script type="module" src="js/controllers/AppController.js"></script>
+  <script type="module" src="js/controllers/AppController.js?v=8"></script>
 </body>
 </html>
