@@ -7,6 +7,7 @@
 import { ProductModel } from "../models/ProductModel.js";
 import { CartModel } from "../models/CartModel.js";
 import { ConfigModel, CONFIG_PADRAO } from "../models/ConfigModel.js";
+import { OrderModel } from "../models/OrderModel.js";
 
 import { ProductView, formatarPreco } from "../views/ProductView.js";
 import { CartView } from "../views/CartView.js";
@@ -19,11 +20,12 @@ export class AppController {
     this.productModel = new ProductModel();
     this.cartModel = new CartModel();
     this.configModel = new ConfigModel();
+    this.orderModel = new OrderModel();
 
     this.productView = new ProductView();
     this.cartView = new CartView();
     this.modalView = new ModalView();
-    this.adminView = new AdminView();
+    this.adminView = new AdminView(this.orderModel);
 
     this.categoriaAtiva = "todos";
     this.termoBusca = "";

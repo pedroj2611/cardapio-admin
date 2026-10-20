@@ -1,11 +1,11 @@
-# 🍔 Sabor & Arte Gourmet | Cardápio Digital PWA
+# 🍔 Hambúrguer dos Amigos | Cardápio Digital & Gestão PWA (MVC)
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
 
-> Sistema de cardápio digital profissional interativo para restaurantes e delivery. Funciona como **Progressive Web App (PWA)** offline e responsivo, desenvolvido 100% em tecnologias Web (HTML5, CSS3 e JavaScript Moderno com arquitetura MVC).
+> Sistema de cardápio digital e gestão de pedidos para restaurantes e delivery. Funciona como **Progressive Web App (PWA)** offline e responsivo, desenvolvido 100% em tecnologias Web (HTML5, CSS3 e JavaScript ES Modules com **Arquitetura MVC**).
 
 ---
 
@@ -14,31 +14,44 @@
 - **Instituição:** FANESE · Faculdade de Administração, Negócios e Saúde de Sergipe
 - **Disciplina:** Programação para Dispositivos Móveis
 - **Professor:** Márcio Rodrigo
-- **Aluno:** Pedro Joaquim
+- **Alunos:** Pedro Joaquim e Carlos Fonseca
 - **Relatório Acadêmico:** [`docs/TRABALHO_ACADEMICO.md`](docs/TRABALHO_ACADEMICO.md)
 
 ---
 
 ## 📁 Arquitetura e Estrutura de Pastas (MVC)
 
+O projeto adota o padrão **MVC (Model-View-Controller)**, separando claramente os dados e persistência (`models/`), a renderização de interface (`views/`) e o controle de eventos/regras de negócio (`controllers/`):
+
 ```text
 cardapio-admin/
-├── 📁 src/                      # Código fonte da aplicação Web
-│   ├── 📁 css/                  # Módulos CSS (base, components, modals)
-│   ├── 📁 icons/                # Ícones PWA e imagens do cardápio
-│   ├── 📁 js/                   # JavaScript em Arquitetura MVC
-│   │   ├── 📁 controllers/      # AppController (regras de negócio e sessão)
-│   │   ├── 📁 models/           # Models (CartModel, ProductModel, ConfigModel)
-│   │   └── 📁 views/            # Views (ProductView, CartView, AdminView, ToastView)
-│   ├── 📄 index.html            # Estrutura HTML5 semântica e acessível
-│   ├── 📄 style.css             # Folha de estilo unificada
-│   ├── 📄 sw.js                 # Service Worker (Estratégias de Cache PWA)
-│   └── 📄 manifest.json         # Manifesto PWA para instalação no celular
+├── 📁 src/                      # Código-fonte principal (Single Source of Truth)
+│   ├── 📁 css/                  # Módulos CSS (base.css, components.css, modals.css)
+│   ├── 📁 icons/                # Ícones PWA, logo e imagens do cardápio
+│   ├── 📁 js/                   # JavaScript modularizado em Arquitetura MVC
+│   │   ├── 📁 models/           # Camada Model (Dados, Estado e LocalStorage)
+│   │   │   ├── 📄 ProductModel.js   # Catálogo de produtos, filtros e CRUD
+│   │   │   ├── 📄 CartModel.js      # Carrinho de compras e cálculo de totais
+│   │   │   ├── 📄 ConfigModel.js    # Configurações da loja (WhatsApp, PIX, Taxa)
+│   │   │   └── 📄 OrderModel.js     # Pedidos, Tarefas PRO, Subtarefas e Backup (.json)
+│   │   ├── 📁 views/            # Camada View (Renderização DOM desacoplada)
+│   │   │   ├── 📄 ProductView.js    # Cards de produtos e estados vazios
+│   │   │   ├── 📄 CartView.js       # Barra flutuante e itens do modal de checkout
+│   │   │   ├── 📄 ModalView.js      # Controle de modais e formulários
+│   │   │   ├── 📄 ToastView.js      # Toasts e modal de confirmação customizado
+│   │   │   └── 📄 AdminView.js      # Dashboard Admin, tabelas e lista de subtarefas
+│   │   └── 📁 controllers/      # Camada Controller (Orquestração e Eventos)
+│   │       └── 📄 AppController.js  # Controlador principal, sessão Admin, PWA e Nuvem
+│   ├── 📄 index.html            # Estrutura HTML5 semântica (Sidebar Retrátil + Abas)
+│   ├── 📄 app.js                # Script consolidado de compatibilidade das aulas
+│   ├── 📄 style.css             # Bundle CSS unificado gerado pelo build
+│   ├── 📄 sw.js                 # Service Worker (Cache v7 + Network First)
+│   └── 📄 manifest.json         # Manifesto PWA para instalação Mobile/Desktop
+├── 📁 css/ · 📁 js/ · 📁 icons/ # Espelho sincronizado na raiz para GitHub Pages
 ├── 📁 docs/                     # Documentação acadêmica e relatórios
-├── 📁 www/                      # Bundle de distribuição Web
-├── 📄 build.js                  # Script de build e sincronização
-├── 📄 package.json              # Configuração do projeto
-├── 📄 .gitignore                # Arquivos ignorados pelo Git
+├── 📄 build.js                  # Script automatizado de build e sincronização MVC
+├── 📄 server.js                 # Servidor HTTP local para testes (porta 8080)
+├── 📄 package.json              # Scripts e configuração do projeto
 └── 📄 README.md                 # Documentação principal
 ```
 

@@ -18,6 +18,7 @@ const ARQUIVOS = [
   "./js/models/ProductModel.js",
   "./js/models/CartModel.js",
   "./js/models/ConfigModel.js",
+  "./js/models/OrderModel.js",
   "./js/views/ProductView.js",
   "./js/views/CartView.js",
   "./js/views/ModalView.js",

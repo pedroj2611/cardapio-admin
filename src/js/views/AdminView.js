@@ -1,126 +1,21 @@
 /**
  * ==========================================================================
  * VIEW LAYER - ADMIN DASHBOARD VIEW (src/js/views/AdminView.js)
+ * Responsável exclusivamente pela renderização da interface do Painel Admin
+ * (Tabelas, Lista de Tarefas/Subtarefas, Resumo AV1 e Barra de Progresso),
+ * delegando os dados e persistência ao OrderModel (Padrão MVC).
  * ==========================================================================
  */
 
 import { formatarPreco } from "./ProductView.js";
+import { OrderModel, PEDIDOS_INICIAIS, hojeTexto, estaAtrasada } from "../models/OrderModel.js";
 
-// ==========================================================================
-// FUNÇÕES AUXILIARES DA AV1 (FANESE - MINHAS TAREFAS PRO)
-// ==========================================================================
-
-// Devolve a data de hoje como texto "aaaa-mm-dd" (Slide 11 da AV1)
-export function hojeTexto() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-// Diz se a tarefa/pedido está atrasada (tem prazo, não está feita e o prazo já passou)
-export function estaAtrasada(tarefa) {
-  const prazo = tarefa.vence || tarefa.prazo || "";
-  const feito = tarefa.concluido ?? tarefa.feito ?? false;
-  return prazo !== "" && !feito && prazo < hojeTexto();
-}
-
-export const PEDIDOS_INICIAIS = [
-  {
-    id: "0001",
-    texto: "João Silva: 1x X-Bacon Artesanal",
-    feito: false,
-    hora: "Hoje 11:30",
-    atendente: "João Silva",
-    local: "Aberto",
-    itens: "1x X-Bacon Artesanal",
-    total: 32.90,
-    tempo: "15 min",
-    status: "Aberto",
-    concluido: false,
-    prioridade: "alta",
-    categoria: "trabalho",
-    vence: "2026-09-14", // Data passada para demonstrar a tag "ATRASADA" da AV1
-    subtarefas: [
-      { id: "sub-1", texto: "Separar pão brioche e bacon", feito: true },
-      { id: "sub-2", texto: "Selar burger 180g na chapa", feito: false }
-    ],
-    criadaEm: "2026-09-14T11:30:00.000Z"
-  },
-  {
-    id: "0002",
-    texto: "Ana Souza: 1x Smash Burger + 1x Coca",
-    feito: false,
-    hora: "Hoje 11:45",
-    atendente: "Ana Souza",
-    local: "Mesa 05",
-    itens: "1x Smash Burger + 1x Coca",
-    total: 35.00,
-    tempo: "20 min",
-    status: "Mesa 05",
-    concluido: false,
-    prioridade: "media",
-    categoria: "pessoal",
-    vence: "2026-09-15",
-    subtarefas: [],
-    criadaEm: "2026-09-15T11:45:00.000Z"
-  },
-  {
-    id: "0003",
-    texto: "Carlos Lima: 2x Batata Rústica + 2x Suco",
-    feito: false,
-    hora: "Hoje 12:00",
-    atendente: "Carlos Lima",
-    local: "Delivery",
-    itens: "2x Batata Rústica + 2x Suco",
-    total: 72.00,
-    tempo: "25 min",
-    status: "Delivery",
-    concluido: false,
-    prioridade: "alta",
-    categoria: "casa",
-    vence: "2026-09-16",
-    subtarefas: [],
-    criadaEm: "2026-09-15T12:00:00.000Z"
-  },
-  {
-    id: "0004",
-    texto: "Mario Santos: 1x Chicken Crispy + 1x Brownie",
-    feito: false,
-    hora: "Hoje 12:15",
-    atendente: "Mario Santos",
-    local: "Mesa 07",
-    itens: "1x Chicken Crispy + 1x Brownie",
-    total: 47.90,
-    tempo: "10 min",
-    status: "Mesa 07",
-    concluido: false,
-    prioridade: "baixa",
-    categoria: "estudos",
-    vence: "2026-09-17",
-    subtarefas: [],
-    criadaEm: "2026-09-15T12:15:00.000Z"
-  },
-  {
-    id: "0005",
-    texto: "Juliana Silva: 2x Heineken Long Neck",
-    feito: true,
-    hora: "Hoje 12:30",
-    atendente: "Juliana Silva",
-    local: "Balcão",
-    itens: "2x Heineken Long Neck",
-    total: 24.00,
-    tempo: "5 min",
-    status: "Balcão",
-    concluido: true,
-    prioridade: "baixa",
-    categoria: "trabalho",
-    vence: "2026-09-15",
-    subtarefas: [],
-    criadaEm: "2026-09-15T12:30:00.000Z"
-  }
-];
+export { PEDIDOS_INICIAIS, hojeTexto, estaAtrasada };
 
 export class AdminView {
-  constructor() {
-    this.pedidos = this.carregarPedidos();
+  constructor(orderModel = null) {
+    this.orderModel = orderModel || new OrderModel();
+
     this.tbody = document.getElementById("admin-orders-table-body");
     this.listaPwa = document.getElementById("lista");
     this.elTotais = document.getElementById("admin-card-totais");
@@ -141,148 +36,56 @@ export class AdminView {
     window.importar = (arquivo) => this.importar(arquivo);
   }
 
-  // Carrega os pedidos do localStorage com try/catch (FANESE Aula 04, 05, 07 e 08)
+  get pedidos() {
+    return this.orderModel.pedidos;
+  }
+
+  set pedidos(novaLista) {
+    this.orderModel.pedidos = novaLista;
+  }
+
   carregarPedidos() {
-    try {
-      const salvos = localStorage.getItem("cardapio_admin_pedidos") || localStorage.getItem("tarefas");
-      if (salvos) {
-        const parsed = JSON.parse(salvos);
-        if (Array.isArray(parsed)) {
-          // Garante que pedidos já salvos tenham os campos de objeto { texto, feito, subtarefas } da Aula 05 e 08
-          return parsed.map((p, idx) => {
-            const textoFormatado = p.texto || (p.cliente ? `${p.cliente}: ${p.itens || ''}` : `Tarefa #${idx + 1}`);
-            const estaFeito = Boolean(p.feito ?? p.concluido ?? false);
-            return {
-              ...p,
-              id: p.id || String(idx + 1).padStart(4, "0"),
-              texto: textoFormatado,
-              feito: estaFeito,
-              concluido: estaFeito,
-              prioridade: p.prioridade || "media",
-              categoria: p.categoria || "trabalho",
-              vence: p.vence ?? hojeTexto(),
-              subtarefas: Array.isArray(p.subtarefas) ? p.subtarefas : [],
-              criadaEm: p.criadaEm || new Date().toISOString()
-            };
-          });
-        }
-      }
-      localStorage.setItem("cardapio_admin_pedidos", JSON.stringify(PEDIDOS_INICIAIS));
-      localStorage.setItem("tarefas", JSON.stringify(PEDIDOS_INICIAIS));
-      return [...PEDIDOS_INICIAIS];
-    } catch (e) {
-      console.error("Erro ao carregar pedidos:", e);
-      return [...PEDIDOS_INICIAIS];
-    }
+    return this.orderModel.carregarPedidos();
   }
 
-  // Salva a lista de pedidos no localStorage com JSON.stringify (FANESE Aula 04, 05 e 08)
   salvarPedidos() {
-    try {
-      localStorage.setItem("cardapio_admin_pedidos", JSON.stringify(this.pedidos));
-      localStorage.setItem("tarefas", JSON.stringify(this.pedidos));
-      window.tarefas = this.pedidos;
-    } catch (e) {
-      console.error("Erro ao salvar pedidos:", e);
-    }
+    this.orderModel.salvarPedidos();
   }
 
-  // Exporta todas as tarefas para um arquivo .json (download) (FANESE Aula 08 - Passo 27)
   exportar() {
-    const dados = JSON.stringify(this.pedidos, null, 2);
-    const blob = new Blob([dados], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "minhas-tarefas.json";
-    link.click();
-    URL.revokeObjectURL(url);
+    this.orderModel.exportar();
   }
 
-  // Lê um arquivo .json escolhido pelo usuário e carrega as tarefas dele (FANESE Aula 08 - Passo 27)
   importar(arquivo) {
-    const leitor = new FileReader();
-    leitor.onload = () => {
-      try {
-        const lista = JSON.parse(leitor.result);
-        if (Array.isArray(lista)) {
-          this.pedidos = lista.map((p, idx) => {
-            const textoFormatado = p.texto || (p.cliente ? `${p.cliente}: ${p.itens || ''}` : `Tarefa #${idx + 1}`);
-            const estaFeito = Boolean(p.feito ?? p.concluido ?? false);
-            return {
-              ...p,
-              id: p.id || String(idx + 1).padStart(4, "0"),
-              texto: textoFormatado,
-              cliente: p.cliente || p.atendente || textoFormatado,
-              atendente: p.atendente || p.cliente || textoFormatado,
-              itens: p.itens || textoFormatado,
-              local: p.local || "Balcão",
-              feito: estaFeito,
-              concluido: estaFeito,
-              prioridade: p.prioridade || "media",
-              categoria: p.categoria || "trabalho",
-              vence: p.vence ?? "",
-              subtarefas: Array.isArray(p.subtarefas) ? p.subtarefas : [],
-              criadaEm: p.criadaEm || new Date().toISOString()
-            };
-          });
-          this.salvarPedidos();
-          this.renderizarTabela();
-          alert("Tarefas importadas com sucesso!");
-        } else {
-          alert("Esse arquivo nao parece um backup de tarefas.");
-        }
-      } catch (erro) {
-        alert("Nao consegui ler o arquivo. Ele esta correto?");
-      }
-    };
-    leitor.readAsText(arquivo);
+    this.orderModel.importar(arquivo, () => {
+      this.renderizarTabela();
+    });
   }
 
-  // Conta quantas tarefas/pedidos ainda faltam atender (FANESE Aula 05 Parte 2)
   atualizarContador() {
-    let pendentes = 0;
-    for (let i = 0; i < this.pedidos.length; i++) {
-      if (!this.pedidos[i].feito && !this.pedidos[i].concluido) {
-        pendentes = pendentes + 1;
-      }
-    }
+    const { total, pendentes } = this.orderModel.obterEstatisticas();
+
     const elContadorAula05 = document.getElementById("contador") || this.elContadorAula05;
     if (elContadorAula05) {
-      elContadorAula05.textContent = "Faltam " + pendentes + " de " + this.pedidos.length;
+      elContadorAula05.textContent = "Faltam " + pendentes + " de " + total;
     }
     if (this.elContador) {
-      this.elContador.textContent = "Faltam " + pendentes + " de " + this.pedidos.length + " pedidos a atender";
+      this.elContador.textContent = "Faltam " + pendentes + " de " + total + " pedidos a atender";
     }
     if (this.elPendentes) {
       this.elPendentes.textContent = pendentes;
     }
   }
 
-  // Atualiza o painel de resumo: total, pendentes, concluídas e atrasadas (Slide 13 da AV1)
   atualizarResumo() {
-    let pendentes = 0;
-    let concluidas = 0;
-    let atrasadas = 0;
-
-    for (let i = 0; i < this.pedidos.length; i++) {
-      const p = this.pedidos[i];
-      if (p.concluido) {
-        concluidas = concluidas + 1;
-      } else {
-        pendentes = pendentes + 1;
-      }
-      if (estaAtrasada(p)) {
-        atrasadas = atrasadas + 1;
-      }
-    }
+    const { total, pendentes, concluidas, atrasadas } = this.orderModel.obterEstatisticas();
 
     const rTotal = document.getElementById("r-total");
     const rPendentes = document.getElementById("r-pendentes");
     const rConcluidas = document.getElementById("r-concluidas");
     const rAtrasadas = document.getElementById("r-atrasadas");
 
-    if (rTotal) rTotal.textContent = this.pedidos.length;
+    if (rTotal) rTotal.textContent = total;
     if (rPendentes) rPendentes.textContent = pendentes;
     if (rConcluidas) rConcluidas.textContent = concluidas;
     if (rAtrasadas) rAtrasadas.textContent = atrasadas;
@@ -291,17 +94,160 @@ export class AdminView {
     this.atualizarCards();
   }
 
-  // Atualiza a barra de progresso (% de tarefas concluídas) (FANESE Aula 07 - Passo 25)
   atualizarProgresso() {
-    let concluidas = 0;
-    for (let i = 0; i < this.pedidos.length; i++) {
-      if (this.pedidos[i].concluido) concluidas = concluidas + 1;
-    }
-    const pct = this.pedidos.length === 0 ? 0 : Math.round((concluidas / this.pedidos.length) * 100);
+    const { percentualConcluido } = this.orderModel.obterEstatisticas();
     const barra = document.getElementById("barra");
     const progressoTexto = document.getElementById("progresso-texto");
-    if (barra) barra.style.width = pct + "%";
-    if (progressoTexto) progressoTexto.textContent = pct + "% concluído";
+    if (barra) barra.style.width = percentualConcluido + "%";
+    if (progressoTexto) progressoTexto.textContent = percentualConcluido + "% concluído";
+  }
+
+  atualizarCards() {
+    const { total, pendentes, totalVendas } = this.orderModel.obterEstatisticas();
+
+    if (this.elTotais) this.elTotais.textContent = total;
+    if (this.elVendas) this.elVendas.textContent = formatarPreco(totalVendas);
+    if (this.elTempo) this.elTempo.textContent = "15 min";
+    if (this.elPendentes) this.elPendentes.textContent = pendentes;
+  }
+
+  renderizarListaTarefas(lista, filtrosAtuais) {
+    const listaEl = document.getElementById("lista") || this.listaPwa;
+    if (!listaEl) return;
+
+    const { filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria } = filtrosAtuais;
+    listaEl.innerHTML = "";
+
+    if (lista.length === 0) {
+      listaEl.innerHTML = "<p class='vazio'>Sua lista está vazia. Adicione a primeira tarefa!</p>";
+      return;
+    }
+
+    for (let i = 0; i < lista.length; i++) {
+      const tarefa = lista[i];
+
+      const item = document.createElement("li");
+      if (tarefa.feito || tarefa.concluido) {
+        item.classList.add("feita");
+      }
+
+      const etiqueta = document.createElement("span");
+      etiqueta.className = "prioridade " + (tarefa.prioridade || "media");
+      etiqueta.textContent = tarefa.prioridade || "media";
+
+      const chip = document.createElement("span");
+      chip.className = "categoria " + (tarefa.categoria || "pessoal");
+      chip.textContent = tarefa.categoria || "pessoal";
+
+      const texto = document.createElement("span");
+      texto.className = "texto";
+      texto.textContent = tarefa.texto || (tarefa.cliente ? `${tarefa.cliente}: ${tarefa.itens || ""}` : "Tarefa");
+      texto.addEventListener("click", () => {
+        tarefa.feito = !tarefa.feito;
+        tarefa.concluido = tarefa.feito;
+        this.salvarPedidos();
+        this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+      });
+
+      item.appendChild(etiqueta);
+      item.appendChild(chip);
+      item.appendChild(texto);
+
+      if (estaAtrasada(tarefa)) {
+        const atraso = document.createElement("span");
+        atraso.className = "atrasada";
+        atraso.textContent = "Atrasada";
+        item.appendChild(atraso);
+      }
+
+      const apagar = document.createElement("button");
+      apagar.textContent = "🗑";
+      apagar.className = "apagar";
+      apagar.setAttribute("aria-label", "Apagar tarefa");
+      apagar.title = "Apagar tarefa";
+      apagar.addEventListener("click", () => {
+        this.pedidos = this.pedidos.filter((t) => t.id !== tarefa.id);
+        this.salvarPedidos();
+        this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+      });
+
+      item.appendChild(apagar);
+
+      // --- Subtarefas (os passos da tarefa) (FANESE Aula 08 - Passo 28) ---
+      if (!tarefa.subtarefas) tarefa.subtarefas = [];
+
+      const subBox = document.createElement("div");
+      subBox.className = "subtarefas";
+
+      const subContador = document.createElement("div");
+      subContador.className = "sub-contador";
+      const feitasSub = tarefa.subtarefas.filter(function (s) { return s.feito; }).length;
+      subContador.textContent = feitasSub + "/" + tarefa.subtarefas.length + " passos";
+      subBox.appendChild(subContador);
+
+      for (let j = 0; j < tarefa.subtarefas.length; j++) {
+        const sub = tarefa.subtarefas[j];
+
+        const subItem = document.createElement("div");
+        subItem.className = "sub-item" + (sub.feito ? " sub-feita" : "");
+
+        const check = document.createElement("span");
+        check.className = "sub-check";
+        check.textContent = sub.feito ? "✅" : "⬜";
+        check.addEventListener("click", () => {
+          sub.feito = !sub.feito;
+          this.salvarPedidos();
+          this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+        });
+
+        const subTexto = document.createElement("span");
+        subTexto.className = "sub-texto";
+        subTexto.textContent = sub.texto;
+
+        const subApagar = document.createElement("button");
+        subApagar.className = "sub-apagar";
+        subApagar.textContent = "×";
+        subApagar.addEventListener("click", () => {
+          tarefa.subtarefas = tarefa.subtarefas.filter(function (s) { return s.id !== sub.id; });
+          this.salvarPedidos();
+          this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+        });
+
+        subItem.appendChild(check);
+        subItem.appendChild(subTexto);
+        subItem.appendChild(subApagar);
+        subBox.appendChild(subItem);
+      }
+
+      const subForm = document.createElement("div");
+      subForm.className = "sub-form";
+
+      const subInput = document.createElement("input");
+      subInput.className = "sub-input";
+      subInput.placeholder = "Novo passo...";
+
+      const subAdd = document.createElement("button");
+      subAdd.className = "sub-add";
+      subAdd.textContent = "+ Passo";
+      subAdd.addEventListener("click", () => {
+        const txt = subInput.value.trim();
+        if (txt === "") return;
+        tarefa.subtarefas.push({
+          id: Date.now() + "-" + Math.floor(Math.random() * 100000),
+          texto: txt,
+          feito: false
+        });
+        this.salvarPedidos();
+        this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+      });
+
+      subForm.appendChild(subInput);
+      subForm.appendChild(subAdd);
+      subBox.appendChild(subForm);
+
+      item.appendChild(subBox);
+      listaEl.appendChild(item);
+    }
   }
 
   renderizarTabela(filtroBusca = "", filtroStatus = "", filtroOrdenacao = "prioridade", filtroCategoria = "todas") {
@@ -310,214 +256,17 @@ export class AdminView {
     }
     if (!this.tbody) return;
 
-    // Sempre recarrega do localStorage para garantir sincronismo com novos pedidos
-    this.pedidos = this.carregarPedidos();
+    const lista = this.orderModel.filtrarEOrdenar(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
 
-    let lista = [...this.pedidos];
-
-    // 1) Busca por texto (Slide 12 da AV1: filter + indexOf)
-    if (filtroBusca) {
-      const termo = filtroBusca.trim().toLowerCase();
-      if (termo !== "") {
-        lista = lista.filter(function (p) {
-          const textoGeral = (
-            (p.atendente || "") + " " +
-            (p.cliente || "") + " " +
-            (p.local || "") + " " +
-            (p.itens || "") + " " +
-            (p.id || "") + " " +
-            (p.prioridade || "") + " " +
-            (p.categoria || "")
-          ).toLowerCase();
-          return textoGeral.indexOf(termo) !== -1;
-        });
-      }
-    }
-
-    // 2) Filtro por local/status
-    if (filtroStatus) {
-      const sTermo = filtroStatus.toLowerCase();
-      lista = lista.filter(p => 
-        String(p.local || "").toLowerCase().includes(sTermo) ||
-        String(p.status || "").toLowerCase().includes(sTermo)
-      );
-    }
-
-    // 3) Filtro por categoria (Aula 07 - Passo 23)
-    if (filtroCategoria && filtroCategoria !== "todas") {
-      lista = lista.filter(function (t) {
-        return (t.categoria || "trabalho").toLowerCase() === filtroCategoria.toLowerCase();
-      });
-    }
-
-    // 4) Ordenação escolhida (Slide 12 da AV1: sort numa cópia com slice)
-    const ordem = { alta: 0, media: 1, baixa: 2 };
-    lista = lista.slice();
-
-    if (filtroOrdenacao === "prioridade") {
-      lista.sort(function (a, b) {
-        const pa = ordem[a.prioridade || "media"] ?? 1;
-        const pb = ordem[b.prioridade || "media"] ?? 1;
-        return pa - pb;
-      });
-    } else if (filtroOrdenacao === "prazo") {
-      lista.sort(function (a, b) {
-        const va = (a.vence || "") === "" ? "9999-99-99" : a.vence;
-        const vb = (b.vence || "") === "" ? "9999-99-99" : b.vence;
-        return va < vb ? -1 : (va > vb ? 1 : 0);
-      });
-    } else if (filtroOrdenacao === "recentes") {
-      lista.sort(function (a, b) {
-        const ca = a.criadaEm || a.hora || "";
-        const cb = b.criadaEm || b.hora || "";
-        return cb < ca ? -1 : (cb > ca ? 1 : 0);
-      });
-    } else if (filtroOrdenacao === "antigos") {
-      lista.reverse();
-    }
+    this.renderizarListaTarefas(lista, {
+      filtroBusca,
+      filtroStatus,
+      filtroOrdenacao,
+      filtroCategoria
+    });
 
     this.tbody.innerHTML = "";
 
-    // Renderiza a lista padrão da Aula 05 e Aula 08 no elemento <ul id="lista">
-    const listaEl = document.getElementById("lista") || this.listaPwa;
-    if (listaEl) {
-      listaEl.innerHTML = "";
-
-      if (lista.length === 0) {
-        listaEl.innerHTML = "<p class='vazio'>Sua lista está vazia. Adicione a primeira tarefa!</p>";
-      } else {
-        for (let i = 0; i < lista.length; i++) {
-          const tarefa = lista[i];
-
-          const item = document.createElement("li");
-          if (tarefa.feito || tarefa.concluido) {
-            item.classList.add("feita");
-          }
-
-          const etiqueta = document.createElement("span");
-          etiqueta.className = "prioridade " + (tarefa.prioridade || "media");
-          etiqueta.textContent = tarefa.prioridade || "media";
-
-          const chip = document.createElement("span");
-          chip.className = "categoria " + (tarefa.categoria || "pessoal");
-          chip.textContent = tarefa.categoria || "pessoal";
-
-          const texto = document.createElement("span");
-          texto.className = "texto";
-          texto.textContent = tarefa.texto || (tarefa.cliente ? `${tarefa.cliente}: ${tarefa.itens || ''}` : "Tarefa");
-          texto.addEventListener("click", () => {
-            tarefa.feito = !tarefa.feito;
-            tarefa.concluido = tarefa.feito;
-            this.salvarPedidos();
-            this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
-          });
-
-          item.appendChild(etiqueta);
-          item.appendChild(chip);
-          item.appendChild(texto);
-
-          if (estaAtrasada(tarefa)) {
-            const atraso = document.createElement("span");
-            atraso.className = "atrasada";
-            atraso.textContent = "Atrasada";
-            item.appendChild(atraso);
-          }
-
-          const apagar = document.createElement("button");
-          apagar.textContent = "🗑";
-          apagar.className = "apagar";
-          apagar.setAttribute("aria-label", "Apagar tarefa");
-          apagar.title = "Apagar tarefa";
-          apagar.addEventListener("click", () => {
-            this.pedidos = this.pedidos.filter((t) => t.id !== tarefa.id);
-            this.salvarPedidos();
-            this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
-          });
-
-          item.appendChild(apagar);
-
-          // --- Subtarefas (os passos da tarefa) (FANESE Aula 08 - Passo 28) ---
-          if (!tarefa.subtarefas) tarefa.subtarefas = [];
-
-          const subBox = document.createElement("div");
-          subBox.className = "subtarefas";
-
-          // Contador de passos (ex.: "1/3 passos").
-          const subContador = document.createElement("div");
-          subContador.className = "sub-contador";
-          const feitasSub = tarefa.subtarefas.filter(function (s) { return s.feito; }).length;
-          subContador.textContent = feitasSub + "/" + tarefa.subtarefas.length + " passos";
-          subBox.appendChild(subContador);
-
-          // Desenha cada passo.
-          for (let j = 0; j < tarefa.subtarefas.length; j++) {
-            const sub = tarefa.subtarefas[j];
-
-            const subItem = document.createElement("div");
-            subItem.className = "sub-item" + (sub.feito ? " sub-feita" : "");
-
-            const check = document.createElement("span");
-            check.className = "sub-check";
-            check.textContent = sub.feito ? "✅" : "⬜";
-            check.addEventListener("click", () => {
-              sub.feito = !sub.feito;
-              this.salvarPedidos();
-              this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
-            });
-
-            const subTexto = document.createElement("span");
-            subTexto.className = "sub-texto";
-            subTexto.textContent = sub.texto;
-
-            const subApagar = document.createElement("button");
-            subApagar.className = "sub-apagar";
-            subApagar.textContent = "×";
-            subApagar.addEventListener("click", () => {
-              tarefa.subtarefas = tarefa.subtarefas.filter(function (s) { return s.id !== sub.id; });
-              this.salvarPedidos();
-              this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
-            });
-
-            subItem.appendChild(check);
-            subItem.appendChild(subTexto);
-            subItem.appendChild(subApagar);
-            subBox.appendChild(subItem);
-          }
-
-          // Campo para adicionar um novo passo.
-          const subForm = document.createElement("div");
-          subForm.className = "sub-form";
-
-          const subInput = document.createElement("input");
-          subInput.className = "sub-input";
-          subInput.placeholder = "Novo passo...";
-
-          const subAdd = document.createElement("button");
-          subAdd.className = "sub-add";
-          subAdd.textContent = "+ Passo";
-          subAdd.addEventListener("click", () => {
-            const txt = subInput.value.trim();
-            if (txt === "") return;
-            tarefa.subtarefas.push({
-              id: Date.now() + "-" + Math.floor(Math.random() * 100000),
-              texto: txt,
-              feito: false
-            });
-            this.salvarPedidos();
-            this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
-          });
-
-          subForm.appendChild(subInput);
-          subForm.appendChild(subAdd);
-          subBox.appendChild(subForm);
-
-          item.appendChild(subBox);
-          listaEl.appendChild(item);
-        }
-      }
-    }
-
-    // Estado vazio com classe .vazio (FANESE Aula 05 Parte 2)
     if (lista.length === 0) {
       this.tbody.innerHTML = `
         <tr>
@@ -602,136 +351,42 @@ export class AdminView {
     this.atualizarProgresso();
   }
 
-
-  atualizarCards() {
-    const totalPedidos = this.pedidos.length;
-    const totalVendas = this.pedidos.reduce((acc, p) => acc + (Number(p.total) || 0), 0);
-    const pendentes = this.pedidos.filter(p => !p.concluido && !p.feito).length;
-
-    if (this.elTotais) this.elTotais.textContent = totalPedidos;
-    if (this.elVendas) this.elVendas.textContent = formatarPreco(totalVendas);
-    if (this.elTempo) this.elTempo.textContent = "15 min";
-    if (this.elPendentes) this.elPendentes.textContent = pendentes;
-  }
-
-  // Marcar/Desmarcar como concluído usando operador "!" (FANESE Aula 05 Parte 1)
   alternarConcluido(id) {
-    const ped = this.pedidos.find(p => p.id === id);
-    if (ped) {
-      ped.feito = !ped.feito;
-      ped.concluido = ped.feito;
-      this.salvarPedidos();
-      this.renderizarTabela();
-    }
+    this.orderModel.alternarConcluido(id);
+    this.renderizarTabela();
   }
 
-  // Limpar todas as tarefas/pedidos já concluídos usando filter (FANESE Aula 05 Parte 2)
   obterExcluidos() {
-    try {
-      const salvos = localStorage.getItem("cardapio_pedidos_excluidos");
-      return salvos ? JSON.parse(salvos) : [];
-    } catch (e) {
-      return [];
-    }
+    return this.orderModel.obterExcluidos();
   }
 
   registrarExcluido(idOuUid) {
-    if (!idOuUid) return;
-    try {
-      const excluidos = this.obterExcluidos();
-      const str = String(idOuUid);
-      if (!excluidos.includes(str)) {
-        excluidos.push(str);
-        if (excluidos.length > 200) excluidos.shift();
-        localStorage.setItem("cardapio_pedidos_excluidos", JSON.stringify(excluidos));
-      }
-    } catch (e) {}
+    this.orderModel.registrarExcluido(idOuUid);
   }
 
   foiExcluido(idOuUid) {
-    if (!idOuUid) return false;
-    const excluidos = this.obterExcluidos();
-    return excluidos.includes(String(idOuUid));
+    return this.orderModel.foiExcluido(idOuUid);
   }
 
-  // Limpar todas as tarefas/pedidos já concluídos usando filter (FANESE Aula 05 Parte 2)
   limparConcluidos() {
-    this.pedidos = this.pedidos.filter(function (t) {
-      return !t.feito && !t.concluido;
-    });
-    this.salvarPedidos();
+    this.orderModel.limparConcluidos();
     this.renderizarTabela();
   }
 
-  // Limpar todos os pedidos do sistema (FANESE)
   limparTodos() {
-    this.pedidos.forEach(p => this.registrarExcluido(p.uid || p.id));
-    this.pedidos = [];
-    this.salvarPedidos();
+    this.orderModel.limparTodos();
     this.renderizarTabela();
   }
 
-  // Apagar tarefa/pedido específico usando splice (FANESE Aula 05 Parte 1)
   cancelarPedido(id) {
-    const index = this.pedidos.findIndex(p => p.id === id);
-    if (index !== -1) {
-      const ped = this.pedidos[index];
-      this.registrarExcluido(ped.uid || ped.id);
-      this.pedidos.splice(index, 1);
-      this.salvarPedidos();
-      this.renderizarTabela();
-    }
+    this.orderModel.cancelarPedido(id);
+    this.renderizarTabela();
   }
 
-  // Registra um novo pedido feito pelo cliente (FANESE Aulas 04, 05, 07 e 08)
   adicionarPedido(dadosPedido) {
-    this.pedidos = this.carregarPedidos();
-
-    const proximoNumero = this.pedidos.length > 0 
-      ? Math.max(...this.pedidos.map(p => parseInt(p.id) || 0)) + 1 
-      : 1;
-
-    const agora = new Date();
-    const horaFormatada = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-
-    const nomeCliente = (dadosPedido.nome || "").trim() || "Cliente Online";
-    let localFormatado = dadosPedido.tipo || "Balcão";
-    if (dadosPedido.tipo === "Mesa" && dadosPedido.local) {
-      localFormatado = String(dadosPedido.local).toLowerCase().includes("mesa") 
-        ? dadosPedido.local 
-        : `Mesa ${dadosPedido.local}`;
-    } else if (dadosPedido.tipo === "Delivery" && dadosPedido.local) {
-      localFormatado = `Delivery (${dadosPedido.local})`;
-    } else if (dadosPedido.local) {
-      localFormatado = `${dadosPedido.tipo} - ${dadosPedido.local}`;
-    }
-
-    const novoPedido = {
-      id: String(proximoNumero).padStart(4, "0"),
-      uid: dadosPedido.uid || `ped_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-      timestamp: Date.now(),
-      hora: dadosPedido.hora || `Hoje ${horaFormatada}`,
-      cliente: nomeCliente,
-      atendente: nomeCliente, // Compatibilidade com mockups anteriores
-      local: localFormatado,
-      itens: dadosPedido.itensTexto || "1x Pedido",
-      total: Number(dadosPedido.totalGeral) || 0,
-      tempo: "Recente",
-      status: dadosPedido.tipo || "Aberto",
-      concluido: false,
-      novo: true,
-      prioridade: dadosPedido.prioridade || "media",
-      categoria: dadosPedido.categoria || "trabalho",
-      vence: dadosPedido.vence || hojeTexto(),
-      subtarefas: Array.isArray(dadosPedido.subtarefas) ? dadosPedido.subtarefas : [],
-      criadaEm: dadosPedido.criadaEm || new Date().toISOString()
-    };
-
-    this.pedidos.unshift(novoPedido); // Adiciona no início para aparecer no topo do monitoramento
-    this.salvarPedidos();
+    const novoPedido = this.orderModel.adicionarPedido(dadosPedido);
     this.renderizarTabela();
 
-    // Notifica outras abas/janelas via BroadcastChannel
     try {
       const canal = new BroadcastChannel("cardapio_pedidos_channel");
       canal.postMessage({ type: "NOVO_PEDIDO", pedido: novoPedido });
@@ -741,7 +396,6 @@ export class AdminView {
     return novoPedido;
   }
 
-  // Renderiza a tabela de produtos ativos no cardápio para consulta e alteração de preços (FANESE)
   renderizarTabelaProdutos(produtos = []) {
     if (!this.tbodyProdutos) {
       this.tbodyProdutos = document.getElementById("admin-products-table-body");
@@ -798,4 +452,3 @@ export class AdminView {
     });
   }
 }
-
