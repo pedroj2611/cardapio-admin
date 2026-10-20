@@ -39,7 +39,7 @@
   --radius-lg: 20px;
   --radius-full: 9999px;
   
-  --sidebar-width: 240px;
+  --sidebar-width: 252px;
   --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-heading: 'Outfit', system-ui, sans-serif;
   --transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
@@ -918,7 +918,7 @@ details[open] .accordion-arrow {
 .sidebar-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding-bottom: 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -947,8 +947,8 @@ details[open] .accordion-arrow {
 }
 
 .sidebar-logo-box {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 12px;
   display: flex;
@@ -975,26 +975,30 @@ details[open] .accordion-arrow {
 .sidebar-brand-info {
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
+  flex: 1;
+  min-width: max-content;
+  overflow: visible;
+  padding-right: 4px;
 }
 
 .sidebar-title {
   font-family: var(--font-heading);
-  font-size: 0.98rem;
+  font-size: 0.92rem;
   font-weight: 800;
   color: #ffffff;
-  letter-spacing: 0.5px;
-  line-height: 1.1;
+  letter-spacing: 0.25px;
+  line-height: 1.15;
   white-space: nowrap;
+  overflow: visible;
 }
 
 .sidebar-subtitle {
-  font-size: 0.66rem;
+  font-size: 0.65rem;
   color: #717782;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   white-space: nowrap;
+  overflow: visible;
 }
 
 .sidebar-nav {
