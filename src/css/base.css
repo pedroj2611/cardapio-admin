@@ -158,6 +158,6 @@ body.sidebar-collapsed .main-workspace,
 .app-container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 20px 16px;
+  padding: 20px 16px 120px 16px !important;
   width: 100%;
 }

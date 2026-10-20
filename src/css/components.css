@@ -352,10 +352,13 @@ details[open] .accordion-arrow {
 }
 
 /* GRID DE PRODUTOS DO CARDÁPIO */
-.cardapio-section {
+.cardapio-section,
+.produtos-container,
+.cardapio-grid {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding-bottom: 120px !important;
 }
 
 .section-title-row {
@@ -384,6 +387,7 @@ details[open] .accordion-arrow {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
+  margin-bottom: 16px;
 }
 
 /* CARDS DE PRODUTO */
