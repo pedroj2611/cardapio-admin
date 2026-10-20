@@ -170,14 +170,10 @@ body.sidebar-collapsed .main-workspace,
    ========================================================================== */
 
 /* HEADER E BANNER GOURMET */
-header, .header, #topo-do-cardapio, body {
-  padding-top: env(safe-area-inset-top, 24px) !important;
-}
-
 .header-empresa,
 .header,
 #topo-do-cardapio {
-  padding-top: max(28px, calc(env(safe-area-inset-top, 24px) + 20px)) !important;
+  padding: 10px 16px 20px 16px !important;
   position: relative;
   background: #1c1917 url('../icons/fundo-madeira.jpg') center/cover no-repeat;
   color: #ffffff;
@@ -218,7 +214,6 @@ header, .header, #topo-do-cardapio, body {
 }
 
 .header-top-bar {
-  margin-top: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -232,7 +227,6 @@ header, .header, #topo-do-cardapio, body {
 }
 
 .status-box {
-  margin-top: 10px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -1276,11 +1270,20 @@ input:checked + .slider-toggle:before {
   .mobile-bottom-nav {
     display: flex;
   }
+  body, html, header, .header, #topo-do-cardapio {
+    padding-top: 10px !important;
+  }
+  html, body {
+    padding-top: 0 !important;
+  }
   header, .header, .header-empresa, #topo-do-cardapio {
-    padding-top: max(36px, calc(env(safe-area-inset-top, 24px) + 24px)) !important;
+    padding-top: 10px !important;
+    margin-top: 0 !important;
+  }
+  .header-top-bar, .status-box, #tema {
+    margin-top: 0 !important;
   }
   body {
-    padding-top: env(safe-area-inset-top, 24px) !important;
     padding-bottom: 70px;
   }
   .barra-flutuante {
@@ -2049,7 +2052,6 @@ tr.pedido-concluido {
 
 /* Botão de alternar tema (Aula 07 - Slide 08 e 09) */
 #tema {
-  margin-top: 10px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
@@ -2069,7 +2071,6 @@ tr.pedido-concluido {
   transform: scale(1.08);
 }
 :root[data-theme="claro"] #tema {
-  margin-top: 10px;
   background: rgba(12, 63, 67, 0.12);
   border-color: rgba(12, 63, 67, 0.25);
   color: #06282b;
