@@ -21,10 +21,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Estilos MVC Modularizados -->
-  <link rel="stylesheet" href="css/base.css?v=13">
-  <link rel="stylesheet" href="css/components.css?v=13">
-  <link rel="stylesheet" href="css/modals.css?v=13">
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="css/base.css?v=14">
+  <link rel="stylesheet" href="css/components.css?v=14">
+  <link rel="stylesheet" href="css/modals.css?v=14">
+  <link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
 
@@ -78,12 +78,12 @@
           <div class="header-overlay" aria-hidden="true"></div>
           
           <div class="header-container">
-            <div class="header-top-bar" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="header-top-bar top-bar-mobile top-actions status-container-header" style="display: flex; justify-content: space-between; align-items: center;">
               <div class="status-box">
                 <span class="status-pulse" id="status-pulse-dot"></span>
                 <span class="status-label" id="status-rede-label">Aberto para Pedidos</span>
               </div>
-              <button id="tema" aria-label="Alternar tema" title="Alternar tema claro/escuro (Aula 07)">🌙</button>
+              <button id="tema" class="btn-theme-toggle" aria-label="Alternar tema" title="Alternar tema claro/escuro (Aula 07)">🌙</button>
             </div>
 
             <div class="brand-box">
@@ -945,6 +945,6 @@
   </script>
 
   <!-- CONTROLLER PRINCIPAL (MVC) -->
-  <script type="module" src="js/controllers/AppController.js?v=13"></script>
+  <script type="module" src="js/controllers/AppController.js?v=14"></script>
 </body>
 </html>

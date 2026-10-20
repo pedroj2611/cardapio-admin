@@ -3,10 +3,7 @@
    ========================================================================== */
 
 /* HEADER E BANNER GOURMET */
-.header-empresa,
-.header,
-#topo-do-cardapio {
-  padding: 10px 16px 20px 16px !important;
+.header-empresa {
   position: relative;
   background: #1c1917 url('../icons/fundo-madeira.jpg') center/cover no-repeat;
   color: #ffffff;
@@ -1103,19 +1100,41 @@ input:checked + .slider-toggle:before {
   .mobile-bottom-nav {
     display: flex;
   }
-  body, html, header, .header, #topo-do-cardapio {
-    padding-top: 10px !important;
-  }
-  html, body {
-    padding-top: 0 !important;
-  }
+  /* Top Bar com estilo e respiro do Nubank */
   header, .header, .header-empresa, #topo-do-cardapio {
-    padding-top: 10px !important;
-    margin-top: 0 !important;
+    padding: 0 0 20px 0 !important;
   }
-  .header-top-bar, .status-box, #tema {
-    margin-top: 0 !important;
+
+  /* Espaçamento superior real para ficar abaixo da barra do iPhone/Android */
+  .header-top-bar, .top-bar-mobile, header .top-actions, .status-container-header {
+    padding-top: max(48px, env(safe-area-inset-top, 48px)) !important;
+    padding-bottom: 14px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
   }
+
+  /* Área de toque maior para o botão de modo escuro/claro */
+  #tema, .btn-theme-toggle, #themeToggle, button[aria-label*="tema"] {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .header-container {
+    gap: 4px;
+  }
+
+  .header-empresa .brand-box {
+    padding: 0 16px;
+  }
+
   body {
     padding-bottom: 70px;
   }
