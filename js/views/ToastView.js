@@ -56,9 +56,12 @@ export class ToastView {
       };
     }
 
+    document.body.classList.add('modal-aberto');
+    document.documentElement.classList.add('modal-aberto');
+
     if (typeof modalConf.showModal === "function") {
       try {
-        modalConf.showModal();
+        if (!modalConf.open) modalConf.showModal();
       } catch (err) {
         modalConf.setAttribute("open", "true");
         modalConf.style.display = "block";
@@ -74,7 +77,7 @@ export class ToastView {
     if (modalConf) {
       if (typeof modalConf.close === "function") {
         try {
-          modalConf.close();
+          if (modalConf.open) modalConf.close();
         } catch (err) {
           modalConf.removeAttribute("open");
           modalConf.style.display = "none";
@@ -83,6 +86,10 @@ export class ToastView {
         modalConf.removeAttribute("open");
         modalConf.style.display = "none";
       }
+    }
+    if (!document.querySelector("dialog[open], .modal.active")) {
+      document.body.classList.remove('modal-aberto');
+      document.documentElement.classList.remove('modal-aberto');
     }
   }
 }

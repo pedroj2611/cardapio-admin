@@ -228,6 +228,8 @@ function mostrarToast(mensagem, icone = "✅") {
 
 // MODAL DE CONFIRMAÇÃO CUSTOMIZADO (Substitui confirm NATIVO)
 function solicitarConfirmacao(titulo, mensagem, icone, acao) {
+  document.body.classList.add('modal-aberto');
+  document.documentElement.classList.add('modal-aberto');
   const modalConf = document.getElementById("modal-confirmacao");
   const elTitulo = document.getElementById("confirm-titulo");
   const elMensagem = document.getElementById("confirm-mensagem");
@@ -252,6 +254,8 @@ function solicitarConfirmacao(titulo, mensagem, icone, acao) {
 }
 
 function fecharModalConfirmacao() {
+  document.body.classList.remove('modal-aberto');
+  document.documentElement.classList.remove('modal-aberto');
   const modalConf = document.getElementById("modal-confirmacao");
   if (modalConf) {
     if (typeof modalConf.close === "function") modalConf.close();
@@ -468,6 +472,8 @@ const modalEditar = document.getElementById("modal-editar-produto");
 const modalConfig = document.getElementById("modal-configuracoes");
 
 function abrirModalEdicao(id) {
+  document.body.classList.add('modal-aberto');
+  document.documentElement.classList.add('modal-aberto');
   const prod = produtos.find(p => p.id === id);
   if (!prod) return;
 
@@ -487,6 +493,8 @@ function abrirModalEdicao(id) {
 }
 
 function fecharModalEdicao() {
+  document.body.classList.remove('modal-aberto');
+  document.documentElement.classList.remove('modal-aberto');
   if (modalEditar && typeof modalEditar.close === "function") {
     modalEditar.close();
   } else if (modalEditar) {
@@ -534,6 +542,8 @@ function salvarEdicaoProduto() {
 }
 
 function abrirModalConfig() {
+  document.body.classList.add('modal-aberto');
+  document.documentElement.classList.add('modal-aberto');
   document.getElementById("config-nome-loja").value = configLoja.nomeLoja || "";
   document.getElementById("config-whatsapp").value = configLoja.whatsapp || "";
   document.getElementById("config-taxa-entrega").value = configLoja.taxaEntrega || 0;
@@ -547,6 +557,8 @@ function abrirModalConfig() {
 }
 
 function fecharModalConfig() {
+  document.body.classList.remove('modal-aberto');
+  document.documentElement.classList.remove('modal-aberto');
   if (modalConfig && typeof modalConfig.close === "function") {
     modalConfig.close();
   } else if (modalConfig) {
@@ -669,6 +681,8 @@ const pedidoObsInput = document.getElementById("pedido-obs");
 const linhaTaxaEntrega = document.getElementById("linha-taxa-entrega");
 
 function abrirModal() {
+  document.body.classList.add('modal-aberto');
+  document.documentElement.classList.add('modal-aberto');
   atualizarInterface();
   if (modalPedido && typeof modalPedido.showModal === "function") {
     modalPedido.showModal();
@@ -678,6 +692,8 @@ function abrirModal() {
 }
 
 function fecharModal() {
+  document.body.classList.remove('modal-aberto');
+  document.documentElement.classList.remove('modal-aberto');
   if (modalPedido && typeof modalPedido.close === "function") {
     modalPedido.close();
   } else if (modalPedido) {

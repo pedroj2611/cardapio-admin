@@ -24,8 +24,10 @@ export class ModalView {
 
   abrirModal(modal) {
     if (!modal) return;
+    document.body.classList.add('modal-aberto');
+    document.documentElement.classList.add('modal-aberto');
     if (typeof modal.showModal === "function") {
-      modal.showModal();
+      if (!modal.open) modal.showModal();
     } else {
       modal.setAttribute("open", "true");
     }
@@ -34,9 +36,13 @@ export class ModalView {
   fecharModal(modal) {
     if (!modal) return;
     if (typeof modal.close === "function") {
-      modal.close();
+      if (modal.open) modal.close();
     } else {
       modal.removeAttribute("open");
+    }
+    if (!document.querySelector("dialog[open], .modal.active")) {
+      document.body.classList.remove('modal-aberto');
+      document.documentElement.classList.remove('modal-aberto');
     }
   }
 

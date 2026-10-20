@@ -1410,6 +1410,29 @@ export class AppController {
     const btnSalvarConfig = document.getElementById("btn-salvar-config");
     const formConfig = document.getElementById("form-config");
 
+    // Fechamento universal de modais (clique fora no backdrop ou tecla ESC) e remoção do scroll lock
+    document.querySelectorAll("dialog.modal-dialog").forEach((dlg) => {
+      dlg.addEventListener("click", (e) => {
+        if (e.target === dlg) {
+          this.modalView.fecharModal(dlg);
+        }
+      });
+      dlg.addEventListener("close", () => {
+        if (!document.querySelector("dialog[open], .modal.active")) {
+          document.body.classList.remove("modal-aberto");
+          document.documentElement.classList.remove("modal-aberto");
+        }
+      });
+      dlg.addEventListener("cancel", () => {
+        setTimeout(() => {
+          if (!document.querySelector("dialog[open], .modal.active")) {
+            document.body.classList.remove("modal-aberto");
+            document.documentElement.classList.remove("modal-aberto");
+          }
+        }, 10);
+      });
+    });
+
     if (btnFecharConfig) {
       btnFecharConfig.addEventListener("click", () => this.modalView.fecharModal(this.modalView.modalConfig));
     }
