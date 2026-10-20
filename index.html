@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Hambúrguer dos Amigos | Cardápio & Delivery</title>
 
   <meta name="description" content="Cardápio digital artesanal interativo e painel de monitoramento de pedidos em tempo real.">
@@ -21,10 +21,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Estilos MVC Modularizados -->
-  <link rel="stylesheet" href="css/base.css?v=11">
-  <link rel="stylesheet" href="css/components.css?v=11">
-  <link rel="stylesheet" href="css/modals.css?v=11">
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="stylesheet" href="css/base.css?v=12">
+  <link rel="stylesheet" href="css/components.css?v=12">
+  <link rel="stylesheet" href="css/modals.css?v=12">
+  <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
 
@@ -73,7 +73,7 @@
       <!-- VISÃO PÚBLICA DO SISTEMA (CARDÁPIO E CLIENTE) -->
       <div id="public-view" class="view-panel active-view">
         <!-- BANNER E CABEÇALHO GOURMET -->
-        <header class="header-empresa">
+        <header class="header-empresa header" id="topo-do-cardapio">
           <div class="header-banner-bg" style="background-image: url('icons/fundo-madeira.jpg');" aria-hidden="true"></div>
           <div class="header-overlay" aria-hidden="true"></div>
           
@@ -945,6 +945,6 @@
   </script>
 
   <!-- CONTROLLER PRINCIPAL (MVC) -->
-  <script type="module" src="js/controllers/AppController.js?v=11"></script>
+  <script type="module" src="js/controllers/AppController.js?v=12"></script>
 </body>
 </html>
