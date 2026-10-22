@@ -2,13 +2,14 @@
  * ==========================================================================
  * VIEW LAYER - ADMIN DASHBOARD VIEW (src/js/views/AdminView.js)
  * Responsável exclusivamente pela renderização da interface do Painel Admin
- * (Tabelas, Lista de Tarefas/Subtarefas, Resumo AV1 e Barra de Progresso),
+ * (Tabelas, Cards Modernos de Tarefas, Relatório PDF, Resumo AV1 e Progresso),
  * delegando os dados e persistência ao OrderModel (Padrão MVC).
  * ==========================================================================
  */
 
 import { formatarPreco } from "./ProductView.js";
 import { OrderModel, PEDIDOS_INICIAIS, hojeTexto, estaAtrasada } from "../models/OrderModel.js";
+import { ToastView } from "./ToastView.js";
 
 export { PEDIDOS_INICIAIS, hojeTexto, estaAtrasada };
 
@@ -34,6 +35,7 @@ export class AdminView {
     window.atualizarContador = () => this.atualizarContador();
     window.exportar = () => this.exportar();
     window.importar = (arquivo) => this.importar(arquivo);
+    window.gerarRelatorioPDF = () => this.gerarRelatorioPDF();
   }
 
   get pedidos() {
@@ -54,12 +56,158 @@ export class AdminView {
 
   exportar() {
     this.orderModel.exportar();
+    ToastView.mostrarToast("Backup de tarefas exportado em minhas-tarefas.json!", "💾");
   }
 
   importar(arquivo) {
-    this.orderModel.importar(arquivo, () => {
-      this.renderizarTabela();
-    });
+    this.orderModel.importar(
+      arquivo,
+      (qtd) => {
+        this.renderizarTabela();
+        ToastView.mostrarToast(`${qtd} tarefa(s) restaurada(s) do backup JSON com sucesso!`, "📥");
+      },
+      (msgErro) => {
+        ToastView.mostrarToast(msgErro || "Erro ao importar arquivo JSON!", "⚠️");
+      }
+    );
+  }
+
+  gerarRelatorioPDF() {
+    const { total, pendentes, concluidas, atrasadas, percentualConcluido } = this.orderModel.obterEstatisticas();
+    const tarefas = this.pedidos;
+    const agora = new Date();
+    const dataHoraStr = agora.toLocaleDateString("pt-BR") + " às " + agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+    const linhasHtml = tarefas.map((t, idx) => {
+      const feita = Boolean(t.feito || t.concluido);
+      const atrasada = estaAtrasada(t);
+      const prioridade = (t.prioridade || "media").toUpperCase();
+      const categoria = (t.categoria || "trabalho").toUpperCase();
+      const statusBadge = feita ? "✔ CONCLUÍDA" : (atrasada ? "⏰ ATRASADA" : "⏳ PENDENTE");
+      const statusColor = feita ? "#10b981" : (atrasada ? "#ef4444" : "#f59e0b");
+      const subInfo = (t.subtarefas && t.subtarefas.length > 0)
+        ? `${t.subtarefas.filter(s => s.feito).length}/${t.subtarefas.length} passos`
+        : "-";
+
+      return `
+        <tr style="border-bottom: 1px solid #e2e8f0; ${feita ? 'background: #f8fafc; color: #64748b;' : ''}">
+          <td style="padding: 10px; font-weight: bold; text-align: center;">${t.id || (idx + 1)}</td>
+          <td style="padding: 10px; text-align: center;">
+            <span style="display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; ${
+              t.prioridade === 'alta' ? 'background: #fee2e2; color: #b91c1c;' :
+              t.prioridade === 'baixa' ? 'background: #dcfce7; color: #15803d;' :
+              'background: #fef3c7; color: #b45309;'
+            }">${prioridade}</span>
+          </td>
+          <td style="padding: 10px; text-align: center; font-size: 12px; font-weight: 600;">${categoria}</td>
+          <td style="padding: 10px;">
+            <strong style="color: #0f172a; font-size: 13px; ${feita ? 'text-decoration: line-through; opacity: 0.7;' : ''}">${t.texto || t.cliente || 'Tarefa'}</strong>
+            ${t.itens && t.itens !== t.texto ? `<div style="font-size: 11px; color: #64748b;">${t.itens}</div>` : ''}
+          </td>
+          <td style="padding: 10px; text-align: center; font-size: 12px;">${t.vence || 'Hoje'}</td>
+          <td style="padding: 10px; text-align: center; font-size: 11px; font-weight: 600;">${subInfo}</td>
+          <td style="padding: 10px; text-align: center;">
+            <span style="display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; background: ${statusColor}18; color: ${statusColor}; border: 1px solid ${statusColor}40;">
+              ${statusBadge}
+            </span>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    const printHtml = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Relatório Operacional de Turno - Hambúrguer dos Amigos</title>
+  <style>
+    @page { size: A4 portrait; margin: 15mm; }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { color: #0f172a; margin: 0; padding: 20px; background: #fff; font-size: 13px; }
+    .header-print { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 14px; margin-bottom: 20px; }
+    .brand-title { font-size: 20px; font-weight: 900; color: #0f172a; margin: 0 0 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .report-subtitle { font-size: 13px; color: #475569; margin: 0; font-weight: 600; }
+    .meta-info { text-align: right; font-size: 11px; color: #64748b; line-height: 1.5; }
+    .kpis-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+    .kpi-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; text-align: center; background: #f8fafc; }
+    .kpi-val { font-size: 18px; font-weight: 900; color: #0f172a; }
+    .kpi-lbl { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 2px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 24px; }
+    th { background: #f1f5f9; color: #334155; padding: 10px; text-align: left; font-size: 11px; font-weight: 800; text-transform: uppercase; border-bottom: 2px solid #cbd5e1; }
+    .footer-print { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #cbd5e1; padding-top: 16px; margin-top: 30px; font-size: 11px; color: #64748b; }
+    .signature-line { border-top: 1px solid #0f172a; width: 220px; text-align: center; padding-top: 4px; font-weight: 600; }
+    .no-print-bar { background: #1e293b; color: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 8px; margin-bottom: 20px; }
+    .btn-print { background: #10b981; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
+    @media print { .no-print-bar { display: none !important; } body { padding: 0; } }
+  </style>
+</head>
+<body>
+  <div class="no-print-bar">
+    <span>📄 <strong>Visualização de Impressão / PDF</strong> — Folha de Turno & Tarefas</span>
+    <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+  </div>
+
+  <div class="header-print">
+    <div>
+      <h1 class="brand-title">🍔 Hambúrguer dos Amigos</h1>
+      <p class="report-subtitle">Relatório Operacional de Tarefas & Monitoramento de Turno</p>
+    </div>
+    <div class="meta-info">
+      <div><strong>Emissão:</strong> ${dataHoraStr}</div>
+      <div><strong>Sistema:</strong> Cardápio Digital & Admin PWA</div>
+      <div><strong>Responsável:</strong> Gestão de Pedidos</div>
+    </div>
+  </div>
+
+  <div class="kpis-grid">
+    <div class="kpi-card"><div class="kpi-val">${total}</div><div class="kpi-lbl">Total Tarefas</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color: #d97706;">${pendentes}</div><div class="kpi-lbl">Pendentes</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color: #10b981;">${concluidas}</div><div class="kpi-lbl">Concluídas</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color: #ef4444;">${atrasadas}</div><div class="kpi-lbl">Atrasadas</div></div>
+    <div class="kpi-card"><div class="kpi-val">${percentualConcluido}%</div><div class="kpi-lbl">Taxa de Conclusão</div></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 50px; text-align: center;">#</th>
+        <th style="width: 90px; text-align: center;">Prioridade</th>
+        <th style="width: 90px; text-align: center;">Categoria</th>
+        <th>Descrição da Tarefa / Pedido</th>
+        <th style="width: 90px; text-align: center;">Prazo</th>
+        <th style="width: 90px; text-align: center;">Subtarefas</th>
+        <th style="width: 110px; text-align: center;">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${linhasHtml}
+    </tbody>
+  </table>
+
+  <div class="footer-print">
+    <div>Documento gerado automaticamente para controle operacional e acadêmico (AV1).</div>
+    <div class="signature-line">Visto do Gerente / Responsável</div>
+  </div>
+
+  <script>
+    window.onload = function() {
+      setTimeout(function() {
+        window.print();
+      }, 350);
+    };
+  </script>
+</body>
+</html>`;
+
+    const printWin = window.open("", "_blank");
+    if (printWin) {
+      printWin.document.open();
+      printWin.document.write(printHtml);
+      printWin.document.close();
+      ToastView.mostrarToast("Relatório PDF aberto para impressão!", "📄");
+    } else {
+      window.print();
+    }
   }
 
   atualizarContador() {
@@ -125,111 +273,213 @@ export class AdminView {
 
     for (let i = 0; i < lista.length; i++) {
       const tarefa = lista[i];
+      const estaFeita = Boolean(tarefa.feito || tarefa.concluido);
+      const ehAtrasada = estaAtrasada(tarefa);
+      const prioridadeNome = (tarefa.prioridade || "media").toLowerCase();
+      const categoriaNome = (tarefa.categoria || "pessoal").toLowerCase();
+      const textoExibicao = tarefa.texto || (tarefa.cliente ? `${tarefa.cliente}: ${tarefa.itens || ""}` : "Tarefa");
 
+      // Container principal do Card Moderno (border-radius: 12px, sombra e borda suave)
       const item = document.createElement("li");
-      if (tarefa.feito || tarefa.concluido) {
-        item.classList.add("feita");
+      item.className = `card-tarefa-moderna ${estaFeita ? "feita" : ""} ${ehAtrasada ? "card-atrasada" : ""}`;
+      item.dataset.id = tarefa.id;
+
+      // 1. Cabeçalho do Card: Badges de Prioridade, Categoria, Atrasada, Data de Vencimento e Botão Lixeira
+      const cardHeader = document.createElement("div");
+      cardHeader.className = "card-tarefa-header";
+
+      const badgesWrap = document.createElement("div");
+      badgesWrap.className = "card-tarefa-badges";
+
+      const badgePrioridade = document.createElement("span");
+      badgePrioridade.className = `badge-prioridade ${prioridadeNome}`;
+      badgePrioridade.textContent = prioridadeNome.toUpperCase();
+
+      const badgeCategoria = document.createElement("span");
+      badgeCategoria.className = `categoria ${categoriaNome}`;
+      badgeCategoria.textContent = categoriaNome;
+
+      badgesWrap.appendChild(badgePrioridade);
+      badgesWrap.appendChild(badgeCategoria);
+
+      if (ehAtrasada) {
+        const badgeAtraso = document.createElement("span");
+        badgeAtraso.className = "atrasada";
+        badgeAtraso.innerHTML = "⏰ ATRASADA";
+        badgesWrap.appendChild(badgeAtraso);
       }
 
-      const etiqueta = document.createElement("span");
-      etiqueta.className = "prioridade " + (tarefa.prioridade || "media");
-      etiqueta.textContent = tarefa.prioridade || "media";
+      const headerRight = document.createElement("div");
+      headerRight.className = "card-tarefa-header-right";
 
-      const chip = document.createElement("span");
-      chip.className = "categoria " + (tarefa.categoria || "pessoal");
-      chip.textContent = tarefa.categoria || "pessoal";
+      const spanPrazo = document.createElement("span");
+      spanPrazo.className = "card-prazo";
+      spanPrazo.title = "Prazo da tarefa";
+      spanPrazo.innerHTML = `<span class="prazo-icon">📅</span> <span class="prazo-txt">${tarefa.vence || "Hoje"}</span>`;
 
-      const texto = document.createElement("span");
-      texto.className = "texto";
-      texto.textContent = tarefa.texto || (tarefa.cliente ? `${tarefa.cliente}: ${tarefa.itens || ""}` : "Tarefa");
-      texto.addEventListener("click", () => {
+      const btnApagar = document.createElement("button");
+      btnApagar.type = "button";
+      btnApagar.className = "btn-apagar-card";
+      btnApagar.setAttribute("aria-label", "Apagar tarefa");
+      btnApagar.title = "Apagar tarefa";
+      btnApagar.innerHTML = `<span class="trash-icon">🗑️</span>`;
+      btnApagar.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.pedidos = this.pedidos.filter((t) => t.id !== tarefa.id);
+        this.salvarPedidos();
+        this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+        ToastView.mostrarToast("Tarefa excluída com sucesso!", "🗑️");
+      });
+
+      headerRight.appendChild(spanPrazo);
+      headerRight.appendChild(btnApagar);
+
+      cardHeader.appendChild(badgesWrap);
+      cardHeader.appendChild(headerRight);
+
+      // 2. Centro: Checkbox customizado circular/quadrado moderno com Título/Descrição nítidos
+      const cardBody = document.createElement("div");
+      cardBody.className = "card-tarefa-body";
+
+      const checkLabel = document.createElement("label");
+      checkLabel.className = "custom-checkbox-wrap";
+      checkLabel.title = estaFeita ? "Marcar como pendente" : "Marcar como concluída";
+
+      const checkInput = document.createElement("input");
+      checkInput.type = "checkbox";
+      checkInput.className = "custom-checkbox-input";
+      checkInput.checked = estaFeita;
+
+      const checkMark = document.createElement("span");
+      checkMark.className = "custom-checkbox-mark";
+
+      checkLabel.appendChild(checkInput);
+      checkLabel.appendChild(checkMark);
+
+      const infoWrap = document.createElement("div");
+      infoWrap.className = "card-tarefa-info";
+
+      const spanTexto = document.createElement("span");
+      spanTexto.className = "card-tarefa-texto texto";
+      spanTexto.textContent = textoExibicao;
+
+      infoWrap.appendChild(spanTexto);
+
+      if (tarefa.criadaEm) {
+        const metaCriacao = document.createElement("span");
+        metaCriacao.className = "card-tarefa-meta";
+        const d = new Date(tarefa.criadaEm);
+        metaCriacao.textContent = !isNaN(d.getTime())
+          ? `Criada em ${d.toLocaleDateString("pt-BR")}`
+          : `Criada em ${tarefa.criadaEm}`;
+        infoWrap.appendChild(metaCriacao);
+      }
+
+      const alternarStatus = () => {
         tarefa.feito = !tarefa.feito;
         tarefa.concluido = tarefa.feito;
         this.salvarPedidos();
         this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
-      });
+      };
 
-      item.appendChild(etiqueta);
-      item.appendChild(chip);
-      item.appendChild(texto);
+      checkInput.addEventListener("change", alternarStatus);
+      spanTexto.addEventListener("click", alternarStatus);
 
-      if (estaAtrasada(tarefa)) {
-        const atraso = document.createElement("span");
-        atraso.className = "atrasada";
-        atraso.textContent = "Atrasada";
-        item.appendChild(atraso);
-      }
+      cardBody.appendChild(checkLabel);
+      cardBody.appendChild(infoWrap);
 
-      const apagar = document.createElement("button");
-      apagar.textContent = "🗑";
-      apagar.className = "apagar";
-      apagar.setAttribute("aria-label", "Apagar tarefa");
-      apagar.title = "Apagar tarefa";
-      apagar.addEventListener("click", () => {
-        this.pedidos = this.pedidos.filter((t) => t.id !== tarefa.id);
-        this.salvarPedidos();
-        this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
-      });
-
-      item.appendChild(apagar);
-
-      // --- Subtarefas (os passos da tarefa) (FANESE Aula 08 - Passo 28) ---
+      // 3. Subtarefas (Passos): Área limpa e compacta com barra de progresso fina se houver passos
       if (!tarefa.subtarefas) tarefa.subtarefas = [];
+      const subtarefasArea = document.createElement("div");
+      subtarefasArea.className = "card-subtarefas-area subtarefas";
 
-      const subBox = document.createElement("div");
-      subBox.className = "subtarefas";
+      const totalSub = tarefa.subtarefas.length;
+      const feitasSub = tarefa.subtarefas.filter(s => s.feito).length;
+      const pctSub = totalSub === 0 ? 0 : Math.round((feitasSub / totalSub) * 100);
 
-      const subContador = document.createElement("div");
-      subContador.className = "sub-contador";
-      const feitasSub = tarefa.subtarefas.filter(function (s) { return s.feito; }).length;
-      subContador.textContent = feitasSub + "/" + tarefa.subtarefas.length + " passos";
-      subBox.appendChild(subContador);
+      if (totalSub > 0) {
+        const progressoSubWrap = document.createElement("div");
+        progressoSubWrap.className = "sub-progresso-bar-wrap";
 
-      for (let j = 0; j < tarefa.subtarefas.length; j++) {
-        const sub = tarefa.subtarefas[j];
+        const subInfoRow = document.createElement("div");
+        subInfoRow.className = "sub-progresso-info";
+        subInfoRow.innerHTML = `
+          <span class="sub-progresso-label">Passos da tarefa</span>
+          <span class="sub-progresso-count sub-contador">${feitasSub}/${totalSub} concluídos</span>
+        `;
 
-        const subItem = document.createElement("div");
-        subItem.className = "sub-item" + (sub.feito ? " sub-feita" : "");
+        const trilho = document.createElement("div");
+        trilho.className = "sub-progresso-trilho";
 
-        const check = document.createElement("span");
-        check.className = "sub-check";
-        check.textContent = sub.feito ? "✅" : "⬜";
-        check.addEventListener("click", () => {
-          sub.feito = !sub.feito;
-          this.salvarPedidos();
-          this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
-        });
+        const fill = document.createElement("div");
+        fill.className = "sub-progresso-fill";
+        fill.style.width = pctSub + "%";
 
-        const subTexto = document.createElement("span");
-        subTexto.className = "sub-texto";
-        subTexto.textContent = sub.texto;
+        trilho.appendChild(fill);
+        progressoSubWrap.appendChild(subInfoRow);
+        progressoSubWrap.appendChild(trilho);
+        subtarefasArea.appendChild(progressoSubWrap);
 
-        const subApagar = document.createElement("button");
-        subApagar.className = "sub-apagar";
-        subApagar.textContent = "×";
-        subApagar.addEventListener("click", () => {
-          tarefa.subtarefas = tarefa.subtarefas.filter(function (s) { return s.id !== sub.id; });
-          this.salvarPedidos();
-          this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
-        });
+        const subLista = document.createElement("div");
+        subLista.className = "subtarefas-lista";
 
-        subItem.appendChild(check);
-        subItem.appendChild(subTexto);
-        subItem.appendChild(subApagar);
-        subBox.appendChild(subItem);
+        for (let j = 0; j < tarefa.subtarefas.length; j++) {
+          const sub = tarefa.subtarefas[j];
+
+          const subItem = document.createElement("div");
+          subItem.className = "sub-item-card sub-item" + (sub.feito ? " sub-feita" : "");
+
+          const subCheck = document.createElement("button");
+          subCheck.type = "button";
+          subCheck.className = "sub-check-btn sub-check";
+          subCheck.textContent = sub.feito ? "✅" : "⬜";
+          subCheck.title = sub.feito ? "Marcar pendente" : "Marcar concluído";
+          subCheck.addEventListener("click", () => {
+            sub.feito = !sub.feito;
+            this.salvarPedidos();
+            this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+          });
+
+          const subTexto = document.createElement("span");
+          subTexto.className = "sub-item-texto sub-texto";
+          subTexto.textContent = sub.texto;
+
+          const subApagar = document.createElement("button");
+          subApagar.type = "button";
+          subApagar.className = "sub-apagar-btn sub-apagar";
+          subApagar.textContent = "×";
+          subApagar.title = "Excluir passo";
+          subApagar.addEventListener("click", () => {
+            tarefa.subtarefas = tarefa.subtarefas.filter(s => s.id !== sub.id);
+            this.salvarPedidos();
+            this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+          });
+
+          subItem.appendChild(subCheck);
+          subItem.appendChild(subTexto);
+          subItem.appendChild(subApagar);
+          subLista.appendChild(subItem);
+        }
+
+        subtarefasArea.appendChild(subLista);
       }
 
+      // Campo de adicionar novo passo (discreto, moderno e compacto)
       const subForm = document.createElement("div");
-      subForm.className = "sub-form";
+      subForm.className = "sub-form-compacto sub-form";
 
       const subInput = document.createElement("input");
-      subInput.className = "sub-input";
+      subInput.type = "text";
+      subInput.className = "sub-input-modern sub-input";
       subInput.placeholder = "Novo passo...";
+      subInput.setAttribute("aria-label", "Novo passo da tarefa");
 
       const subAdd = document.createElement("button");
-      subAdd.className = "sub-add";
+      subAdd.type = "button";
+      subAdd.className = "btn-add-passo sub-add";
       subAdd.textContent = "+ Passo";
-      subAdd.addEventListener("click", () => {
+
+      const adicionarPasso = () => {
         const txt = subInput.value.trim();
         if (txt === "") return;
         tarefa.subtarefas.push({
@@ -239,13 +489,25 @@ export class AdminView {
         });
         this.salvarPedidos();
         this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+      };
+
+      subAdd.addEventListener("click", adicionarPasso);
+      subInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          adicionarPasso();
+        }
       });
 
       subForm.appendChild(subInput);
       subForm.appendChild(subAdd);
-      subBox.appendChild(subForm);
+      subtarefasArea.appendChild(subForm);
 
-      item.appendChild(subBox);
+      // Monta o Card Completo
+      item.appendChild(cardHeader);
+      item.appendChild(cardBody);
+      item.appendChild(subtarefasArea);
+
       listaEl.appendChild(item);
     }
   }

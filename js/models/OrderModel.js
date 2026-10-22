@@ -395,7 +395,7 @@ export class OrderModel {
     URL.revokeObjectURL(url);
   }
 
-  importar(arquivo, aoConcluir) {
+  importar(arquivo, aoConcluir, aoFalhar) {
     const leitor = new FileReader();
     leitor.onload = () => {
       try {
@@ -403,13 +403,15 @@ export class OrderModel {
         if (Array.isArray(lista)) {
           this.pedidos = lista.map((p, idx) => this.normalizarPedido(p, idx));
           this.salvarPedidos();
-          if (typeof aoConcluir === "function") aoConcluir();
-          alert("Tarefas importadas com sucesso!");
+          if (typeof aoConcluir === "function") aoConcluir(this.pedidos.length);
+          else alert("Tarefas importadas com sucesso!");
         } else {
-          alert("Esse arquivo nao parece um backup de tarefas.");
+          if (typeof aoFalhar === "function") aoFalhar("Arquivo não é um backup válido de tarefas.");
+          else alert("Esse arquivo nao parece um backup de tarefas.");
         }
       } catch (erro) {
-        alert("Nao consegui ler o arquivo. Ele esta correto?");
+        if (typeof aoFalhar === "function") aoFalhar("Não consegui ler o arquivo JSON.");
+        else alert("Nao consegui ler o arquivo. Ele esta correto?");
       }
     };
     leitor.readAsText(arquivo);

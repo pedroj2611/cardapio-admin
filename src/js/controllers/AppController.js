@@ -519,6 +519,13 @@ export class AppController {
     }
 
     // ---- Backup: exportar e importar (FANESE Aula 08 - Passo 27) ----
+    const btnRelatorioPdf = document.getElementById("btn-relatorio-pdf");
+    if (btnRelatorioPdf) {
+      btnRelatorioPdf.addEventListener("click", () => {
+        this.adminView.gerarRelatorioPDF();
+      });
+    }
+
     const botaoExportar = document.getElementById("exportar");
     const botaoImportar = document.getElementById("importar");
     const inputArquivo = document.getElementById("arquivo");

@@ -3,7 +3,7 @@
 // ==========================================================================
 
 // Nome da "caixa" do cache. Troque para v2, v3... ao mudar os arquivos (Aula 08 - Passo 29).
-const CACHE = "minhas-tarefas-v11";
+const CACHE = "minhas-tarefas-v12";
 
 // Arquivos que o app precisa para funcionar offline.
 const ARQUIVOS = [

@@ -21,10 +21,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Estilos MVC Modularizados -->
-  <link rel="stylesheet" href="css/base.css?v=15">
-  <link rel="stylesheet" href="css/components.css?v=15">
-  <link rel="stylesheet" href="css/modals.css?v=15">
-  <link rel="stylesheet" href="style.css?v=15">
+  <link rel="stylesheet" href="css/base.css?v=16">
+  <link rel="stylesheet" href="css/components.css?v=16">
+  <link rel="stylesheet" href="css/modals.css?v=16">
+  <link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
 
@@ -303,11 +303,23 @@
                   <button id="limpar" type="button">Limpar concluídas</button>
                 </div>
 
-                <!-- BARRA DE BACKUP: EXPORTAR E IMPORTAR (FANESE AULA 08 - PASSO 27) -->
-                <div class="backup">
-                  <button id="exportar" type="button">⬇️ Exportar</button>
-                  <button id="importar" type="button">⬆️ Importar</button>
-                  <input type="file" id="arquivo" accept="application/json" hidden>
+                <!-- BARRA DE FERRAMENTAS ELEGANTE: RELATÓRIO PDF E BACKUP (EXPORTAR / IMPORTAR) -->
+                <div class="backup-toolbar">
+                  <button id="btn-relatorio-pdf" type="button" class="btn-toolbar-action btn-pdf" title="Gerar e imprimir relatório do dia em PDF">
+                    <span class="toolbar-icon">📄</span>
+                    <span>Relatório em PDF</span>
+                  </button>
+                  <button id="exportar" type="button" class="btn-toolbar-action btn-export" title="Fazer download do arquivo de backup minhas-tarefas.json">
+                    <span class="toolbar-icon">💾</span>
+                    <span>Exportar JSON</span>
+                  </button>
+                  <label for="arquivo" class="btn-toolbar-action btn-import" title="Selecionar arquivo JSON para restaurar">
+                    <span class="toolbar-icon">📥</span>
+                    <span>Importar JSON</span>
+  
+                    <input type="file" id="arquivo" accept="application/json" hidden>
+                  </label>
+                  <button id="importar" type="button" style="display: none;" aria-hidden="true"></button>
                 </div>
 
                 <!-- LISTA DE TAREFAS DA AULA 05 E AULA 08 (#lista) -->
@@ -945,6 +957,6 @@
   </script>
 
   <!-- CONTROLLER PRINCIPAL (MVC) -->
-  <script type="module" src="js/controllers/AppController.js?v=15"></script>
+  <script type="module" src="js/controllers/AppController.js?v=16"></script>
 </body>
 </html>

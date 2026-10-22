@@ -1138,8 +1138,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (filtro === "pendentes" && fPendentes) fPendentes.classList.add("ativo");
     if (filtro === "concluidas" && fConcluidas) fConcluidas.classList.add("ativo");
   }
-
-  // Desenha na tela as tarefas (busca + filtro + ordenação + subtarefas).
+  // Desenha na tela as tarefas (Cards Modernos: busca + filtro + ordenação + subtarefas).
   function mostrar() {
     lista.innerHTML = "";
 
@@ -1190,139 +1189,211 @@ document.addEventListener("DOMContentLoaded", () => {
     // 4) Estado vazio.
     if (visiveis.length === 0) {
       lista.innerHTML = "<p class='vazio'>Nenhuma tarefa para mostrar aqui.</p>";
+      atualizarContador();
+      atualizarResumo();
+      atualizarProgresso();
+      marcarFiltroAtivo();
+      return;
     }
 
-    // 5) Desenha cada tarefa visível.
+    // 5) Desenha cada tarefa em Card Moderno independente.
     for (let i = 0; i < visiveis.length; i++) {
       const tarefa = visiveis[i];
+      const estaFeita = Boolean(tarefa.feito || tarefa.concluido);
+      const atraso = estaAtrasada(tarefa);
+      const prioridadeNome = (tarefa.prioridade || "media").toLowerCase();
+      const categoriaNome = (tarefa.categoria || "pessoal").toLowerCase();
 
       const item = document.createElement("li");
-      if (tarefa.feito) {
-        item.classList.add("feita");
+      item.className = "card-tarefa-moderna" + (estaFeita ? " feita" : "") + (atraso ? " card-atrasada" : "");
+      item.dataset.id = tarefa.id;
+
+      // Header: Badges + Prazo + Lixeira
+      const cardHeader = document.createElement("div");
+      cardHeader.className = "card-tarefa-header";
+
+      const badgesWrap = document.createElement("div");
+      badgesWrap.className = "card-tarefa-badges";
+
+      const badgePrioridade = document.createElement("span");
+      badgePrioridade.className = "badge-prioridade " + prioridadeNome;
+      badgePrioridade.textContent = prioridadeNome.toUpperCase();
+
+      const badgeCategoria = document.createElement("span");
+      badgeCategoria.className = "categoria " + categoriaNome;
+      badgeCategoria.textContent = categoriaNome;
+
+      badgesWrap.appendChild(badgePrioridade);
+      badgesWrap.appendChild(badgeCategoria);
+
+      if (atraso) {
+        const badgeAtrasada = document.createElement("span");
+        badgeAtrasada.className = "atrasada";
+        badgeAtrasada.innerHTML = "⏰ ATRASADA";
+        badgesWrap.appendChild(badgeAtrasada);
       }
 
-      const etiqueta = document.createElement("span");
-      etiqueta.className = "prioridade " + (tarefa.prioridade || "media");
-      etiqueta.textContent = tarefa.prioridade || "media";
+      const headerRight = document.createElement("div");
+      headerRight.className = "card-tarefa-header-right";
 
-      const chip = document.createElement("span");
-      chip.className = "categoria " + (tarefa.categoria || "pessoal");
-      chip.textContent = tarefa.categoria || "pessoal";
+      const spanPrazo = document.createElement("span");
+      spanPrazo.className = "card-prazo";
+      spanPrazo.title = "Prazo da tarefa";
+      spanPrazo.innerHTML = "<span class='prazo-icon'>📅</span> <span class='prazo-txt'>" + (tarefa.vence || "Hoje") + "</span>";
 
-      const texto = document.createElement("span");
-      texto.className = "texto";
-      texto.textContent = tarefa.texto;
-      texto.addEventListener("click", function () {
-        tarefa.feito = !tarefa.feito;
-        salvar();
-        mostrar();
-      });
-
-      const info = document.createElement("span");
-      info.className = "info";
-      let textoInfo = tarefa.criadaEm ? new Date(tarefa.criadaEm).toLocaleDateString("pt-BR") : "";
-      if (tarefa.vence && tarefa.vence !== "") {
-        textoInfo = textoInfo + " · vence " + new Date(tarefa.vence).toLocaleDateString("pt-BR");
-      }
-      info.textContent = textoInfo;
-
-      item.appendChild(etiqueta);
-      item.appendChild(chip);
-      item.appendChild(texto);
-
-      if (estaAtrasada(tarefa)) {
-        const atraso = document.createElement("span");
-        atraso.className = "atrasada";
-        atraso.textContent = "Atrasada";
-        item.appendChild(atraso);
-      }
-
-      item.appendChild(info);
-
-      const editar = document.createElement("button");
-      editar.textContent = "✏️";
-      editar.className = "editar";
-      editar.addEventListener("click", function () {
-        const novo = prompt("Editar tarefa:", tarefa.texto);
-        if (novo !== null && novo.trim() !== "") {
-          tarefa.texto = novo.trim();
-          salvar();
-          mostrar();
-        }
-      });
-
-      const apagar = document.createElement("button");
-      apagar.textContent = "🗑";
-      apagar.className = "apagar";
-      apagar.addEventListener("click", function () {
+      const btnApagar = document.createElement("button");
+      btnApagar.type = "button";
+      btnApagar.className = "btn-apagar-card";
+      btnApagar.title = "Apagar tarefa";
+      btnApagar.innerHTML = "<span class='trash-icon'>🗑️</span>";
+      btnApagar.addEventListener("click", function (e) {
+        e.stopPropagation();
         tarefas = tarefas.filter(function (t) { return t.id !== tarefa.id; });
         salvar();
         mostrar();
+        if (typeof mostrarToast === "function") mostrarToast("Tarefa excluída!", "🗑️");
       });
 
-      item.appendChild(editar);
-      item.appendChild(apagar);
+      headerRight.appendChild(spanPrazo);
+      headerRight.appendChild(btnApagar);
 
-      // --- Subtarefas (os passos da tarefa) ---
-      if (!tarefa.subtarefas) tarefa.subtarefas = [];
+      cardHeader.appendChild(badgesWrap);
+      cardHeader.appendChild(headerRight);
 
-      const subBox = document.createElement("div");
-      subBox.className = "subtarefas";
+      // Centro: Checkbox Customizado + Texto nítido
+      const cardBody = document.createElement("div");
+      cardBody.className = "card-tarefa-body";
 
-      // Contador de passos (ex.: "1/3 passos").
-      const subContador = document.createElement("div");
-      subContador.className = "sub-contador";
-      const feitasSub = tarefa.subtarefas.filter(function (s) { return s.feito; }).length;
-      subContador.textContent = feitasSub + "/" + tarefa.subtarefas.length + " passos";
-      subBox.appendChild(subContador);
+      const checkLabel = document.createElement("label");
+      checkLabel.className = "custom-checkbox-wrap";
+      checkLabel.title = estaFeita ? "Marcar como pendente" : "Marcar como concluída";
 
-      // Desenha cada passo.
-      for (let j = 0; j < tarefa.subtarefas.length; j++) {
-        const sub = tarefa.subtarefas[j];
+      const checkInput = document.createElement("input");
+      checkInput.type = "checkbox";
+      checkInput.className = "custom-checkbox-input";
+      checkInput.checked = estaFeita;
 
-        const subItem = document.createElement("div");
-        subItem.className = "sub-item" + (sub.feito ? " sub-feita" : "");
+      const checkMark = document.createElement("span");
+      checkMark.className = "custom-checkbox-mark";
 
-        const check = document.createElement("span");
-        check.className = "sub-check";
-        check.textContent = sub.feito ? "✅" : "⬜";
-        check.addEventListener("click", function () {
-          sub.feito = !sub.feito;
-          salvar();
-          mostrar();
-        });
+      checkLabel.appendChild(checkInput);
+      checkLabel.appendChild(checkMark);
 
-        const subTexto = document.createElement("span");
-        subTexto.className = "sub-texto";
-        subTexto.textContent = sub.texto;
+      const infoWrap = document.createElement("div");
+      infoWrap.className = "card-tarefa-info";
 
-        const subApagar = document.createElement("button");
-        subApagar.className = "sub-apagar";
-        subApagar.textContent = "×";
-        subApagar.addEventListener("click", function () {
-          tarefa.subtarefas = tarefa.subtarefas.filter(function (s) { return s.id !== sub.id; });
-          salvar();
-          mostrar();
-        });
+      const spanTexto = document.createElement("span");
+      spanTexto.className = "card-tarefa-texto texto";
+      spanTexto.textContent = tarefa.texto;
 
-        subItem.appendChild(check);
-        subItem.appendChild(subTexto);
-        subItem.appendChild(subApagar);
-        subBox.appendChild(subItem);
+      infoWrap.appendChild(spanTexto);
+
+      if (tarefa.criadaEm) {
+        const metaCriacao = document.createElement("span");
+        metaCriacao.className = "card-tarefa-meta";
+        const d = new Date(tarefa.criadaEm);
+        metaCriacao.textContent = !isNaN(d.getTime()) ? "Criada em " + d.toLocaleDateString("pt-BR") : "Criada em " + tarefa.criadaEm;
+        infoWrap.appendChild(metaCriacao);
       }
 
-      // Campo para adicionar um novo passo.
+      function alternarStatus() {
+        tarefa.feito = !tarefa.feito;
+        salvar();
+        mostrar();
+      }
+
+      checkInput.addEventListener("change", alternarStatus);
+      spanTexto.addEventListener("click", alternarStatus);
+
+      cardBody.appendChild(checkLabel);
+      cardBody.appendChild(infoWrap);
+
+      // Subtarefas (Passos)
+      if (!tarefa.subtarefas) tarefa.subtarefas = [];
+      const subtarefasArea = document.createElement("div");
+      subtarefasArea.className = "card-subtarefas-area subtarefas";
+
+      const totalSub = tarefa.subtarefas.length;
+      const feitasSub = tarefa.subtarefas.filter(function (s) { return s.feito; }).length;
+      const pctSub = totalSub === 0 ? 0 : Math.round((feitasSub / totalSub) * 100);
+
+      if (totalSub > 0) {
+        const progressoSubWrap = document.createElement("div");
+        progressoSubWrap.className = "sub-progresso-bar-wrap";
+
+        const subInfoRow = document.createElement("div");
+        subInfoRow.className = "sub-progresso-info";
+        subInfoRow.innerHTML = "<span class='sub-progresso-label'>Passos da tarefa</span><span class='sub-progresso-count sub-contador'>" + feitasSub + "/" + totalSub + " concluídos</span>";
+
+        const trilho = document.createElement("div");
+        trilho.className = "sub-progresso-trilho";
+
+        const fill = document.createElement("div");
+        fill.className = "sub-progresso-fill";
+        fill.style.width = pctSub + "%";
+
+        trilho.appendChild(fill);
+        progressoSubWrap.appendChild(subInfoRow);
+        progressoSubWrap.appendChild(trilho);
+        subtarefasArea.appendChild(progressoSubWrap);
+
+        const subLista = document.createElement("div");
+        subLista.className = "subtarefas-lista";
+
+        for (let j = 0; j < tarefa.subtarefas.length; j++) {
+          const sub = tarefa.subtarefas[j];
+
+          const subItem = document.createElement("div");
+          subItem.className = "sub-item-card sub-item" + (sub.feito ? " sub-feita" : "");
+
+          const subCheck = document.createElement("button");
+          subCheck.type = "button";
+          subCheck.className = "sub-check-btn sub-check";
+          subCheck.textContent = sub.feito ? "✅" : "⬜";
+          subCheck.addEventListener("click", function () {
+            sub.feito = !sub.feito;
+            salvar();
+            mostrar();
+          });
+
+          const subTexto = document.createElement("span");
+          subTexto.className = "sub-item-texto sub-texto";
+          subTexto.textContent = sub.texto;
+
+          const subApagar = document.createElement("button");
+          subApagar.type = "button";
+          subApagar.className = "sub-apagar-btn sub-apagar";
+          subApagar.textContent = "×";
+          subApagar.addEventListener("click", function () {
+            tarefa.subtarefas = tarefa.subtarefas.filter(function (s) { return s.id !== sub.id; });
+            salvar();
+            mostrar();
+          });
+
+          subItem.appendChild(subCheck);
+          subItem.appendChild(subTexto);
+          subItem.appendChild(subApagar);
+          subLista.appendChild(subItem);
+        }
+
+        subtarefasArea.appendChild(subLista);
+      }
+
+      // Campo de adicionar novo passo
       const subForm = document.createElement("div");
-      subForm.className = "sub-form";
+      subForm.className = "sub-form-compacto sub-form";
 
       const subInput = document.createElement("input");
-      subInput.className = "sub-input";
+      subInput.type = "text";
+      subInput.className = "sub-input-modern sub-input";
       subInput.placeholder = "Novo passo...";
 
       const subAdd = document.createElement("button");
-      subAdd.className = "sub-add";
+      subAdd.type = "button";
+      subAdd.className = "btn-add-passo sub-add";
       subAdd.textContent = "+ Passo";
-      subAdd.addEventListener("click", function () {
+
+      function adicionarPasso() {
         const txt = subInput.value.trim();
         if (txt === "") return;
         tarefa.subtarefas.push({
@@ -1332,13 +1403,24 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         salvar();
         mostrar();
+      }
+
+      subAdd.addEventListener("click", adicionarPasso);
+      subInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          adicionarPasso();
+        }
       });
 
       subForm.appendChild(subInput);
       subForm.appendChild(subAdd);
-      subBox.appendChild(subForm);
+      subtarefasArea.appendChild(subForm);
 
-      item.appendChild(subBox);
+      item.appendChild(cardHeader);
+      item.appendChild(cardBody);
+      item.appendChild(subtarefasArea);
+
       lista.appendChild(item);
     }
 
@@ -1378,6 +1460,142 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ---- Backup: exportar e importar ----
+  // Gera e imprime relatório de turno das tarefas em PDF
+  function gerarRelatorioPDF() {
+    const agora = new Date();
+    const dataHoraStr = agora.toLocaleDateString("pt-BR") + " às " + agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    const total = tarefas.length;
+    let concluidas = 0;
+    let pendentes = 0;
+    let atrasadas = 0;
+
+    for (let i = 0; i < tarefas.length; i++) {
+      if (tarefas[i].feito) concluidas++;
+      else pendentes++;
+      if (estaAtrasada(tarefas[i])) atrasadas++;
+    }
+    const percentual = total === 0 ? 0 : Math.round((concluidas / total) * 100);
+
+    const linhasHtml = tarefas.map(function (t, idx) {
+      const feita = Boolean(t.feito);
+      const atraso = estaAtrasada(t);
+      const prioridade = (t.prioridade || "media").toUpperCase();
+      const categoria = (t.categoria || "trabalho").toUpperCase();
+      const statusBadge = feita ? "✔ CONCLUÍDA" : (atraso ? "⏰ ATRASADA" : "⏳ PENDENTE");
+      const statusColor = feita ? "#10b981" : (atraso ? "#ef4444" : "#f59e0b");
+      const subInfo = (t.subtarefas && t.subtarefas.length > 0)
+        ? t.subtarefas.filter(function (s) { return s.feito; }).length + "/" + t.subtarefas.length + " passos"
+        : "-";
+
+      return `
+        <tr style="border-bottom: 1px solid #e2e8f0; ${feita ? 'background: #f8fafc; color: #64748b;' : ''}">
+          <td style="padding: 10px; font-weight: bold; text-align: center;">${t.id || (idx + 1)}</td>
+          <td style="padding: 10px; text-align: center;">
+            <span style="display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; ${
+              t.prioridade === 'alta' ? 'background: #fee2e2; color: #b91c1c;' :
+              t.prioridade === 'baixa' ? 'background: #dcfce7; color: #15803d;' :
+              'background: #fef3c7; color: #b45309;'
+            }">${prioridade}</span>
+          </td>
+          <td style="padding: 10px; text-align: center; font-size: 12px; font-weight: 600;">${categoria}</td>
+          <td style="padding: 10px;">
+            <strong style="color: #0f172a; font-size: 13px; ${feita ? 'text-decoration: line-through; opacity: 0.7;' : ''}">${t.texto || 'Tarefa'}</strong>
+          </td>
+          <td style="padding: 10px; text-align: center; font-size: 12px;">${t.vence || 'Hoje'}</td>
+          <td style="padding: 10px; text-align: center; font-size: 11px; font-weight: 600;">${subInfo}</td>
+          <td style="padding: 10px; text-align: center;">
+            <span style="display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; background: ${statusColor}18; color: ${statusColor}; border: 1px solid ${statusColor}40;">
+              ${statusBadge}
+            </span>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    const printHtml = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Relatório Operacional de Turno - Hambúrguer dos Amigos</title>
+  <style>
+    @page { size: A4 portrait; margin: 15mm; }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { color: #0f172a; margin: 0; padding: 20px; background: #fff; font-size: 13px; }
+    .header-print { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 14px; margin-bottom: 20px; }
+    .brand-title { font-size: 20px; font-weight: 900; color: #0f172a; margin: 0 0 4px; text-transform: uppercase; }
+    .report-subtitle { font-size: 13px; color: #475569; margin: 0; font-weight: 600; }
+    .meta-info { text-align: right; font-size: 11px; color: #64748b; line-height: 1.5; }
+    .kpis-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+    .kpi-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; text-align: center; background: #f8fafc; }
+    .kpi-val { font-size: 18px; font-weight: 900; color: #0f172a; }
+    .kpi-lbl { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 2px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 24px; }
+    th { background: #f1f5f9; color: #334155; padding: 10px; text-align: left; font-size: 11px; font-weight: 800; text-transform: uppercase; border-bottom: 2px solid #cbd5e1; }
+    .footer-print { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #cbd5e1; padding-top: 16px; margin-top: 30px; font-size: 11px; color: #64748b; }
+    .signature-line { border-top: 1px solid #0f172a; width: 220px; text-align: center; padding-top: 4px; font-weight: 600; }
+    .no-print-bar { background: #1e293b; color: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 8px; margin-bottom: 20px; }
+    .btn-print { background: #10b981; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
+    @media print { .no-print-bar { display: none !important; } body { padding: 0; } }
+  </style>
+</head>
+<body>
+  <div class="no-print-bar">
+    <span>📄 <strong>Visualização de Impressão / PDF</strong> — Folha de Turno</span>
+    <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+  </div>
+  <div class="header-print">
+    <div>
+      <h1 class="brand-title">🍔 Hambúrguer dos Amigos</h1>
+      <p class="report-subtitle">Relatório Operacional de Tarefas & Monitoramento de Turno</p>
+    </div>
+    <div class="meta-info">
+      <div><strong>Emissão:</strong> ${dataHoraStr}</div>
+      <div><strong>Sistema:</strong> Cardápio Digital & Admin PWA</div>
+    </div>
+  </div>
+  <div class="kpis-grid">
+    <div class="kpi-card"><div class="kpi-val">${total}</div><div class="kpi-lbl">Total Tarefas</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color: #d97706;">${pendentes}</div><div class="kpi-lbl">Pendentes</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color: #10b981;">${concluidas}</div><div class="kpi-lbl">Concluídas</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color: #ef4444;">${atrasadas}</div><div class="kpi-lbl">Atrasadas</div></div>
+    <div class="kpi-card"><div class="kpi-val">${percentual}%</div><div class="kpi-lbl">Taxa Conclusão</div></div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 50px; text-align: center;">#</th>
+        <th style="width: 90px; text-align: center;">Prioridade</th>
+        <th style="width: 90px; text-align: center;">Categoria</th>
+        <th>Descrição da Tarefa</th>
+        <th style="width: 90px; text-align: center;">Prazo</th>
+        <th style="width: 90px; text-align: center;">Subtarefas</th>
+        <th style="width: 110px; text-align: center;">Status</th>
+      </tr>
+    </thead>
+    <tbody>${linhasHtml}</tbody>
+  </table>
+  <div class="footer-print">
+    <div>Documento gerado automaticamente para controle operacional e acadêmico (AV1).</div>
+    <div class="signature-line">Visto do Responsável</div>
+  </div>
+  <script>
+    window.onload = function() {
+      setTimeout(function() { window.print(); }, 350);
+    };
+  </script>
+</body>
+</html>`;
+
+    const printWin = window.open("", "_blank");
+    if (printWin) {
+      printWin.document.open();
+      printWin.document.write(printHtml);
+      printWin.document.close();
+      if (typeof mostrarToast === "function") mostrarToast("Relatório PDF pronto para impressão!", "📄");
+    } else {
+      window.print();
+    }
+  }
 
   // Exporta todas as tarefas para um arquivo .json (download).
   function exportar() {
@@ -1389,6 +1607,7 @@ document.addEventListener("DOMContentLoaded", () => {
     link.download = "minhas-tarefas.json";
     link.click();
     URL.revokeObjectURL(url);
+    if (typeof mostrarToast === "function") mostrarToast("Backup de tarefas exportado!", "💾");
   }
 
   // Lê um arquivo .json escolhido pelo usuário e carrega as tarefas dele.
@@ -1401,15 +1620,23 @@ document.addEventListener("DOMContentLoaded", () => {
           tarefas = lista;
           salvar();
           mostrar();
-          alert("Tarefas importadas com sucesso!");
+          if (typeof mostrarToast === "function") mostrarToast(lista.length + " tarefas importadas com sucesso!", "📥");
+          else alert("Tarefas importadas com sucesso!");
         } else {
-          alert("Esse arquivo nao parece um backup de tarefas.");
+          if (typeof mostrarToast === "function") mostrarToast("Esse arquivo não parece um backup válido.", "⚠️");
+          else alert("Esse arquivo nao parece um backup de tarefas.");
         }
       } catch (erro) {
-        alert("Nao consegui ler o arquivo. Ele esta correto?");
+        if (typeof mostrarToast === "function") mostrarToast("Não consegui ler o arquivo JSON.", "⚠️");
+        else alert("Nao consegui ler o arquivo. Ele esta correto?");
       }
     };
     leitor.readAsText(arquivo);
+  }
+
+  const btnRelatorioPdf = document.getElementById("btn-relatorio-pdf");
+  if (btnRelatorioPdf) {
+    btnRelatorioPdf.addEventListener("click", gerarRelatorioPDF);
   }
 
   if (botaoExportar) {
