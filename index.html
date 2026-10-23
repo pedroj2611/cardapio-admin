@@ -21,10 +21,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Estilos MVC Modularizados -->
-  <link rel="stylesheet" href="css/base.css?v=17">
-  <link rel="stylesheet" href="css/components.css?v=17">
-  <link rel="stylesheet" href="css/modals.css?v=17">
-  <link rel="stylesheet" href="style.css?v=17">
+  <link rel="stylesheet" href="css/base.css?v=18">
+  <link rel="stylesheet" href="css/components.css?v=18">
+  <link rel="stylesheet" href="css/modals.css?v=18">
+  <link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
 
@@ -109,12 +109,15 @@
 
         <!-- CONTEÚDO PRINCIPAL DO CARDÁPIO -->
         <main class="app-container">
-          <!-- AULA 09 (PARTE 1): BARRA INSTALAR O APP E DICA IOS (PASSO 30) -->
-          <div class="instalar" id="barraInstalar" hidden>
-            <span>📲 Instale o app na tela inicial!</span>
-            <button id="btnInstalar" type="button">Instalar</button>
+          <!-- AULA 09 (PARTE 1): CONVITE DE INSTALAÇÃO COMPACTO (SOMENTE MOBILE) E DICA IOS (PASSO 30) -->
+          <!-- No desktop a instalação é feita pelo botão "Instalar App" da sidebar (#btn-instalar-pwa). -->
+          <div class="instalar" id="barraInstalar" role="region" aria-label="Instalar aplicativo" hidden>
+            <span class="instalar-icone" aria-hidden="true">📲</span>
+            <span class="instalar-texto">Instale o app na tela inicial</span>
+            <button id="btnInstalar" type="button" class="instalar-btn">Instalar</button>
+            <button id="btnFecharInstalar" type="button" class="instalar-fechar" aria-label="Dispensar convite de instalação" title="Agora não">✕</button>
           </div>
-          <p class="dica-ios" id="dicaIOS" hidden>📱 No iPhone: toque em <b>Compartilhar</b> e em <b>"Adicionar à Tela de Início"</b>.</p>
+          <p class="dica-ios" id="dicaIOS" hidden>📱 No iPhone: toque em <b>Compartilhar</b> e em <b>"Adicionar à Tela de Início"</b>. <button id="btnFecharDicaIOS" type="button" class="instalar-fechar" aria-label="Fechar dica">✕</button></p>
 
 
           <!-- BARRA DE CONTROLE: PESQUISA E CADASTRO RÁPIDO -->
@@ -967,6 +970,6 @@
   </script>
 
   <!-- CONTROLLER PRINCIPAL (MVC) -->
-  <script type="module" src="js/controllers/AppController.js?v=17"></script>
+  <script type="module" src="js/controllers/AppController.js?v=18"></script>
 </body>
 </html>

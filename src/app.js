@@ -1753,29 +1753,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Guarda o convite de instalação que o navegador oferece.
   let eventoInstalar = null;
+  // Ponto de entrada único no desktop: botão "Instalar App" da sidebar.
+  const btnSidebarInstalar = document.getElementById("btn-instalar-pwa");
+  const btnFecharInstalar = document.getElementById("btnFecharInstalar");
+  const mqMobile = window.matchMedia("(max-width: 768px)");
+
+  // Sidebar no desktop; convite compacto (dispensável) apenas no mobile.
+  function atualizarUIInstalacao() {
+    const podeInstalar = Boolean(eventoInstalar);
+    const dispensado = sessionStorage.getItem("convite-instalar-dispensado") === "true";
+    if (btnSidebarInstalar) btnSidebarInstalar.style.display = podeInstalar ? "flex" : "none";
+    if (barraInstalar) barraInstalar.hidden = !(podeInstalar && mqMobile.matches && !dispensado);
+  }
 
   // O navegador avisa que o app PODE ser instalado.
   window.addEventListener("beforeinstallprompt", function (evento) {
     evento.preventDefault();
     eventoInstalar = evento;
-    if (barraInstalar) barraInstalar.hidden = false;
+    atualizarUIInstalacao();
   });
 
-  // Ao clicar no nosso botão "Instalar".
-  if (btnInstalar) {
-    btnInstalar.addEventListener("click", function () {
-      if (!eventoInstalar) return;
-      eventoInstalar.prompt();
-      eventoInstalar.userChoice.then(function () {
-        eventoInstalar = null;
-        if (barraInstalar) barraInstalar.hidden = true;
-      });
+  function instalarApp() {
+    if (!eventoInstalar) return;
+    eventoInstalar.prompt();
+    eventoInstalar.userChoice.then(function () {
+      eventoInstalar = null;
+      atualizarUIInstalacao();
     });
   }
 
-  // Quando o app é instalado, esconde a barra.
+  // Ao clicar no botão da sidebar ou no convite compacto do mobile.
+  if (btnSidebarInstalar) btnSidebarInstalar.addEventListener("click", instalarApp);
+  if (btnInstalar) btnInstalar.addEventListener("click", instalarApp);
+  if (btnFecharInstalar) {
+    btnFecharInstalar.addEventListener("click", function () {
+      sessionStorage.setItem("convite-instalar-dispensado", "true");
+      atualizarUIInstalacao();
+    });
+  }
+
+  // Quando o app é instalado, esconde todos os pontos de instalação.
   window.addEventListener("appinstalled", function () {
-    if (barraInstalar) barraInstalar.hidden = true;
+    eventoInstalar = null;
+    atualizarUIInstalacao();
   });
 
   // No iPhone não existe o convite automático: mostramos a dica do Safari.

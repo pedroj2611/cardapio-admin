@@ -2582,69 +2582,126 @@ body.dark-mode .sub-item-card,
   display: none !important;
 }
 
-/* Barra "Instalar o app" - Passo 30 */
+/* Convite "Instalar o app" - Passo 30
+   Desktop: a instalação fica unificada no botão "Instalar App" da sidebar,
+   então o convite no conteúdo NÃO aparece (não empurra busca/categorias).
+   Mobile: convite compacto em formato de pílula, com botão de dispensar. */
 .instalar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: var(--card, var(--bg-card, #ffffff));
-  border: 1px solid var(--linha, var(--border, #cfe2e2));
-  border-radius: 10px;
-  padding: 12px 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  transition: all 0.25s ease;
+  gap: 8px;
+  background: rgba(28, 150, 160, 0.08);
+  border: 1px solid rgba(28, 150, 160, 0.28);
+  border-radius: 999px;
+  padding: 5px 6px 5px 12px;
+  margin-bottom: 10px;
+  min-height: 40px;
+  animation: instalarEntrar 0.25s ease;
 }
 
 .instalar[hidden] {
   display: none !important;
 }
 
-.instalar span {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink, var(--text-main, #06282b));
+.instalar-icone {
+  font-size: 15px;
+  line-height: 1;
 }
 
-.instalar button {
+.instalar-texto {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-main, var(--ink, #06282b));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.instalar-btn {
   border: none;
   background: var(--marca, #1c96a0);
   color: #ffffff;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 14px;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
   white-space: nowrap;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.instalar button:hover {
+.instalar-btn:hover,
+.instalar-btn:focus-visible {
   background: #147981;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(28, 150, 160, 0.25);
 }
 
-/* Dica de instalação no iPhone - Passo 30 */
-.dica-ios {
-  background: #eef7f7;
-  border: 1px solid var(--linha, var(--border, #cfe2e2));
-  color: var(--ink-soft, var(--text-muted, #3c5c5f));
-  border-radius: 10px;
-  padding: 10px 14px;
-  margin-bottom: 14px;
+.instalar-fechar {
+  border: none;
+  background: transparent;
+  color: var(--text-muted, var(--ink-soft, #3c5c5f));
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.instalar-fechar:hover,
+.instalar-fechar:focus-visible {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+@keyframes instalarEntrar {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Dica de instalação no iPhone - Passo 30 (compacta, apenas iOS) */
+.dica-ios {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(28, 150, 160, 0.08);
+  border: 1px solid rgba(28, 150, 160, 0.28);
+  color: var(--text-muted, var(--ink-soft, #3c5c5f));
+  border-radius: 12px;
+  padding: 6px 6px 6px 12px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.dica-ios .instalar-fechar {
+  margin-left: auto;
 }
 
 .dica-ios[hidden] {
   display: none !important;
 }
 
+:root[data-theme="escuro"] .instalar,
 :root[data-theme="escuro"] .dica-ios,
+body.dark-mode .instalar,
 body.dark-mode .dica-ios {
-  background: #13272a;
-  border-color: #284745;
-  color: #9fb8b8;
+  background: rgba(43, 179, 189, 0.1);
+  border-color: rgba(43, 179, 189, 0.3);
+}
+
+:root[data-theme="escuro"] .instalar-fechar:hover,
+body.dark-mode .instalar-fechar:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Desktop: sem barra redundante (instalação apenas pela sidebar) */
+@media (min-width: 769px) {
+  #barraInstalar,
+  .instalar {
+    display: none !important;
+  }
 }

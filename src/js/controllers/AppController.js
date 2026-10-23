@@ -1078,19 +1078,42 @@ export class AppController {
 
   configurarPWA() {
     // 1. Suporte a instalação PWA (FANESE Aula 03, 04 e AULA 09 PARTE 1 - PASSO 30)
+    // Ponto de entrada único: botão "Instalar App" da sidebar (desktop).
+    // No mobile (sidebar oculta) aparece apenas um convite compacto e dispensável.
     let eventoInstalar = null;
     const barraInstalar = document.getElementById("barraInstalar");
     const btnInstalar = document.getElementById("btnInstalar");
+    const btnFecharInstalar = document.getElementById("btnFecharInstalar");
     const dicaIOS = document.getElementById("dicaIOS");
+    const btnFecharDicaIOS = document.getElementById("btnFecharDicaIOS");
     const btnSidebar = document.getElementById("btn-instalar-pwa");
+    const mqMobile = window.matchMedia("(max-width: 768px)");
+    const CHAVE_DISPENSADO = "convite-instalar-dispensado";
+
+    const conviteDispensado = () => sessionStorage.getItem(CHAVE_DISPENSADO) === "true";
+
+    // Mostra/oculta os pontos de instalação conforme o estado atual
+    const atualizarUIInstalacao = () => {
+      const podeInstalar = Boolean(eventoInstalar);
+      if (btnSidebar) btnSidebar.style.display = podeInstalar ? "flex" : "none";
+      if (barraInstalar) {
+        barraInstalar.hidden = !(podeInstalar && mqMobile.matches && !conviteDispensado());
+      }
+    };
 
     // O navegador avisa que o app PODE ser instalado (beforeinstallprompt)
     window.addEventListener("beforeinstallprompt", (evento) => {
       evento.preventDefault();
       eventoInstalar = evento;
-      if (barraInstalar) barraInstalar.hidden = false;
-      if (btnSidebar) btnSidebar.style.display = "flex";
+      atualizarUIInstalacao();
     });
+
+    // Reavalia ao girar a tela / redimensionar entre mobile e desktop
+    if (mqMobile.addEventListener) {
+      mqMobile.addEventListener("change", atualizarUIInstalacao);
+    } else if (mqMobile.addListener) {
+      mqMobile.addListener(atualizarUIInstalacao);
+    }
 
     const dispararPromptInstalacao = async () => {
       if (!eventoInstalar) {
@@ -1106,33 +1129,46 @@ export class AppController {
       } catch (err) {
         console.log("Instalação tratada:", err);
       }
+      // O convite só pode ser usado uma vez
       eventoInstalar = null;
-      if (barraInstalar) barraInstalar.hidden = true;
-      if (btnSidebar) btnSidebar.style.display = "none";
+      atualizarUIInstalacao();
     };
 
-    if (btnInstalar) {
-      btnInstalar.addEventListener("click", dispararPromptInstalacao);
-    }
     if (btnSidebar) {
       btnSidebar.addEventListener("click", dispararPromptInstalacao);
     }
+    if (btnInstalar) {
+      btnInstalar.addEventListener("click", dispararPromptInstalacao);
+    }
+    if (btnFecharInstalar) {
+      btnFecharInstalar.addEventListener("click", () => {
+        sessionStorage.setItem(CHAVE_DISPENSADO, "true");
+        atualizarUIInstalacao();
+      });
+    }
 
-    // Quando o app é instalado, esconde as barras de instalação
+    // Quando o app é instalado, esconde todos os pontos de instalação
     window.addEventListener("appinstalled", () => {
       ToastView.mostrarToast("Cardápio instalado com sucesso na tela inicial!", "🎉");
-      if (barraInstalar) barraInstalar.hidden = true;
-      if (btnSidebar) btnSidebar.style.display = "none";
+      eventoInstalar = null;
+      atualizarUIInstalacao();
+      if (dicaIOS) dicaIOS.hidden = true;
     });
 
-    // Dica de instalação para iOS Safari (Passo 30)
+    // Dica de instalação para iOS Safari (Passo 30) - apenas no iPhone/iPad
     function checarIOS() {
       const ehIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
       const instalado = window.matchMedia("(display-mode: standalone)").matches
         || window.navigator.standalone === true;
-      if (ehIOS && !instalado) {
+      if (ehIOS && !instalado && !conviteDispensado()) {
         if (dicaIOS) dicaIOS.hidden = false;
       }
+    }
+    if (btnFecharDicaIOS) {
+      btnFecharDicaIOS.addEventListener("click", () => {
+        sessionStorage.setItem(CHAVE_DISPENSADO, "true");
+        if (dicaIOS) dicaIOS.hidden = true;
+      });
     }
     checarIOS();
 
