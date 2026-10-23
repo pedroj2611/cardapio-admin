@@ -21,15 +21,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Estilos MVC Modularizados -->
-  <link rel="stylesheet" href="css/base.css?v=18">
-  <link rel="stylesheet" href="css/components.css?v=18">
-  <link rel="stylesheet" href="css/modals.css?v=18">
-  <link rel="stylesheet" href="style.css?v=18">
+  <link rel="stylesheet" href="css/base.css?v=19">
+  <link rel="stylesheet" href="css/components.css?v=19">
+  <link rel="stylesheet" href="css/modals.css?v=19">
+  <link rel="stylesheet" href="style.css?v=19">
 </head>
 <body>
 
   <!-- AULA 09 (PARTE 2): AVISO DE CONEXÃO OFFLINE (PASSO 31) -->
-  <div class="status-conexao" id="statusConexao" hidden>📡 Você está offline — usando os dados salvos.</div>
+  <div class="status-conexao" id="statusConexao" hidden><img src="icons/ui/offline.svg" class="svg-icon" alt=""> Você está offline — usando os dados salvos.</div>
 
   <!-- LAYOUT PRINCIPAL DO SISTEMA (SIDEBAR + CONTEÚDO) -->
   <div class="app-layout" id="app-layout">
@@ -49,15 +49,15 @@
 
       <nav class="sidebar-nav">
         <button class="sidebar-item active" id="nav-item-cardapio" data-tab="cardapio" data-tooltip="Cardápio" title="Cardápio">
-          <span class="sidebar-icon">🎛️</span>
+          <span class="sidebar-icon"><img src="icons/ui/cardapio.svg" class="svg-icon" alt=""></span>
           <span class="menu-label">Cardápio</span>
         </button>
         <button class="sidebar-item" id="nav-item-configuracoes" data-tab="configuracoes" data-tooltip="Configurações" title="Configurações">
-          <span class="sidebar-icon">⚙️</span>
+          <span class="sidebar-icon"><img src="icons/ui/config.svg" class="svg-icon" alt=""></span>
           <span class="menu-label">Configurações</span>
         </button>
         <button class="sidebar-item" id="btn-instalar-pwa" data-tooltip="Instalar App" title="Instalar App" style="display: none; background: rgba(28, 150, 160, 0.18); border: 1px dashed #34d0db; color: #34d0db;">
-          <span class="sidebar-icon">📲</span>
+          <span class="sidebar-icon"><img src="icons/ui/instalar.svg" class="svg-icon" alt=""></span>
           <span class="menu-label">Instalar App</span>
         </button>
       </nav>
@@ -86,7 +86,7 @@
                 <span class="status-pulse" id="status-pulse-dot"></span>
                 <span class="status-label" id="status-rede-label">Aberto para Pedidos</span>
               </div>
-              <button id="tema" class="btn-theme-toggle" aria-label="Alternar tema" title="Alternar tema claro/escuro (Aula 07)">🌙</button>
+              <button id="tema" class="btn-theme-toggle" aria-label="Alternar tema" title="Alternar tema claro/escuro (Aula 07)"><img src="icons/ui/tema-escuro.svg" class="svg-icon" id="iconeTema" alt="Tema"></button>
             </div>
 
             <div class="brand-box">
@@ -98,9 +98,9 @@
                 <p class="brand-segment">Sabor Artesanal & Parceria</p>
                 
                 <div class="brand-badges">
-                  <span class="badge-info">⭐ 4.9 (320+ avaliações)</span>
-                  <span class="badge-info">⏱️ 25–35 min</span>
-                  <span class="badge-info" id="display-taxa-badge">🛵 Entrega Grátis</span>
+                  <span class="badge-info">4.9 (320+ avaliações)</span>
+                  <span class="badge-info"><img src="icons/ui/clock.svg" class="svg-icon" alt=""> 25–35 min</span>
+                  <span class="badge-info" id="display-taxa-badge">Entrega Grátis</span>
                 </div>
               </div>
             </div>
@@ -112,18 +112,18 @@
           <!-- AULA 09 (PARTE 1): CONVITE DE INSTALAÇÃO COMPACTO (SOMENTE MOBILE) E DICA IOS (PASSO 30) -->
           <!-- No desktop a instalação é feita pelo botão "Instalar App" da sidebar (#btn-instalar-pwa). -->
           <div class="instalar" id="barraInstalar" role="region" aria-label="Instalar aplicativo" hidden>
-            <span class="instalar-icone" aria-hidden="true">📲</span>
+            <span class="instalar-icone" aria-hidden="true"><img src="icons/ui/instalar.svg" class="svg-icon" alt=""></span>
             <span class="instalar-texto">Instale o app na tela inicial</span>
             <button id="btnInstalar" type="button" class="instalar-btn">Instalar</button>
             <button id="btnFecharInstalar" type="button" class="instalar-fechar" aria-label="Dispensar convite de instalação" title="Agora não">✕</button>
           </div>
-          <p class="dica-ios" id="dicaIOS" hidden>📱 No iPhone: toque em <b>Compartilhar</b> e em <b>"Adicionar à Tela de Início"</b>. <button id="btnFecharDicaIOS" type="button" class="instalar-fechar" aria-label="Fechar dica">✕</button></p>
+          <p class="dica-ios" id="dicaIOS" hidden><img src="icons/ui/instalar.svg" class="svg-icon" alt="" style="margin-right: 6px;"> No iPhone: toque em <b>Compartilhar</b> e em <b>"Adicionar à Tela de Início"</b>. <button id="btnFecharDicaIOS" type="button" class="instalar-fechar" aria-label="Fechar dica">✕</button></p>
 
 
           <!-- BARRA DE CONTROLE: PESQUISA E CADASTRO RÁPIDO -->
           <section class="controls-section">
             <div class="search-bar-wrapper">
-              <span class="search-icon" aria-hidden="true">🔍</span>
+              <span class="search-icon" aria-hidden="true"><img src="icons/ui/busca.svg" class="svg-icon" alt=""></span>
               <input type="text" id="campo-busca" placeholder="Buscar por nome ou ingredientes (ex: burger, bacon, suco)..." autocomplete="off" aria-label="Buscar produtos no cardápio">
               <button id="btn-limpar-busca" class="btn-clear" style="display: none;" title="Limpar pesquisa" aria-label="Limpar campo de pesquisa">✕</button>
             </div>
@@ -132,11 +132,11 @@
           <!-- ABAS DE CATEGORIAS -->
           <nav class="categorias-nav" aria-label="Categorias do Cardápio">
             <div class="categorias-lista" id="categorias-tabs">
-              <button class="tab-btn active" data-cat="todos">🍽️ Todos</button>
-              <button class="tab-btn" data-cat="lanches">🍔 Lanches</button>
-              <button class="tab-btn" data-cat="porcoes">🍟 Porções</button>
-              <button class="tab-btn" data-cat="bebidas">🥤 Bebidas</button>
-              <button class="tab-btn" data-cat="sobremesas">🍰 Sobremesas</button>
+              <button class="tab-btn active" data-cat="todos">Todos</button>
+              <button class="tab-btn" data-cat="lanches">Lanches</button>
+              <button class="tab-btn" data-cat="porcoes">Porções</button>
+              <button class="tab-btn" data-cat="bebidas">Bebidas</button>
+              <button class="tab-btn" data-cat="sobremesas">Sobremesas</button>
             </div>
           </nav>
 
@@ -153,7 +153,7 @@
 
             <!-- MENSAGEM QUANDO NENHUM ITEM FOR ENCONTRADO -->
             <div id="vazio-alerta" class="card-vazio" style="display: none;">
-              <span class="vazio-icon">🔍</span>
+              <span class="vazio-icon"><img src="icons/ui/busca.svg" class="svg-icon" style="width: 44px; height: 44px; opacity: 0.4;" alt=""></span>
               <h3>Nenhum produto localizado</h3>
               <p>Não encontramos resultados para a sua busca. Tente pesquisar outro termo ou trocar de categoria.</p>
               <button id="btn-reset-busca" class="btn-secundario-vazio">Ver Todos os Produtos</button>
@@ -166,9 +166,7 @@
         <aside class="barra-flutuante" id="barra-flutuante">
           <div class="barra-container">
             <div class="barra-info">
-              <div class="carrinho-icone-box">
-                🛒
-                <span class="carrinho-badge" id="carrinho-qtd" aria-live="polite">0</span>
+              <div class="carrinho-icone-box"><img src="icons/ui/cart.svg" class="svg-icon" alt=""><span class="carrinho-badge" id="carrinho-qtd" aria-live="polite">0</span>
               </div>
               <div class="carrinho-textos">
                 <span class="carrinho-titulo">Seu Pedido</span>
@@ -203,13 +201,13 @@
               ⏱️ Sessão: 20 min
             </span>
             <button id="btn-admin-sync-top" class="btn-admin-golden" style="background: linear-gradient(135deg, #27ae60, #2ecc71); border-color: #27ae60; color: #fff;" title="Sincronizar dados e alterações com o celular">
-              <span>📲 Sincronizar</span>
+              <img src="icons/ui/sync.svg" class="svg-icon" alt=""><span>Sincronizar</span>
             </button>
             <button id="btn-sair-admin" class="btn-admin-golden" title="Ir para o Cardápio Público">
-              <span>🍽️ Cardápio</span>
+              <img src="icons/ui/cardapio.svg" class="svg-icon" alt=""><span>Cardápio</span>
             </button>
             <button id="btn-logout-admin" class="btn-action-cancel" style="padding: 8px 12px; font-size: 0.8rem; cursor: pointer;" title="Encerrar Sessão de Administrador">
-              <span>🔒 Sair</span>
+              <img src="icons/ui/lock.svg" class="svg-icon" alt=""><span>Sair</span>
             </button>
           </div>
         </header>
@@ -242,9 +240,9 @@
 
             <!-- NAVEGAÇÃO POR ABAS DO PAINEL ADMIN (UI/UX SEM ROLAGEM EXCESSIVA) -->
             <div class="tabs-nav">
-              <button class="tab-btn active" data-tab="tab-monitoramento">📋 Monitoramento de Pedidos</button>
-              <button class="tab-btn" data-tab="tab-pedidos">🛵 Gestão de Pedidos</button>
-              <button class="tab-btn" data-tab="tab-produtos">🍔 Produtos do Cardápio</button>
+              <button class="tab-btn active" data-tab="tab-monitoramento"><img src="icons/ui/check.svg" class="svg-icon" alt=""> Monitoramento de Pedidos</button>
+              <button class="tab-btn" data-tab="tab-pedidos"><img src="icons/ui/cardapio.svg" class="svg-icon" alt=""> Gestão de Pedidos</button>
+              <button class="tab-btn" data-tab="tab-produtos"><img src="icons/ui/config.svg" class="svg-icon" alt=""> Produtos do Cardápio</button>
             </div>
 
             <!-- ABA 1: MONITORAMENTO DE PEDIDOS (PWA - TAREFAS PRO, BACKUP E SUBTAREFAS) -->
@@ -259,7 +257,7 @@
                   </div>
                   <div class="table-filter-dropdowns" style="flex-wrap: wrap; gap: 8px;">
                     <div class="admin-search-wrapper" style="min-width: 200px;">
-                      <span class="search-icon-input">🔎</span>
+                      <span class="search-icon-input"><img src="icons/ui/busca.svg" class="svg-icon" alt=""></span>
                       <input type="text" id="busca" placeholder="Pesquisar pedidos..." style="width: 100%;">
                     </div>
                     <select id="ordenar" class="admin-select" title="Ordenar tarefas/pedidos">
@@ -319,16 +317,13 @@
                 <!-- BARRA DE FERRAMENTAS ELEGANTE: RELATÓRIO PDF E BACKUP (EXPORTAR / IMPORTAR) -->
                 <div class="backup-toolbar">
                   <button id="btn-relatorio-pdf" type="button" class="btn-toolbar-action btn-pdf" title="Gerar e imprimir relatório do dia em PDF">
-                    <span class="toolbar-icon">📄</span>
-                    <span>Relatório em PDF</span>
+                    <img src="icons/ui/pdf.svg" class="svg-icon" alt=""><span>Relatório em PDF</span>
                   </button>
                   <button id="exportar" type="button" class="btn-toolbar-action btn-export" title="Fazer download do arquivo de backup minhas-tarefas.json">
-                    <span class="toolbar-icon">💾</span>
-                    <span>Exportar JSON</span>
+                    <img src="icons/ui/exportar.svg" class="svg-icon" alt=""><span>Exportar JSON</span>
                   </button>
                   <label for="arquivo" class="btn-toolbar-action btn-import" title="Selecionar arquivo JSON para restaurar">
-                    <span class="toolbar-icon">📥</span>
-                    <span>Importar JSON</span>
+                    <img src="icons/ui/importar.svg" class="svg-icon" alt=""><span>Importar JSON</span>
   
                     <input type="file" id="arquivo" accept="application/json" hidden>
                   </label>
@@ -345,7 +340,7 @@
               <div class="admin-table-container">
                 <div class="table-header-row" style="flex-wrap: wrap; gap: 12px;">
                   <div>
-                    <h3 class="table-title">🛵 Gestão Detalhada de Pedidos do Restaurante</h3>
+                    <h3 class="table-title">Gestão Detalhada de Pedidos do Restaurante</h3>
                     <p style="font-size: 0.76rem; color: #888e99; margin-top: 2px;">
                       Acompanhe os pedidos em tempo real, simule novas comandas e gerencie o atendimento.
                     </p>
@@ -357,12 +352,12 @@
                   <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     <span id="contador-pedidos" style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold);">Faltam 0 de 0 pedidos a atender</span>
                     <span id="status-sync-nuvem" style="font-size: 0.72rem; font-weight: 700; background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid #2ecc71; border-radius: 12px; padding: 3px 8px; display: inline-flex; align-items: center; gap: 5px;" title="Sincronização em tempo real entre celular e PC ativa">
-                      🟢 Nuvem Conectada (Ao Vivo)
+                      <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#2ecc71; margin-right:6px;"></span> Nuvem Conectada (Ao Vivo)
                     </span>
                   </div>
                   <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                     <button type="button" id="btn-sincronizar-nuvem-agora" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: #3498db; border-color: #3498db; cursor: pointer;" title="Buscar novos pedidos feitos no celular agora">
-                      🔄 Sincronizar Nuvem
+                      <img src="icons/ui/sync.svg" class="svg-icon" alt=""> Sincronizar Nuvem
                     </button>
                     <div style="display: flex; align-items: center; gap: 5px;">
                       <label for="categoria" style="font-size: 0.74rem; color: #888e99; font-weight: 700;">Cat:</label>
@@ -374,16 +369,16 @@
                       </select>
                     </div>
                     <button type="button" id="btn-admin-simular-pedido" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: #2ecc71; border-color: #2ecc71; cursor: pointer;" title="Adicionar pedido de teste com a categoria selecionada">
-                      ➕ Pedido Normal
+                      <img src="icons/ui/plus.svg" class="svg-icon" alt=""> Pedido Normal
                     </button>
                     <button type="button" id="btn-admin-simular-atrasado" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: #e5484d; border-color: #e5484d; cursor: pointer;" title="Adicionar pedido com prazo vencido para testar aviso de ATRASADA">
-                      ⚠️ Pedido Atrasado (Teste)
+                      <img src="icons/ui/clock.svg" class="svg-icon" alt=""> Pedido Atrasado (Teste)
                     </button>
                     <button type="button" id="btn-limpar-pedidos-concluidos" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: var(--teal-bright); border-color: var(--teal-bright); cursor: pointer;">
-                      🧹 Limpar concluídos
+                      <img src="icons/ui/check.svg" class="svg-icon" alt=""> Limpar concluídos
                     </button>
                     <button type="button" id="btn-resetar-pedidos" class="btn-action-outline" style="font-size: 0.76rem; padding: 6px 12px; color: #e74c3c; border-color: #e74c3c; cursor: pointer;" title="Apagar todos os pedidos salvos">
-                      🗑️ Limpar Todos
+                      <img src="icons/ui/apagar.svg" class="svg-icon" alt=""> Limpar Todos
                     </button>
                   </div>
                 </div>
@@ -416,7 +411,7 @@
               <div class="admin-table-container" style="margin-bottom: 24px;">
                 <details class="accordion-cadastro" id="accordion-cadastro">
                   <summary class="summary-btn">
-                    <span>✨ Cadastrar Novo Produto no Cardápio</span>
+                    <img src="icons/ui/plus.svg" class="svg-icon" alt=""><span>Cadastrar Novo Produto no Cardápio</span>
                     <span class="accordion-arrow" aria-hidden="true">▼</span>
                   </summary>
                   <div class="form-cadastro-item">
@@ -428,10 +423,10 @@
                       <div class="form-field">
                         <label for="nova-categoria">Categoria *</label>
                         <select id="nova-categoria">
-                          <option value="lanches">🍔 Lanches</option>
-                          <option value="porcoes">🍟 Porções</option>
-                          <option value="bebidas">🥤 Bebidas</option>
-                          <option value="sobremesas">🍰 Sobremesas</option>
+                          <option value="lanches">Lanches</option>
+                          <option value="porcoes">Porções</option>
+                          <option value="bebidas">Bebidas</option>
+                          <option value="sobremesas">Sobremesas</option>
                         </select>
                       </div>
                       <div class="form-field">
@@ -442,10 +437,10 @@
                         <label for="novo-badge">Destaque (opcional)</label>
                         <select id="novo-badge">
                           <option value="">Sem Destaque</option>
-                          <option value="Mais Pedido">🔥 Mais Pedido</option>
+                          <option value="Mais Pedido">Mais Pedido</option>
                           <option value="Chef Special">⭐ Chef Special</option>
-                          <option value="Novo">✨ Novo</option>
-                          <option value="Vegetariano">🌱 Vegetariano</option>
+                          <option value="Novo">Novo</option>
+                          <option value="Vegetariano">Vegetariano</option>
                         </select>
                       </div>
                       <div class="form-field full-width">
@@ -466,22 +461,22 @@
               <div class="admin-table-container" id="admin-produtos-section">
                 <div class="table-header-row">
                   <div>
-                    <h3 class="table-title">🍔 Produtos do Cardápio & Alteração de Preços</h3>
+                    <h3 class="table-title">Produtos do Cardápio & Alteração de Preços</h3>
                     <p style="font-size: 0.78rem; color: #888e99; margin-top: 3px;">
                       Consulte os produtos ativos no cardápio e altere os preços cobrados em tempo real.
                     </p>
                   </div>
                   <div class="table-filter-dropdowns">
                     <div class="admin-search-wrapper" style="max-width: 200px;">
-                      <span class="search-icon-input">🔍</span>
+                      <span class="search-icon-input"><img src="icons/ui/busca.svg" class="svg-icon" alt=""></span>
                       <input type="text" id="admin-busca-produtos" placeholder="Buscar prato...">
                     </div>
                     <select id="admin-filtro-cat-produtos" class="admin-select">
-                      <option value="todos">🍽️ Todas Categorias</option>
-                      <option value="lanches">🍔 Lanches</option>
-                      <option value="porcoes">🍟 Porções</option>
-                      <option value="bebidas">🥤 Bebidas</option>
-                      <option value="sobremesas">🍰 Sobremesas</option>
+                      <option value="todos">Todas Categorias</option>
+                      <option value="lanches">Lanches</option>
+                      <option value="porcoes">Porções</option>
+                      <option value="bebidas">Bebidas</option>
+                      <option value="sobremesas">Sobremesas</option>
                     </select>
                   </div>
                 </div>
@@ -520,13 +515,13 @@
               </p>
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 <button id="btn-admin-sincronizar" class="btn-admin-golden" style="width: 100%; justify-content: center; font-size: 0.82rem; padding: 10px; background: linear-gradient(135deg, #27ae60, #2ecc71); border-color: #27ae60; color: #fff;">
-                  <span>📱 Sincronizar com Celular</span>
+                  <img src="icons/ui/instalar.svg" class="svg-icon" alt=""><span>Sincronizar com Celular</span>
                 </button>
                 <button id="btn-admin-config-loja" class="btn-admin-golden" style="width: 100%; justify-content: center; font-size: 0.82rem; padding: 10px;">
-                  <span>⚙️ Configurar Restaurante</span>
+                  <img src="icons/ui/config.svg" class="svg-icon" alt=""><span>Configurar Restaurante</span>
                 </button>
                 <button id="btn-admin-gerenciar-produtos" class="btn-admin-outline" style="width: 100%; justify-content: center; font-size: 0.82rem; padding: 10px;">
-                  <span>📋 Organizar Cardápio</span>
+                  <img src="icons/ui/cardapio.svg" class="svg-icon" alt=""><span>Organizar Cardápio</span>
                 </button>
               </div>
             </div>
@@ -565,11 +560,11 @@
   <!-- NAVEGAÇÃO BOTTOM BAR EM DISPOSITIVOS MOBILES (ADAPTAÇÃO AUTOMÁTICA EM CELULARES) -->
   <nav class="mobile-bottom-nav">
     <button class="mobile-nav-btn active" id="mob-btn-cardapio" data-tab="cardapio">
-      <span class="nav-icon">🍽️</span>
+      <span class="nav-icon"><img src="icons/ui/cardapio.svg" class="svg-icon" alt=""></span>
       <span>Cardápio</span>
     </button>
     <button class="mobile-nav-btn" id="mob-btn-config" data-tab="configuracoes">
-      <span class="nav-icon">⚙️</span>
+      <span class="nav-icon"><img src="icons/ui/config.svg" class="svg-icon" alt=""></span>
       <span>Configurações</span>
     </button>
   </nav>
@@ -579,7 +574,7 @@
     <div class="modal-content auth-modal-content">
       <div class="modal-header">
         <div class="modal-header-title">
-          <span class="modal-icon">🔐</span>
+          <span class="modal-icon"><img src="icons/ui/lock.svg" class="svg-icon" style="width:24px; height:24px;" alt=""></span>
           <div>
             <h3>Acesso Restrito Admin</h3>
             <p class="modal-sub">Autenticação do Sistema</p>
@@ -599,7 +594,7 @@
             </div>
             <p class="auth-help-text">Digite a senha "<strong>admin</strong>" para acessar o monitoramento.</p>
             <div id="auth-error-msg" class="auth-error-msg" style="display: none;">
-              ⚠️ Senha incorreta! Tente novamente.
+              Senha incorreta! Tente novamente.
             </div>
           </div>
         </form>
@@ -616,7 +611,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <div class="modal-header-title">
-          <span class="modal-icon">🛍️</span>
+          <span class="modal-icon"><img src="icons/ui/cart.svg" class="svg-icon" style="width:24px; height:24px;" alt=""></span>
           <div>
             <h3>Conferir & Finalizar Pedido</h3>
             <p class="modal-sub">Revise os itens e informe os dados para entrega</p>
@@ -668,7 +663,7 @@
           <div class="input-grupo box-pix" id="grupo-pix" style="display: none;">
             <div class="pix-card">
               <div class="pix-info">
-                <span class="pix-badge">⚡ Chave PIX do Restaurante</span>
+                <span class="pix-badge">Chave PIX do Restaurante</span>
                 <span class="pix-chave" id="pix-chave-texto">pedrojoaquimbisposantana1897@gmail.com</span>
               </div>
               <button type="button" id="btn-copiar-pix" class="btn-copiar">Copiar Chave</button>
@@ -708,7 +703,7 @@
         <div class="botoes-modal">
           <button type="button" id="btn-limpar-tudo" class="btn-esvaziar">Esvaziar</button>
           <button type="button" id="btn-enviar-whatsapp" class="btn-whatsapp-empresa">
-            <span>📲 Enviar Pedido via WhatsApp</span>
+            <img src="icons/ui/check.svg" class="svg-icon" alt=""><span>Enviar Pedido via WhatsApp</span>
           </button>
         </div>
       </div>
@@ -720,7 +715,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <div class="modal-header-title">
-          <span class="modal-icon">✏️</span>
+          <span class="modal-icon"><img src="icons/ui/editar.svg" class="svg-icon" style="width:24px; height:24px;" alt=""></span>
           <div>
             <h3>Editar Produto</h3>
             <p class="modal-sub">Atualize os detalhes e o preço do item</p>
@@ -738,10 +733,10 @@
           <div class="input-grupo">
             <label for="edit-categoria">Categoria *</label>
             <select id="edit-categoria">
-              <option value="lanches">🍔 Lanches</option>
-              <option value="porcoes">🍟 Porções</option>
-              <option value="bebidas">🥤 Bebidas</option>
-              <option value="sobremesas">🍰 Sobremesas</option>
+              <option value="lanches">Lanches</option>
+              <option value="porcoes">Porções</option>
+              <option value="bebidas">Bebidas</option>
+              <option value="sobremesas">Sobremesas</option>
             </select>
           </div>
           <div class="input-grupo">
@@ -752,10 +747,10 @@
             <label for="edit-badge">Destaque (Badge)</label>
             <select id="edit-badge">
               <option value="">Sem Destaque</option>
-              <option value="Mais Pedido">🔥 Mais Pedido</option>
+              <option value="Mais Pedido">Mais Pedido</option>
               <option value="Chef Special">⭐ Chef Special</option>
-              <option value="Novo">✨ Novo</option>
-              <option value="Vegetariano">🌱 Vegetariano</option>
+              <option value="Novo">Novo</option>
+              <option value="Vegetariano">Vegetariano</option>
             </select>
           </div>
           <div class="input-grupo">
@@ -779,7 +774,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <div class="modal-header-title">
-          <span class="modal-icon">⚙️</span>
+          <span class="modal-icon"><img src="icons/ui/config.svg" class="svg-icon" style="width:24px; height:24px;" alt=""></span>
           <div>
             <h3>Configurações do Restaurante</h3>
             <p class="modal-sub">Defina os dados para recebimento de pedidos</p>
@@ -809,13 +804,13 @@
         </form>
         <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color, #30363d);">
           <h4 style="font-size: 0.88rem; margin: 0 0 6px 0; color: var(--dark, #f0f6fc); display: flex; align-items: center; gap: 6px;">
-            <span>📲 Sincronização entre Dispositivos</span>
+            <span>Sincronização entre Dispositivos</span>
           </h4>
           <p style="font-size: 0.78rem; color: var(--text-muted, #8b949e); margin-bottom: 10px; line-height: 1.4;">
             Transfira as alterações deste aparelho para o seu celular ou outro dispositivo.
           </p>
           <button type="button" id="btn-abrir-sync-via-config" class="btn-admin-golden" style="width: 100%; justify-content: center; font-size: 0.82rem; padding: 10px; background: linear-gradient(135deg, #27ae60, #2ecc71); border-color: #27ae60; color: #fff;">
-            <span>📱 Abrir Sincronização com Celular</span>
+            <img src="icons/ui/instalar.svg" class="svg-icon" alt=""><span>Abrir Sincronização com Celular</span>
           </button>
         </div>
       </div>
@@ -830,7 +825,7 @@
     <div class="modal-content" style="max-width: 580px;">
       <div class="modal-header">
         <div class="modal-header-title">
-          <span class="modal-icon">📲</span>
+          <span class="modal-icon"><img src="icons/ui/instalar.svg" class="svg-icon" style="width:24px; height:24px;" alt=""></span>
           <div>
             <h3 class="modal-title">Sincronizar com Celular</h3>
             <p class="modal-sub">Transfira seus produtos, preços e configurações do PC para o celular</p>
@@ -844,17 +839,17 @@
         <!-- MÉTODO 1: LINK DIRETO & WHATSAPP (MUITO PRÁTICO) -->
         <div style="background: rgba(46, 204, 113, 0.08); border: 1px solid #2ecc71; border-radius: 12px; padding: 16px;">
           <h4 style="margin: 0 0 6px 0; color: #2ecc71; display: flex; align-items: center; gap: 6px; font-size: 0.95rem;">
-            <span>🚀 Método 1: Enviar Link para seu WhatsApp</span>
+            <span>Método 1: Enviar Link para seu WhatsApp</span>
           </h4>
           <p style="font-size: 0.82rem; color: var(--text-muted, #a0aec0); margin-bottom: 12px; line-height: 1.4;">
             Clique no botão verde abaixo para enviar o link com todos os seus produtos e preços direto para o seu WhatsApp. Ao abrir o link no celular, o cardápio é atualizado na hora!
           </p>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button type="button" id="btn-sync-whatsapp" class="btn-action-submit" style="flex: 1; min-width: 200px; justify-content: center; background: #25D366; border-color: #25D366; color: #fff; font-weight: 700; padding: 10px 14px;">
-              <span>💬 Enviar para meu WhatsApp</span>
+              <img src="icons/ui/check.svg" class="svg-icon" alt=""><span>Enviar para meu WhatsApp</span>
             </button>
             <button type="button" id="btn-sync-copiar-link" class="btn-admin-golden" style="flex: 1; min-width: 150px; justify-content: center; padding: 10px 14px;">
-              <span>📋 Copiar Link</span>
+              <img src="icons/ui/exportar.svg" class="svg-icon" alt=""><span>Copiar Link</span>
             </button>
           </div>
         </div>
@@ -862,7 +857,7 @@
         <!-- MÉTODO 2: QR CODE NA TELA DO COMPUTADOR -->
         <div style="background: var(--bg-card, #1a202c); border: 1px solid var(--border-color, #2d3748); border-radius: 12px; padding: 16px; text-align: center;">
           <h4 style="margin: 0 0 6px 0; color: var(--dark, #e2e8f0); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.95rem;">
-            <span>📷 Método 2: Apontar a Câmera do Celular</span>
+            <span>Método 2: Apontar a Câmera do Celular</span>
           </h4>
           <p style="font-size: 0.82rem; color: var(--text-muted, #a0aec0); margin-bottom: 12px;">
             Aponte a câmera do seu smartphone para o QR Code abaixo para abrir o cardápio sincronizado:
@@ -876,15 +871,15 @@
         <!-- MÉTODO 3: ARQUIVO BACKUP JSON OU CÓDIGO MANUAL -->
         <details style="background: var(--bg-card, #171923); border: 1px solid var(--border-color, #2d3748); border-radius: 12px; padding: 12px;">
           <summary style="cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--dark, #cbd5e0);">
-            🛠️ Método 3: Arquivo Backup ou Código Manual
+            Método 3: Arquivo Backup ou Código Manual
           </summary>
           <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
               <button type="button" id="btn-sync-exportar-json" class="btn-admin-outline" style="flex: 1; padding: 8px 12px; font-size: 0.8rem; justify-content: center;">
-                <span>💾 Baixar Backup (.json)</span>
+                <img src="icons/ui/exportar.svg" class="svg-icon" alt=""><span>Baixar Backup (.json)</span>
               </button>
               <label class="btn-admin-outline" style="flex: 1; padding: 8px 12px; font-size: 0.8rem; justify-content: center; cursor: pointer; margin: 0; display: flex; align-items: center;">
-                <span>📥 Restaurar Backup (.json)</span>
+                <img src="icons/ui/importar.svg" class="svg-icon" alt=""><span>Restaurar Backup (.json)</span>
                 <input type="file" id="input-sync-arquivo" accept=".json" style="display: none;">
               </label>
             </div>
@@ -970,6 +965,6 @@
   </script>
 
   <!-- CONTROLLER PRINCIPAL (MVC) -->
-  <script type="module" src="js/controllers/AppController.js?v=18"></script>
+  <script type="module" src="js/controllers/AppController.js?v=19"></script>
 </body>
 </html>

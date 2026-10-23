@@ -434,8 +434,8 @@ function renderizarProdutos() {
                 + Adicionar
               </button>
             `}
-            <button class="btn-card-action" onclick="abrirModalEdicao(${p.id})" title="Editar produto" aria-label="Editar produto">✏️</button>
-            <button class="btn-card-action" onclick="excluirProdutoDoCardapio(${p.id})" title="Remover produto" aria-label="Remover produto">🗑️</button>
+            <button class="btn-card-action" onclick="abrirModalEdicao(${p.id})" title="Editar produto" aria-label="Editar produto"><img src="icons/ui/editar.svg" class="svg-icon" alt="Editar"></button>
+            <button class="btn-card-action" onclick="excluirProdutoDoCardapio(${p.id})" title="Remover produto" aria-label="Remover produto"><img src="icons/ui/apagar.svg" class="svg-icon" alt="Remover"></button>
           </div>
         </div>
       </article>
@@ -1249,7 +1249,7 @@ document.addEventListener("DOMContentLoaded", () => {
       btnApagar.type = "button";
       btnApagar.className = "btn-apagar-card";
       btnApagar.title = "Apagar tarefa";
-      btnApagar.innerHTML = "<span class='trash-icon'>🗑️</span>";
+      btnApagar.innerHTML = '<img src="icons/ui/apagar.svg" class="svg-icon" alt="Apagar">';
       btnApagar.addEventListener("click", function (e) {
         e.stopPropagation();
         tarefas = tarefas.filter(function (t) { return t.id !== tarefa.id; });
@@ -1367,7 +1367,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const subApagar = document.createElement("button");
           subApagar.type = "button";
           subApagar.className = "sub-apagar-btn sub-apagar";
-          subApagar.textContent = "×";
+          subApagar.innerHTML = '<img src="icons/ui/apagar.svg" class="svg-icon" alt="Excluir">';
           subApagar.addEventListener("click", function () {
             tarefa.subtarefas = tarefa.subtarefas.filter(function (s) { return s.id !== sub.id; });
             salvar();
@@ -1671,7 +1671,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---- Tema claro/escuro ----
   function aplicarTema(tema) {
     document.documentElement.setAttribute("data-theme", tema);
-    if (btnTema) btnTema.textContent = tema === "escuro" ? "☀️" : "🌙";
+    const iconeTema = document.getElementById("iconeTema");
+    if (iconeTema) {
+      iconeTema.src = tema === "escuro" ? "icons/ui/tema-claro.svg" : "icons/ui/tema-escuro.svg";
+      iconeTema.alt = tema === "escuro" ? "Modo Claro" : "Modo Escuro";
+    } else if (btnTema) {
+      btnTema.innerHTML = '<img src="icons/ui/' + (tema === 'escuro' ? 'tema-claro.svg' : 'tema-escuro.svg') + '" class="svg-icon" id="iconeTema" alt="' + (tema === 'escuro' ? 'Modo Claro' : 'Modo Escuro') + '">';
+    }
   }
 
   function carregarTema() {

@@ -3,7 +3,7 @@
 // ==========================================================================
 
 // Nome da "caixa" do cache. Troque para v2, v3... ao mudar os arquivos (Aula 08 - Passo 29).
-const CACHE = "minhas-tarefas-v14";
+const CACHE = "minhas-tarefas-v15";
 
 // Arquivos que o app precisa para funcionar offline.
 const ARQUIVOS = [
@@ -29,7 +29,25 @@ const ARQUIVOS = [
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/fundo-madeira.jpg",
-  "./qrcode_projeto.png"
+  "./qrcode_projeto.png",
+  "./icons/ui/cardapio.svg",
+  "./icons/ui/config.svg",
+  "./icons/ui/instalar.svg",
+  "./icons/ui/tema-escuro.svg",
+  "./icons/ui/tema-claro.svg",
+  "./icons/ui/offline.svg",
+  "./icons/ui/busca.svg",
+  "./icons/ui/editar.svg",
+  "./icons/ui/apagar.svg",
+  "./icons/ui/exportar.svg",
+  "./icons/ui/importar.svg",
+  "./icons/ui/check.svg",
+  "./icons/ui/pdf.svg",
+  "./icons/ui/plus.svg",
+  "./icons/ui/clock.svg",
+  "./icons/ui/cart.svg",
+  "./icons/ui/sync.svg",
+  "./icons/ui/lock.svg"
 ];
 
 // 1) INSTALAR: força ativação imediata e guarda os arquivos essenciais.

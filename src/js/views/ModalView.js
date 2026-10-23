@@ -111,9 +111,9 @@ export class ModalView {
     if (elNomeLoja) elNomeLoja.textContent = config.nomeLoja;
     if (elTaxaBadge) {
       if (!config.taxaEntrega || Number(config.taxaEntrega) === 0) {
-        elTaxaBadge.textContent = "🛵 Entrega Grátis";
+        elTaxaBadge.textContent = "Entrega Grátis";
       } else {
-        elTaxaBadge.textContent = `🛵 Entrega ${formatarPreco(config.taxaEntrega)}`;
+        elTaxaBadge.textContent = `Entrega ${formatarPreco(config.taxaEntrega)}`;
       }
     }
     if (elPixChave) elPixChave.textContent = config.chavePix;

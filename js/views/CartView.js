@@ -33,7 +33,7 @@ export class CartView {
       if (carrinho.length === 0) {
         this.listaModal.innerHTML = `
           <div style="text-align: center; padding: 28px 16px; color: #64748b;">
-            <span style="font-size: 2.5rem; display: block; margin-bottom: 8px;">🛒</span>
+            <img src="icons/ui/cart.svg" class="svg-icon" style="width: 44px; height: 44px; margin: 0 auto 8px; display: block; opacity: 0.5;" alt="">
             <p style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">Seu carrinho está vazio</p>
             <p style="font-size: 0.85rem;">Selecione delícias do nosso cardápio para montar seu pedido.</p>
           </div>
@@ -42,7 +42,7 @@ export class CartView {
         this.listaModal.innerHTML = carrinho.map(item => `
           <div class="modal-item-card">
             <div class="modal-item-info-group">
-              <div class="modal-item-title"><span class="item-icon">${item.icone || '🍽️'}</span> ${item.nome}</div>
+              <div class="modal-item-title">${item.nome}</div>
               <div class="modal-item-subtext">${item.quantidade}x de ${formatarPreco(item.preco)}</div>
             </div>
             <div class="modal-item-controls">

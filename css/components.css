@@ -2705,3 +2705,92 @@ body.dark-mode .instalar-fechar:hover {
     display: none !important;
   }
 }
+
+
+/* ==========================================================================
+   PADRONIZAÇÃO DE ÍCONES SVG VETORIAIS (LUCIDE / FEATHER STYLE)
+   ========================================================================== */
+.svg-icon {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  display: inline-block;
+  fill: currentColor;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+/* Ajuste específico para ícones dentro de botões */
+button .svg-icon {
+  margin-right: 6px;
+}
+
+.btn-toolbar-action .svg-icon {
+  margin-right: 6px;
+}
+
+.sidebar-item .svg-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+/* Botões apenas com ícone (sem texto ao lado) */
+.btn-theme-toggle .svg-icon,
+.btn-apagar-card .svg-icon,
+.instalar-fechar .svg-icon,
+.sub-apagar-btn .svg-icon,
+.search-icon .svg-icon,
+.search-icon-input .svg-icon,
+.carrinho-icone-box .svg-icon,
+.btn-card-action .svg-icon,
+.btn-excluir-prod-admin .svg-icon {
+  margin-right: 0 !important;
+}
+
+/* Barra de status offline */
+.status-conexao .svg-icon {
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(1);
+}
+
+/* Checkbox estilizado vazio para subtarefas */
+.sub-check-empty {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border, #cbd5e1);
+  border-radius: 4px;
+  vertical-align: middle;
+  background: var(--bg-card, #ffffff);
+  transition: border-color 0.2s ease;
+}
+
+.sub-check-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sub-check-btn .svg-icon {
+  margin-right: 0 !important;
+  width: 16px;
+  height: 16px;
+}
+
+.sub-apagar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sub-apagar-btn .svg-icon {
+  width: 14px;
+  height: 14px;
+}

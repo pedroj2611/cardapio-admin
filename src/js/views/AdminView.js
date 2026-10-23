@@ -315,14 +315,14 @@ export class AdminView {
       const spanPrazo = document.createElement("span");
       spanPrazo.className = "card-prazo";
       spanPrazo.title = "Prazo da tarefa";
-      spanPrazo.innerHTML = `<span class="prazo-icon">📅</span> <span class="prazo-txt">${tarefa.vence || "Hoje"}</span>`;
+      spanPrazo.innerHTML = `<img src="icons/ui/clock.svg" class="svg-icon" alt="" aria-hidden="true"> <span class="prazo-txt">${tarefa.vence || "Hoje"}</span>`;
 
       const btnApagar = document.createElement("button");
       btnApagar.type = "button";
       btnApagar.className = "btn-apagar-card";
       btnApagar.setAttribute("aria-label", "Apagar tarefa");
       btnApagar.title = "Apagar tarefa";
-      btnApagar.innerHTML = `<span class="trash-icon">🗑️</span>`;
+      btnApagar.innerHTML = `<img src="icons/ui/apagar.svg" class="svg-icon" alt="Apagar">`;
       btnApagar.addEventListener("click", (e) => {
         e.stopPropagation();
         this.pedidos = this.pedidos.filter((t) => t.id !== tarefa.id);
@@ -432,7 +432,7 @@ export class AdminView {
           const subCheck = document.createElement("button");
           subCheck.type = "button";
           subCheck.className = "sub-check-btn sub-check";
-          subCheck.textContent = sub.feito ? "✅" : "⬜";
+          subCheck.innerHTML = sub.feito ? '<img src="icons/ui/check.svg" class="svg-icon" alt="Concluído">' : '<span class="sub-check-empty"></span>';
           subCheck.title = sub.feito ? "Marcar pendente" : "Marcar concluído";
           subCheck.addEventListener("click", () => {
             sub.feito = !sub.feito;
@@ -447,7 +447,7 @@ export class AdminView {
           const subApagar = document.createElement("button");
           subApagar.type = "button";
           subApagar.className = "sub-apagar-btn sub-apagar";
-          subApagar.textContent = "×";
+          subApagar.innerHTML = '<img src="icons/ui/apagar.svg" class="svg-icon" alt="Excluir">';
           subApagar.title = "Excluir passo";
           subApagar.addEventListener("click", () => {
             tarefa.subtarefas = tarefa.subtarefas.filter(s => s.id !== sub.id);
@@ -600,7 +600,7 @@ export class AdminView {
               ${(ped.concluido || ped.feito) ? "✔ Concluído" : "Marcar Pronto"}
             </button>
             <button class="btn-action-cancel btn-cancelar-ped" data-id="${ped.id}" title="Apagar pedido">
-              🗑 Apagar
+              <img src="icons/ui/apagar.svg" class="svg-icon" alt=""> Apagar
             </button>
           </div>
         </td>
@@ -701,10 +701,10 @@ export class AdminView {
         <td>
           <div class="action-btn-group">
             <button class="btn-action-outline btn-editar-preco-prod" data-id="${p.id}" title="Alterar Preço e Informações" style="color: var(--primary-gold); border-color: var(--primary-gold);">
-              ✏️ Alterar Preço
+              <img src="icons/ui/editar.svg" class="svg-icon" alt=""> Alterar Preço
             </button>
             <button class="btn-action-cancel btn-excluir-prod-admin" data-id="${p.id}" title="Excluir Produto">
-              🗑️
+              <img src="icons/ui/apagar.svg" class="svg-icon" alt="Excluir">
             </button>
           </div>
         </td>

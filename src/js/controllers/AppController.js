@@ -331,7 +331,13 @@ export class AppController {
       document.documentElement.setAttribute("data-theme", tema);
       const ehEscuro = tema === "escuro";
       document.body.classList.toggle("dark-mode", ehEscuro);
-      if (btnTema) btnTema.textContent = ehEscuro ? "☀️" : "🌙";
+      const iconeTema = document.getElementById("iconeTema");
+      if (iconeTema) {
+        iconeTema.src = ehEscuro ? "icons/ui/tema-claro.svg" : "icons/ui/tema-escuro.svg";
+        iconeTema.alt = ehEscuro ? "Modo Claro" : "Modo Escuro";
+      } else if (btnTema) {
+        btnTema.innerHTML = '<img src="icons/ui/' + (ehEscuro ? 'tema-claro.svg' : 'tema-escuro.svg') + '" class="svg-icon" id="iconeTema" alt="' + (ehEscuro ? 'Modo Claro' : 'Modo Escuro') + '">';
+      }
       if (toggleDarkMode) toggleDarkMode.checked = ehEscuro;
     };
 

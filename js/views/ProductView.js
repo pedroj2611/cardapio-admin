@@ -26,10 +26,10 @@ export class ProductView {
 
     const nomesCategorias = {
       todos: "Todos os Produtos",
-      lanches: "🍔 Lanches Artesanais",
-      porcoes: "🍟 Porções & Petiscos",
-      bebidas: "🥤 Bebidas Geladas",
-      sobremesas: "🍰 Sobremesas Gourmet"
+      lanches: "Lanches Artesanais",
+      porcoes: "Porções & Petiscos",
+      bebidas: "Bebidas Geladas",
+      sobremesas: "Sobremesas Gourmet"
     };
 
     if (this.tituloCat) {
