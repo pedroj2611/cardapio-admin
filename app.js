@@ -1037,6 +1037,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const botaoExportar = document.getElementById("exportar");
   const botaoImportar = document.getElementById("importar");
   const inputArquivo = document.getElementById("arquivo");
+  const statusConexao = document.getElementById("statusConexao");
+  const barraInstalar = document.getElementById("barraInstalar");
+  const btnInstalar = document.getElementById("btnInstalar");
+  const dicaIOS = document.getElementById("dicaIOS");
 
   if (!campo || !botao || !lista) return;
 
@@ -1722,6 +1726,73 @@ document.addEventListener("DOMContentLoaded", () => {
 
   carregarTema();
   carregar();
+
+  // ==========================================================================
+  // FANESE AULA 09 (PARTE 2): STATUS DE CONEXÃO (ONLINE / OFFLINE - PASSO 31)
+  // ==========================================================================
+
+  // Mostra ou esconde o aviso de "offline".
+  function atualizarConexao() {
+    if (navigator.onLine) {
+      if (statusConexao) statusConexao.hidden = true;
+    } else {
+      if (statusConexao) statusConexao.hidden = false;
+    }
+  }
+
+  // O navegador avisa quando a conexão cai ou volta.
+  window.addEventListener("online", atualizarConexao);
+  window.addEventListener("offline", atualizarConexao);
+
+  // Checa a conexão assim que o app abre.
+  atualizarConexao();
+
+  // ==========================================================================
+  // FANESE AULA 09 (PARTE 1): INSTALAR O APP (PWA - PASSO 30)
+  // ==========================================================================
+
+  // Guarda o convite de instalação que o navegador oferece.
+  let eventoInstalar = null;
+
+  // O navegador avisa que o app PODE ser instalado.
+  window.addEventListener("beforeinstallprompt", function (evento) {
+    evento.preventDefault();
+    eventoInstalar = evento;
+    if (barraInstalar) barraInstalar.hidden = false;
+  });
+
+  // Ao clicar no nosso botão "Instalar".
+  if (btnInstalar) {
+    btnInstalar.addEventListener("click", function () {
+      if (!eventoInstalar) return;
+      eventoInstalar.prompt();
+      eventoInstalar.userChoice.then(function () {
+        eventoInstalar = null;
+        if (barraInstalar) barraInstalar.hidden = true;
+      });
+    });
+  }
+
+  // Quando o app é instalado, esconde a barra.
+  window.addEventListener("appinstalled", function () {
+    if (barraInstalar) barraInstalar.hidden = true;
+  });
+
+  // No iPhone não existe o convite automático: mostramos a dica do Safari.
+  function checarIOS() {
+    const ehIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const instalado = window.matchMedia("(display-mode: standalone)").matches
+      || window.navigator.standalone === true;
+    if (ehIOS && !instalado) {
+      if (dicaIOS) dicaIOS.hidden = false;
+    }
+  }
+  checarIOS();
+
+  // Expor funções e variáveis úteis para console e testes
+  window.atualizarConexao = atualizarConexao;
+  window.checarIOS = checarIOS;
+
 })();
 
 document.addEventListener("DOMContentLoaded", function () {

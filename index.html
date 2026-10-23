@@ -21,12 +21,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Estilos MVC Modularizados -->
-  <link rel="stylesheet" href="css/base.css?v=16">
-  <link rel="stylesheet" href="css/components.css?v=16">
-  <link rel="stylesheet" href="css/modals.css?v=16">
-  <link rel="stylesheet" href="style.css?v=16">
+  <link rel="stylesheet" href="css/base.css?v=17">
+  <link rel="stylesheet" href="css/components.css?v=17">
+  <link rel="stylesheet" href="css/modals.css?v=17">
+  <link rel="stylesheet" href="style.css?v=17">
 </head>
 <body>
+
+  <!-- AULA 09 (PARTE 2): AVISO DE CONEXÃO OFFLINE (PASSO 31) -->
+  <div class="status-conexao" id="statusConexao" hidden>📡 Você está offline — usando os dados salvos.</div>
 
   <!-- LAYOUT PRINCIPAL DO SISTEMA (SIDEBAR + CONTEÚDO) -->
   <div class="app-layout" id="app-layout">
@@ -106,6 +109,13 @@
 
         <!-- CONTEÚDO PRINCIPAL DO CARDÁPIO -->
         <main class="app-container">
+          <!-- AULA 09 (PARTE 1): BARRA INSTALAR O APP E DICA IOS (PASSO 30) -->
+          <div class="instalar" id="barraInstalar" hidden>
+            <span>📲 Instale o app na tela inicial!</span>
+            <button id="btnInstalar" type="button">Instalar</button>
+          </div>
+          <p class="dica-ios" id="dicaIOS" hidden>📱 No iPhone: toque em <b>Compartilhar</b> e em <b>"Adicionar à Tela de Início"</b>.</p>
+
 
           <!-- BARRA DE CONTROLE: PESQUISA E CADASTRO RÁPIDO -->
           <section class="controls-section">
@@ -957,6 +967,6 @@
   </script>
 
   <!-- CONTROLLER PRINCIPAL (MVC) -->
-  <script type="module" src="js/controllers/AppController.js?v=16"></script>
+  <script type="module" src="js/controllers/AppController.js?v=17"></script>
 </body>
 </html>

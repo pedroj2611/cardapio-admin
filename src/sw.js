@@ -1,9 +1,9 @@
 // ==========================================================================
-// SERVICE WORKER (PWA - FANESE AULA 08: CACHE V7 & ATUALIZAÇÃO IMEDIATA)
+// SERVICE WORKER (PWA - FANESE AULA 09: CACHE V13 (INSTALAR & ONLINE/OFFLINE) & ATUALIZAÇÃO IMEDIATA)
 // ==========================================================================
 
 // Nome da "caixa" do cache. Troque para v2, v3... ao mudar os arquivos (Aula 08 - Passo 29).
-const CACHE = "minhas-tarefas-v12";
+const CACHE = "minhas-tarefas-v13";
 
 // Arquivos que o app precisa para funcionar offline.
 const ARQUIVOS = [

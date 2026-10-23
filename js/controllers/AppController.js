@@ -1077,74 +1077,104 @@ export class AppController {
   }
 
   configurarPWA() {
-    // 1. Suporte a instalação PWA (beforeinstallprompt - FANESE Aula 03 & 04)
-    let deferredPrompt = null;
-    const btnInstalar = document.getElementById("btn-instalar-pwa");
+    // 1. Suporte a instalação PWA (FANESE Aula 03, 04 e AULA 09 PARTE 1 - PASSO 30)
+    let eventoInstalar = null;
+    const barraInstalar = document.getElementById("barraInstalar");
+    const btnInstalar = document.getElementById("btnInstalar");
+    const dicaIOS = document.getElementById("dicaIOS");
+    const btnSidebar = document.getElementById("btn-instalar-pwa");
 
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      if (btnInstalar) {
-        btnInstalar.style.display = "flex";
-      }
+    // O navegador avisa que o app PODE ser instalado (beforeinstallprompt)
+    window.addEventListener("beforeinstallprompt", (evento) => {
+      evento.preventDefault();
+      eventoInstalar = evento;
+      if (barraInstalar) barraInstalar.hidden = false;
+      if (btnSidebar) btnSidebar.style.display = "flex";
     });
 
-    if (btnInstalar) {
-      btnInstalar.addEventListener("click", async () => {
-        if (!deferredPrompt) {
-          ToastView.mostrarToast("App já pronto ou instalado no seu dispositivo!", "📱");
-          return;
-        }
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === "accepted") {
+    const dispararPromptInstalacao = async () => {
+      if (!eventoInstalar) {
+        ToastView.mostrarToast("App já pronto ou instalado no seu dispositivo!", "📱");
+        return;
+      }
+      eventoInstalar.prompt();
+      try {
+        const escolha = await eventoInstalar.userChoice;
+        if (escolha && escolha.outcome === "accepted") {
           ToastView.mostrarToast("Instalando o Cardápio no seu dispositivo...", "📲");
         }
-        deferredPrompt = null;
-        btnInstalar.style.display = "none";
-      });
+      } catch (err) {
+        console.log("Instalação tratada:", err);
+      }
+      eventoInstalar = null;
+      if (barraInstalar) barraInstalar.hidden = true;
+      if (btnSidebar) btnSidebar.style.display = "none";
+    };
+
+    if (btnInstalar) {
+      btnInstalar.addEventListener("click", dispararPromptInstalacao);
+    }
+    if (btnSidebar) {
+      btnSidebar.addEventListener("click", dispararPromptInstalacao);
     }
 
+    // Quando o app é instalado, esconde as barras de instalação
     window.addEventListener("appinstalled", () => {
       ToastView.mostrarToast("Cardápio instalado com sucesso na tela inicial!", "🎉");
-      if (btnInstalar) btnInstalar.style.display = "none";
+      if (barraInstalar) barraInstalar.hidden = true;
+      if (btnSidebar) btnSidebar.style.display = "none";
     });
 
-    // 2. Monitoramento de Rede Online / Offline (Destaque da Aula 04: Modo Avião / Offline)
+    // Dica de instalação para iOS Safari (Passo 30)
+    function checarIOS() {
+      const ehIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      const instalado = window.matchMedia("(display-mode: standalone)").matches
+        || window.navigator.standalone === true;
+      if (ehIOS && !instalado) {
+        if (dicaIOS) dicaIOS.hidden = false;
+      }
+    }
+    checarIOS();
+
+    // 2. Monitoramento de Rede Online / Offline (FANESE AULA 09 PARTE 2 - PASSO 31)
+    const statusConexao = document.getElementById("statusConexao");
     const statusLabel = document.getElementById("status-rede-label");
     const statusPulse = document.getElementById("status-pulse-dot");
 
-    const atualizarStatusRede = () => {
-      const online = navigator.onLine;
-      if (online) {
+    function atualizarConexao() {
+      if (navigator.onLine) {
+        if (statusConexao) statusConexao.hidden = true;
         if (statusLabel) statusLabel.textContent = "Aberto para Pedidos";
         if (statusPulse) {
           statusPulse.style.background = "#2ecc71";
           statusPulse.style.boxShadow = "0 0 10px #2ecc71";
         }
       } else {
+        if (statusConexao) statusConexao.hidden = false;
         if (statusLabel) statusLabel.textContent = "Modo Offline (PWA Ativo)";
         if (statusPulse) {
-          statusPulse.style.background = "#e67e22";
-          statusPulse.style.boxShadow = "0 0 10px #e67e22";
+          statusPulse.style.background = "#e5484d";
+          statusPulse.style.boxShadow = "0 0 10px #e5484d";
         }
-        ToastView.mostrarToast("Você está offline! O cardápio continua funcionando pelo Cache PWA.", "📶");
+        ToastView.mostrarToast("Você está offline — usando os dados salvos.", "📡");
       }
-    };
+    }
 
     window.addEventListener("online", () => {
-      atualizarStatusRede();
+      atualizarConexao();
       ToastView.mostrarToast("Conexão restabelecida! Cardápio online.", "🌐");
     });
 
     window.addEventListener("offline", () => {
-      atualizarStatusRede();
+      atualizarConexao();
     });
 
-    // Verificação inicial
-    if (!navigator.onLine) {
-      atualizarStatusRede();
-    }
+    // Checa a conexão assim que o app abre (Passo 31)
+    atualizarConexao();
+
+    // Expondo métodos auxiliares no escopo global
+    window.atualizarConexao = atualizarConexao;
+    window.checarIOS = checarIOS;
   }
 
   exibirTelaAdmin(salvarEstado = true) {
