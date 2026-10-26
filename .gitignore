@@ -1,26 +1,5 @@
 node_modules/
-www/
-android/
-capacitor.config.json
 .DS_Store
 *.log
-
-# Relatorios e resumos pessoais (apenas local)
-RELATORIO_AULAS_FANESE.md
-RESUMO_AULAS_1_A_5.md
-RESUMO_AULAS_1_A_5.docx
-gerar_word.js
 ~$*
-*.docx
 *.zip
-Atividade_Direito_Constitucional_III*.pdf
-fanese_logo.png
-generate_finance_sheet.js
-generate_logo.ps1
-generate_pedro_sheet.js
-gerar_atividade_*.js
-prova_bd2/
-cardapio-admin/
-
-
-

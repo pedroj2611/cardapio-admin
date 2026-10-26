@@ -1,19 +1,17 @@
 // ==========================================================================
-// SERVICE WORKER (PWA - FANESE AULA 09: CACHE V13 (INSTALAR & ONLINE/OFFLINE) & ATUALIZAÇÃO IMEDIATA)
+// SERVICE WORKER (PWA - FANESE AULA 09: INSTALAR, ONLINE/OFFLINE & CACHE MVC)
 // ==========================================================================
 
-// Nome da "caixa" do cache. Troque para v2, v3... ao mudar os arquivos (Aula 08 - Passo 29).
-const CACHE = "minhas-tarefas-v15";
+// Nome da "caixa" do cache. Troque para nova versão ao mudar os arquivos (Aula 08/09).
+const CACHE = "minhas-tarefas-v16";
 
-// Arquivos que o app precisa para funcionar offline.
+// Arquivos que o app precisa para funcionar offline (Arquitetura MVC limpa).
 const ARQUIVOS = [
   "./",
   "./index.html",
-  "./QuemSomos.txt",
   "./css/base.css",
   "./css/components.css",
   "./css/modals.css",
-  "./style.css",
   "./js/controllers/AppController.js",
   "./js/models/ProductModel.js",
   "./js/models/CartModel.js",
@@ -29,7 +27,6 @@ const ARQUIVOS = [
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/fundo-madeira.jpg",
-  "./qrcode_projeto.png",
   "./icons/ui/cardapio.svg",
   "./icons/ui/config.svg",
   "./icons/ui/instalar.svg",
@@ -55,7 +52,7 @@ self.addEventListener("install", function (evento) {
   self.skipWaiting(); // Não espera as outras abas fecharem
   evento.waitUntil(
     caches.open(CACHE).then(function (cache) {
-      console.log("[SW] Armazenando no cache AV1:", CACHE);
+      console.log("[SW] Armazenando no cache PWA:", CACHE);
       return cache.addAll(ARQUIVOS);
     })
   );
@@ -79,9 +76,9 @@ self.addEventListener("activate", function (evento) {
   );
 });
 
-// 3) BUSCAR: Network First com fallback para Cache (garante que código novo seja baixado online e funcione offline).
+// 3) BUSCAR: Network First com fallback para Cache (garante código atualizado online e funcionamento offline).
 self.addEventListener("fetch", function (evento) {
-  // Ignora requisições de outras origens (ex: ntfy.sh ou apis externas de sincronização)
+  // Ignora requisições de outras origens (ex: ntfy.sh ou APIs externas de sincronização)
   if (!evento.request.url.startsWith(self.location.origin)) {
     return;
   }
@@ -98,9 +95,8 @@ self.addEventListener("fetch", function (evento) {
         return respostaRede;
       })
       .catch(function () {
-        // Se estiver sem conexão (Modo Avião), entrega do cache!
+        // Se estiver sem conexão (Modo Offline), entrega do cache!
         return caches.match(evento.request);
       })
   );
 });
-

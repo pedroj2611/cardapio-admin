@@ -1,10 +1,10 @@
 {
   "name": "cardapio-digital-app",
   "version": "1.0.0",
-  "description": "Cardápio Digital Profissional para Restaurante e Delivery",
-  "main": "app.js",
+  "description": "Cardápio Digital Profissional e Painel de Pedidos PWA (Arquitetura MVC)",
+  "main": "js/controllers/AppController.js",
   "scripts": {
-    "build": "node build.js"
+    "start": "node server.js"
   },
   "keywords": [
     "cardapio",
@@ -13,12 +13,6 @@
     "mvc",
     "mobile-web"
   ],
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "docx": "^9.7.1"
-  },
-  "dependencies": {
-    "exceljs": "^4.4.0"
-  }
+  "author": "Pedro Joaquim & Carlos Fonseca",
+  "license": "MIT"
 }
