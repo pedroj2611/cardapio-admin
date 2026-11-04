@@ -1,14 +1,16 @@
 // ==========================================================================
-// SERVICE WORKER (PWA - FANESE AULA 09: INSTALAR, ONLINE/OFFLINE & CACHE MVC)
+// SERVICE WORKER (PWA - FANESE AV2: NOTIFICAÇÕES, INSTALAR, ONLINE/OFFLINE & CACHE MVC)
 // ==========================================================================
 
-// Nome da "caixa" do cache. Troque para nova versão ao mudar os arquivos (Aula 08/09).
-const CACHE = "minhas-tarefas-v16";
+// Nome da "caixa" do cache. Troque para nova versão ao mudar os arquivos (Aula 08/09 e AV2).
+const CACHE = "minhas-tarefas-v18";
 
 // Arquivos que o app precisa para funcionar offline (Arquitetura MVC limpa).
 const ARQUIVOS = [
   "./",
   "./index.html",
+  "./MeuGrupo.txt",
+  "./QuemSomos.txt",
   "./css/base.css",
   "./css/components.css",
   "./css/modals.css",
@@ -44,7 +46,8 @@ const ARQUIVOS = [
   "./icons/ui/clock.svg",
   "./icons/ui/cart.svg",
   "./icons/ui/sync.svg",
-  "./icons/ui/lock.svg"
+  "./icons/ui/lock.svg",
+  "./icons/ui/notificar.svg"
 ];
 
 // 1) INSTALAR: força ativação imediata e guarda os arquivos essenciais.
@@ -100,3 +103,21 @@ self.addEventListener("fetch", function (evento) {
       })
   );
 });
+
+// 4) NOTIFICAÇÃO: ao tocar na notificação, abre ou foca o app (AV2 - Passo 33).
+self.addEventListener("notificationclick", function (evento) {
+  evento.notification.close();
+  evento.waitUntil(
+    clients.matchAll({ type: "window" }).then(function (lista) {
+      for (let i = 0; i < lista.length; i++) {
+        if ("focus" in lista[i]) {
+          return lista[i].focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow("./");
+      }
+    })
+  );
+});
+

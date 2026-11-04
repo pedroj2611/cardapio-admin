@@ -1,0 +1,16 @@
+==========================================================================
+FACULDADE DE ADMINISTRAÇÃO E NEGÓCIOS DE SERGIPE (FANESE)
+AVALIAÇÃO AV2 — PROJETO FINAL (PWA) · PROF. MÁRCIO RODRIGO
+==========================================================================
+
+Nome: Pedro Joaquim Bispo Santana - Mat: 2510207
+Nome: Carlos Henrique dos Santos Fonseca - Mat: 2510194
+Projeto: Hambúrguer dos Amigos — Cardápio Digital & Minhas Tarefas PRO (PWA)
+Toque criativo: adicionamos som ao concluir uma tarefa e ao receber pedidos (Web Audio API), relatório operacional em PDF para impressão de turno, e sincronização em tempo real com checkout integrado ao WhatsApp.
+
+🔗 LINK PUBLICADO (HTTPS - GITHUB PAGES):
+https://pedroj2611.github.io/cardapio-admin/
+
+📦 REPOSITÓRIO GITHUB:
+https://github.com/pedroj2611/cardapio-admin
+==========================================================================

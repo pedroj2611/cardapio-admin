@@ -32,8 +32,8 @@ export class AppController {
     this.isAdminAutenticado = false;
   }
 
-  // Duração da sessão de administrador: exatamente 20 minutos em milissegundos (1.200.000 ms)
-  static DURACAO_SESSAO_MS = 20 * 60 * 1000;
+  // Duração da sessão de administrador: exatamente 50 minutos em milissegundos (1.200.000 ms)
+  static DURACAO_SESSAO_MS = 50 * 60 * 1000;
 
   // Salva no localStorage o status de autenticação junto com o timestamp atual
   salvarSessaoAdmin() {
@@ -213,7 +213,7 @@ export class AppController {
         inputSenha.value = "";
         inputSenha.type = "password";
       }
-      if (btnToggleVis) btnToggleVis.textContent = "👁️";
+      if (btnToggleVis) btnToggleVis.textContent = "🔒";
       if (errorMsg) errorMsg.style.display = "none";
       this.modalView.abrirModal(modalAuth);
       setTimeout(() => {
@@ -369,17 +369,29 @@ export class AppController {
 
     carregarTema();
 
-    // Eventos dentro do Painel Admin (Filtros, Busca e Tabela - FANESE AV1 e Aula 07)
+    // Eventos dentro do Painel Admin (Filtros, Busca e Tabela - FANESE AV1, AV2 e Aula 07)
     const adminSearchInputBusca = document.getElementById("busca");
     const filterStatusSelect = document.getElementById("filter-status-select");
     const filterOrdenarSelect = document.getElementById("ordenar") || document.getElementById("filter-hora-select");
     const filtroCategoriaSelect = document.getElementById("filtroCategoria");
+    const fTodas = document.getElementById("f-todas");
+    const fPendentes = document.getElementById("f-pendentes");
+    const fConcluidas = document.getElementById("f-concluidas");
+    let filtroStatusBotoes = "todas";
+
+    const marcarFiltroAtivo = () => {
+      if (fTodas) fTodas.classList.toggle("ativo", filtroStatusBotoes === "todas");
+      if (fPendentes) fPendentes.classList.toggle("ativo", filtroStatusBotoes === "pendentes");
+      if (fConcluidas) fConcluidas.classList.toggle("ativo", filtroStatusBotoes === "concluidas");
+    };
 
     const aplicarFiltrosAdmin = () => {
       const buscaVal = adminSearchInputBusca ? adminSearchInputBusca.value.trim() : "";
-      const statusVal = filterStatusSelect ? filterStatusSelect.value : "";
+      const localVal = filterStatusSelect ? filterStatusSelect.value : "";
+      const statusVal = localVal !== "" ? localVal : filtroStatusBotoes;
       const ordenarVal = filterOrdenarSelect ? filterOrdenarSelect.value : "prioridade";
       const catVal = filtroCategoriaSelect ? filtroCategoriaSelect.value : "todas";
+      marcarFiltroAtivo();
       this.adminView.renderizarTabela(buscaVal, statusVal, ordenarVal, catVal);
     };
 
@@ -397,6 +409,30 @@ export class AppController {
 
     if (filtroCategoriaSelect) {
       filtroCategoriaSelect.addEventListener("change", aplicarFiltrosAdmin);
+    }
+
+    if (fTodas) {
+      fTodas.addEventListener("click", () => {
+        filtroStatusBotoes = "todas";
+        if (filterStatusSelect) filterStatusSelect.value = "";
+        aplicarFiltrosAdmin();
+      });
+    }
+
+    if (fPendentes) {
+      fPendentes.addEventListener("click", () => {
+        filtroStatusBotoes = "pendentes";
+        if (filterStatusSelect) filterStatusSelect.value = "";
+        aplicarFiltrosAdmin();
+      });
+    }
+
+    if (fConcluidas) {
+      fConcluidas.addEventListener("click", () => {
+        filtroStatusBotoes = "concluidas";
+        if (filterStatusSelect) filterStatusSelect.value = "";
+        aplicarFiltrosAdmin();
+      });
     }
 
     const tbodyAdmin = document.getElementById("admin-orders-table-body");
@@ -477,9 +513,11 @@ export class AppController {
       });
     }
 
-    // Adicionar nova tarefa com campo e botão (FANESE Aula 05 e Aula 08: #campo e #botao)
+    // Adicionar nova tarefa com campo, prioridade, categoria e prazo (FANESE Aula 05, Aula 08 e AV2)
     const campo = document.getElementById("campo");
     const botao = document.getElementById("botao");
+    const prioridadeSelect = document.getElementById("prioridade");
+    const prazoInput = document.getElementById("prazo");
     if (botao && campo) {
       const adicionarNovaTarefaPWA = () => {
         const texto = campo.value.trim();
@@ -487,6 +525,10 @@ export class AppController {
         const hojeTxt = new Date().toISOString().slice(0, 10);
         const horaFormatada = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
         const catSelect = document.getElementById("categoria");
+        const prioVal = prioridadeSelect ? prioridadeSelect.value : "media";
+        const catVal = catSelect ? catSelect.value : "trabalho";
+        const venceVal = (prazoInput && prazoInput.value) ? prazoInput.value : hojeTxt;
+
         const novoItem = {
           id: Date.now() + "-" + Math.floor(Math.random() * 100000),
           uid: `ped_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
@@ -502,16 +544,18 @@ export class AppController {
           tempo: "Recente",
           status: "Aberto",
           novo: true,
-          prioridade: "media",
-          categoria: catSelect ? catSelect.value : "trabalho",
-          vence: hojeTxt,
+          prioridade: prioVal,
+          categoria: catVal,
+          vence: venceVal,
           subtarefas: [],
           criadaEm: new Date().toISOString()
         };
         this.adminView.pedidos.push(novoItem);
         this.adminView.salvarPedidos();
-        this.adminView.renderizarTabela();
+        aplicarFiltrosAdmin();
         campo.value = "";
+        if (prazoInput) prazoInput.value = "";
+        campo.focus();
         ToastView.mostrarToast("Tarefa adicionada: " + texto, "📝");
       };
 
@@ -522,6 +566,176 @@ export class AppController {
           adicionarNovaTarefaPWA();
         }
       });
+    }
+
+    // ---- Lembretes com Notificação na Tela Inicial (Cardápio) e no Painel Admin (FANESE AV2 - Passo 32) ----
+    const btnNotificar = document.getElementById("notificar");
+    const btnSinoTopo = document.getElementById("btn-sino-topo");
+    const badgeSinoTopo = document.getElementById("badge-sino-topo");
+    const popoverNotificacoes = document.getElementById("popover-notificacoes");
+    const pillStatusNotificacoes = document.getElementById("pill-status-notificacoes");
+    const textoStatusNotificacoes = document.getElementById("texto-status-notificacoes");
+    const btnAtivarNotificacoesTopo = document.getElementById("btn-ativar-notificacoes-topo");
+    const labelBtnNotificarTopo = document.getElementById("label-btn-notificar-topo");
+
+    const contarTarefasHojeOuAtrasadas = () => {
+      const hoje = new Date().toISOString().slice(0, 10);
+      let paraHoje = 0;
+      const listaTarefas = this.adminView.pedidos || [];
+      for (let i = 0; i < listaTarefas.length; i++) {
+        const t = listaTarefas[i];
+        if (!t.feito && !t.concluido && t.vence && t.vence !== "" && t.vence <= hoje) {
+          paraHoje = paraHoje + 1;
+        }
+      }
+      return paraHoje;
+    };
+
+    const notificar = (titulo, corpo) => {
+      if (!("Notification" in window) || Notification.permission !== "granted") {
+        return;
+      }
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.ready.then((registro) => {
+          registro.showNotification(titulo, {
+            body: corpo,
+            icon: "icons/icon-192.png",
+            badge: "icons/icon-192.png"
+          });
+        }).catch(() => {
+          try {
+            new Notification(titulo, { body: corpo, icon: "icons/icon-192.png" });
+          } catch (err) {}
+        });
+      } else {
+        try {
+          new Notification(titulo, { body: corpo, icon: "icons/icon-192.png" });
+        } catch (err) {}
+      }
+    };
+
+    const atualizarUISinoTopo = () => {
+      const qtd = contarTarefasHojeOuAtrasadas();
+      const permConcedida = ("Notification" in window && Notification.permission === "granted");
+      const ativoNoApp = permConcedida || localStorage.getItem("lembretes_ativos") === "true";
+
+      if (badgeSinoTopo) {
+        if (qtd > 0) {
+          badgeSinoTopo.textContent = qtd;
+          badgeSinoTopo.hidden = false;
+        } else {
+          badgeSinoTopo.hidden = true;
+        }
+      }
+
+      if (btnSinoTopo) {
+        btnSinoTopo.classList.toggle("ativo", ativoNoApp);
+      }
+
+      if (pillStatusNotificacoes) {
+        pillStatusNotificacoes.textContent = ativoNoApp ? "Ativo" : "Desativado";
+        pillStatusNotificacoes.classList.toggle("ativo", ativoNoApp);
+      }
+
+      if (textoStatusNotificacoes) {
+        if (qtd > 0) {
+          textoStatusNotificacoes.textContent = `Você tem ${qtd} tarefa(s)/pedido(s) para hoje ou atrasado(s)!`;
+        } else if (ativoNoApp) {
+          textoStatusNotificacoes.textContent = "Lembretes ativos! Você está em dia com todas as tarefas de hoje.";
+        } else {
+          textoStatusNotificacoes.textContent = "Receba alertas de pedidos e tarefas que vencem hoje ou estão atrasadas.";
+        }
+      }
+
+      if (labelBtnNotificarTopo) {
+        labelBtnNotificarTopo.textContent = ativoNoApp ? "Verificar lembretes agora" : "Ativar notificações";
+      }
+    };
+
+    const verificarLembretes = () => {
+      const paraHoje = contarTarefasHojeOuAtrasadas();
+      atualizarUISinoTopo();
+      if (paraHoje > 0) {
+        notificar(
+          "Minhas Tarefas",
+          "Você tem " + paraHoje + " tarefa(s) para hoje ou atrasada(s)!"
+        );
+      }
+      return paraHoje;
+    };
+
+    const ativarLembretesUsuario = () => {
+      localStorage.setItem("lembretes_ativos", "true");
+      this.tocarSomAlertaPedido();
+      const qtd = contarTarefasHojeOuAtrasadas();
+
+      const finalizarAtivacao = (permissaoNativa) => {
+        if (permissaoNativa === "granted") {
+          notificar("Lembretes ativados!", "Vamos te avisar das tarefas de hoje.");
+          verificarLembretes();
+        } else {
+          atualizarUISinoTopo();
+        }
+
+        ToastView.mostrarToast(
+          qtd > 0
+            ? `Lembretes ativados! Você tem ${qtd} tarefa(s) para hoje ou atrasada(s)!`
+            : "Lembretes ativados! Vamos te avisar das tarefas de hoje.",
+          "🔔"
+        );
+
+        if (popoverNotificacoes) {
+          popoverNotificacoes.hidden = true;
+        }
+      };
+
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission().then((permissao) => {
+          finalizarAtivacao(permissao);
+        }).catch(() => {
+          finalizarAtivacao("denied");
+        });
+      } else {
+        const permAtual = ("Notification" in window) ? Notification.permission : "denied";
+        finalizarAtivacao(permAtual);
+      }
+    };
+
+    window.notificar = notificar;
+    window.verificarLembretes = verificarLembretes;
+
+    if (btnSinoTopo && popoverNotificacoes) {
+      btnSinoTopo.addEventListener("click", (e) => {
+        e.stopPropagation();
+        atualizarUISinoTopo();
+        popoverNotificacoes.hidden = !popoverNotificacoes.hidden;
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!popoverNotificacoes.hidden && !e.target.closest("#notify-header-wrapper")) {
+          popoverNotificacoes.hidden = true;
+        }
+      });
+    }
+
+    if (btnAtivarNotificacoesTopo) {
+      btnAtivarNotificacoesTopo.addEventListener("click", (e) => {
+        e.stopPropagation();
+        ativarLembretesUsuario();
+      });
+    }
+
+    if (btnNotificar) {
+      btnNotificar.addEventListener("click", () => {
+        ativarLembretesUsuario();
+      });
+    }
+
+    atualizarUISinoTopo();
+
+    // Ao abrir o app, se já tinha permissão, verifica lembretes de hoje (AV2 - Passo 32)
+    if ("Notification" in window && Notification.permission === "granted") {
+      verificarLembretes();
     }
 
     // ---- Backup: exportar e importar (FANESE Aula 08 - Passo 27) ----
@@ -592,7 +806,7 @@ export class AppController {
         }
 
         const hojeStr = new Date().toISOString().slice(0, 10);
-        const catSelect = document.getElementById("categoria");
+        const catSelect = document.getElementById("categoria-pedido-simulado") || document.getElementById("categoria");
         const catEscolhida = catSelect ? catSelect.value : "trabalho";
 
         const novoPed = this.adminView.adicionarPedido({
@@ -624,7 +838,7 @@ export class AppController {
         ontem.setDate(ontem.getDate() - 1);
         const ontemStr = ontem.toISOString().slice(0, 10);
 
-        const catSelect = document.getElementById("categoria");
+        const catSelect = document.getElementById("categoria-pedido-simulado") || document.getElementById("categoria");
         const catEscolhida = catSelect ? catSelect.value : "casa";
 
         const novoPed = this.adminView.adicionarPedido({

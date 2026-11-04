@@ -1,0 +1,22 @@
+==========================================================================
+FACULDADE DE ADMINISTRAÇÃO E NEGÓCIOS DE SERGIPE (FANESE)
+PROJETO FINAL AV2: CARDÁPIO DIGITAL & MINHAS TAREFAS PRO (PWA COMPLETO)
+==========================================================================
+
+👥 INTEGRANTES DA DUPLA:
+1. Nome: Pedro Joaquim Bispo Santana - Matrícula: 2510207
+2. Nome: Carlos Henrique dos Santos Fonseca - Matrícula: 2510194
+
+Projeto: Hambúrguer dos Amigos — Cardápio Digital & Minhas Tarefas PRO (PWA)
+Toque criativo: adicionamos som ao concluir uma tarefa e ao receber pedidos (Web Audio API), relatório operacional em PDF para impressão de turno, e sincronização em tempo real com checkout integrado ao WhatsApp.
+
+🔗 LINK PUBLICADO (GITHUB PAGES - HTTPS):
+https://pedroj2611.github.io/cardapio-admin/
+
+📦 REPOSITÓRIO GITHUB:
+https://github.com/pedroj2611/cardapio-admin
+
+🔑 CREDENCIAL DE ACESSO AO PAINEL ADMINISTRATIVO (TAREFAS PRO):
+- Clique em "Configurações" no menu lateral (ou barra inferior no celular)
+- Senha de acesso: admin
+==========================================================================

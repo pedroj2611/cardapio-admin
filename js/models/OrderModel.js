@@ -204,10 +204,16 @@ export class OrderModel {
 
     if (filtroStatus) {
       const sTermo = filtroStatus.toLowerCase();
-      lista = lista.filter(p =>
-        String(p.local || "").toLowerCase().includes(sTermo) ||
-        String(p.status || "").toLowerCase().includes(sTermo)
-      );
+      if (sTermo === "pendentes") {
+        lista = lista.filter(p => !p.feito && !p.concluido);
+      } else if (sTermo === "concluidas" || sTermo === "concluídas") {
+        lista = lista.filter(p => Boolean(p.feito || p.concluido));
+      } else if (sTermo !== "todas") {
+        lista = lista.filter(p =>
+          String(p.local || "").toLowerCase().includes(sTermo) ||
+          String(p.status || "").toLowerCase().includes(sTermo)
+        );
+      }
     }
 
     if (filtroCategoria && filtroCategoria !== "todas") {

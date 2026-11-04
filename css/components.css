@@ -8,9 +8,10 @@
   background: #1c1917 url('../icons/fundo-madeira.jpg') center/cover no-repeat;
   color: #ffffff;
   padding: 24px 16px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   width: 100%;
+  z-index: 40;
 }
 
 .header-banner-bg {
@@ -1902,8 +1903,22 @@ tr.pedido-concluido {
   font-weight: 600;
 }
 
-/* Botão de alternar tema (Aula 07 - Slide 08 e 09) */
-#tema {
+/* Botão de alternar tema (Aula 07 - Slide 08 e 09) e Sino de Notificações no Topo (AV2) */
+.header-right-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.notify-header-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+#tema,
+#btn-sino-topo {
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
@@ -1915,17 +1930,131 @@ tr.pedido-concluido {
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(8px);
-  transition: transform 0.2s, background 0.2s;
+  transition: transform 0.2s, background 0.2s, border-color 0.2s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
 }
-#tema:hover {
+#tema:hover,
+#btn-sino-topo:hover {
   background: var(--marca, #1c96a0);
   transform: scale(1.08);
 }
-:root[data-theme="claro"] #tema {
-  background: rgba(12, 63, 67, 0.12);
-  border-color: rgba(12, 63, 67, 0.25);
-  color: #06282b;
+#btn-sino-topo.ativo {
+  border-color: rgba(245, 158, 11, 0.7);
+  background: rgba(245, 158, 11, 0.2);
+}
+:root[data-theme="claro"] #tema,
+:root[data-theme="claro"] #btn-sino-topo {
+  background: rgba(12, 63, 67, 0.18);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+}
+
+.sino-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #f59e0b;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  line-height: 1;
+}
+
+.sino-badge[hidden] {
+  display: none !important;
+}
+
+.notify-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 285px;
+  background: var(--bg-card, #1e242b);
+  color: var(--text-main, #f8fafc);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.14));
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeInTab 0.18s ease;
+}
+
+.notify-popover[hidden] {
+  display: none !important;
+}
+
+.notify-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.notify-popover-title {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.notify-status-pill {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  background: rgba(148, 163, 184, 0.18);
+  color: #94a3b8;
+}
+
+.notify-status-pill.ativo {
+  background: rgba(16, 185, 129, 0.18);
+  color: #10b981;
+}
+
+.notify-popover-desc {
+  font-size: 0.77rem;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.btn-popover-notify {
+  width: 100%;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  background: #f59e0b;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-popover-notify .svg-icon {
+  filter: brightness(0) invert(1);
+}
+
+.btn-popover-notify:hover {
+  background: #d97706;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
 }
 
 /* ==========================================================================
@@ -2126,6 +2255,100 @@ tr.pedido-concluido {
   color: #ffffff;
   border-color: #27ae60;
   box-shadow: 0 6px 18px rgba(39, 174, 96, 0.25);
+}
+
+.btn-toolbar-action.btn-notify {
+  border-color: rgba(245, 165, 36, 0.45);
+  background: rgba(245, 165, 36, 0.1);
+  color: #f59e0b;
+}
+
+.btn-toolbar-action.btn-notify:hover {
+  background: #f59e0b;
+  color: #ffffff;
+  border-color: #f59e0b;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.28);
+}
+
+/* Opções de Prioridade, Categoria e Prazo (AV1 & AV2) */
+.opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.opcoes select,
+.opcoes input {
+  flex: 1;
+  min-width: 140px;
+  padding: 10px 12px;
+  border: 1px solid var(--border, #cfe2e2);
+  border-radius: 10px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  background: var(--bg-card, #ffffff);
+  color: var(--text-main, #06282b);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.opcoes select:focus,
+.opcoes input:focus {
+  border-color: var(--marca, #1c96a0);
+}
+
+/* Filtros de Status: Todas, Pendentes, Concluídas (AV1 & AV2) */
+.filtros {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.filtros .filtro {
+  flex: 1;
+  padding: 9px 14px;
+  border: 1px solid var(--border, #cfe2e2);
+  background: var(--bg-card, #ffffff);
+  color: var(--text-muted, #3c5c5f);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filtros .filtro:hover {
+  border-color: var(--marca, #1c96a0);
+  color: var(--text-main, #06282b);
+}
+
+.filtros .filtro.ativo {
+  background: var(--marca, #1c96a0);
+  color: #ffffff;
+  border-color: var(--marca, #1c96a0);
+  box-shadow: 0 4px 12px rgba(28, 150, 160, 0.25);
+}
+
+.btn-editar-card {
+  border: none;
+  background: rgba(28, 150, 160, 0.1);
+  color: var(--marca, #1c96a0);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-size: 0.9rem;
+  padding: 0;
+}
+
+.btn-editar-card:hover {
+  background: rgba(28, 150, 160, 0.24);
+  transform: scale(1.12);
 }
 
 .btn-toolbar-action .toolbar-icon {

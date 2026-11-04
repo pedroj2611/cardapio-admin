@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Hambúrguer dos Amigos | Cardápio & Delivery</title>
 
-  <meta name="description" content="Cardápio digital artesanal interativo e painel de monitoramento de pedidos em tempo real.">
+  <meta name="description" content="Cardápio digital artesanal interativo e painel de monitoramento de pedidos e tarefas com categorias, backup, subtarefas e lembretes.">
   <meta name="theme-color" content="#121619">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -21,9 +21,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Estilos MVC Modularizados -->
-  <link rel="stylesheet" href="css/base.css?v=20">
-  <link rel="stylesheet" href="css/components.css?v=20">
-  <link rel="stylesheet" href="css/modals.css?v=20">
+  <link rel="stylesheet" href="css/base.css?v=22">
+  <link rel="stylesheet" href="css/components.css?v=22">
+  <link rel="stylesheet" href="css/modals.css?v=22">
 </head>
 <body>
 
@@ -85,7 +85,28 @@
                 <span class="status-pulse" id="status-pulse-dot"></span>
                 <span class="status-label" id="status-rede-label">Aberto para Pedidos</span>
               </div>
-              <button id="tema" class="btn-theme-toggle" aria-label="Alternar tema" title="Alternar tema claro/escuro (Aula 07)"><img src="icons/ui/tema-escuro.svg" class="svg-icon" id="iconeTema" alt="Tema"></button>
+              <div class="header-right-actions">
+                <div class="notify-header-wrapper" id="notify-header-wrapper">
+                  <button id="btn-sino-topo" type="button" class="btn-header-icon" aria-label="Notificações e lembretes" title="Notificações e lembretes (AV2)">
+                    <img src="icons/ui/notificar.svg" class="svg-icon" alt="Notificações">
+                    <span class="sino-badge" id="badge-sino-topo" hidden>0</span>
+                  </button>
+                  <div class="notify-popover" id="popover-notificacoes" hidden>
+                    <div class="notify-popover-header">
+                      <span class="notify-popover-title">Lembretes & Notificações</span>
+                      <span class="notify-status-pill" id="pill-status-notificacoes">Desativado</span>
+                    </div>
+                    <p class="notify-popover-desc" id="texto-status-notificacoes">
+                      Receba alertas de pedidos e tarefas que vencem hoje ou estão atrasadas.
+                    </p>
+                    <button id="btn-ativar-notificacoes-topo" type="button" class="btn-popover-notify">
+                      <img src="icons/ui/notificar.svg" class="svg-icon" alt="">
+                      <span id="label-btn-notificar-topo">Ativar notificações</span>
+                    </button>
+                  </div>
+                </div>
+                <button id="tema" class="btn-theme-toggle" aria-label="Alternar tema" title="Alternar tema claro/escuro (Aula 07)"><img src="icons/ui/tema-escuro.svg" class="svg-icon" id="iconeTema" alt="Tema"></button>
+              </div>
             </div>
 
             <div class="brand-box">
@@ -249,9 +270,9 @@
               <div class="admin-table-container">
                 <div class="table-header-row" style="flex-wrap: wrap; gap: 12px;">
                   <div>
-                    <h3 class="table-title">Monitoramento de Pedidos (Tarefas PRO · AV1)</h3>
+                    <h3 class="table-title">Monitoramento de Pedidos (Tarefas PRO · AV2)</h3>
                     <p style="font-size: 0.76rem; color: #888e99; margin-top: 2px;">
-                      Prioridade colorida, prazo de entrega, busca, ordenação dinâmica, backup (.json) e subtarefas.
+                      Prioridade colorida, prazo de entrega, busca, ordenação dinâmica, backup (.json), subtarefas e lembretes.
                     </p>
                   </div>
                   <div class="table-filter-dropdowns" style="flex-wrap: wrap; gap: 8px;">
@@ -301,10 +322,33 @@
                   </div>
                 </div>
 
-                <!-- ADICIONAR NOVA TAREFA / PEDIDO RÁPIDO (FANESE AULA 05) -->
+                <!-- ADICIONAR NOVA TAREFA / PEDIDO RÁPIDO (FANESE AULA 05 & AV2) -->
                 <div class="nova-tarefa" style="margin: 14px 0 8px;">
                   <input id="campo" type="text" placeholder="O que você precisa fazer? (Nova tarefa / pedido rápido)">
                   <button id="botao" type="button">Adicionar</button>
+                </div>
+
+                <!-- OPÇÕES DE PRIORIDADE, CATEGORIA E PRAZO (FANESE AV1 & AV2) -->
+                <div class="opcoes">
+                  <select id="prioridade" title="Prioridade da nova tarefa">
+                    <option value="baixa">Prioridade baixa</option>
+                    <option value="media" selected>Prioridade média</option>
+                    <option value="alta">Prioridade alta</option>
+                  </select>
+                  <select id="categoria" title="Categoria da nova tarefa">
+                    <option value="pessoal">Pessoal</option>
+                    <option value="trabalho" selected>Trabalho</option>
+                    <option value="estudos">Estudos</option>
+                    <option value="casa">Casa</option>
+                  </select>
+                  <input id="prazo" type="date" title="Prazo de vencimento da tarefa">
+                </div>
+
+                <!-- FILTROS DE STATUS: TODAS, PENDENTES E CONCLUÍDAS (FANESE AV1 & AV2) -->
+                <div class="filtros">
+                  <button id="f-todas" type="button" class="filtro ativo">Todas</button>
+                  <button id="f-pendentes" type="button" class="filtro">Pendentes</button>
+                  <button id="f-concluidas" type="button" class="filtro">Concluídas</button>
                 </div>
 
                 <!-- BARRA DA AULA 05: CONTADOR E LIMPAR CONCLUÍDAS (FANESE AULA 05 PARTE 2) -->
@@ -313,8 +357,8 @@
                   <button id="limpar" type="button">Limpar concluídas</button>
                 </div>
 
-                <!-- BARRA DE FERRAMENTAS ELEGANTE: RELATÓRIO PDF E BACKUP (EXPORTAR / IMPORTAR) -->
-                <div class="backup-toolbar">
+                <!-- BARRA DE FERRAMENTAS ELEGANTE: RELATÓRIO PDF, BACKUP E LEMBRETES (AV2) -->
+                <div class="backup-toolbar lembretes">
                   <button id="btn-relatorio-pdf" type="button" class="btn-toolbar-action btn-pdf" title="Gerar e imprimir relatório do dia em PDF">
                     <img src="icons/ui/pdf.svg" class="svg-icon" alt=""><span>Relatório em PDF</span>
                   </button>
@@ -323,10 +367,12 @@
                   </button>
                   <label for="arquivo" class="btn-toolbar-action btn-import" title="Selecionar arquivo JSON para restaurar">
                     <img src="icons/ui/importar.svg" class="svg-icon" alt=""><span>Importar JSON</span>
-  
                     <input type="file" id="arquivo" accept="application/json" hidden>
                   </label>
                   <button id="importar" type="button" style="display: none;" aria-hidden="true"></button>
+                  <button id="notificar" type="button" class="btn-toolbar-action btn-notify" title="Ativar lembretes e notificações de tarefas para hoje ou atrasadas">
+                    <img src="icons/ui/notificar.svg" class="svg-icon" alt=""><span>Ativar lembretes</span>
+                  </button>
                 </div>
 
                 <!-- LISTA DE TAREFAS DA AULA 05 E AULA 08 (#lista) -->
@@ -359,8 +405,8 @@
                       <img src="icons/ui/sync.svg" class="svg-icon" alt=""> Sincronizar Nuvem
                     </button>
                     <div style="display: flex; align-items: center; gap: 5px;">
-                      <label for="categoria" style="font-size: 0.74rem; color: #888e99; font-weight: 700;">Cat:</label>
-                      <select id="categoria" class="admin-select" style="font-size: 0.76rem; padding: 5px 8px;" title="Categoria ao criar nova tarefa/pedido (Aula 07)">
+                      <label for="categoria-pedido-simulado" style="font-size: 0.74rem; color: #888e99; font-weight: 700;">Cat:</label>
+                      <select id="categoria-pedido-simulado" class="admin-select" style="font-size: 0.76rem; padding: 5px 8px;" title="Categoria ao criar pedido simulado (Aula 07)">
                         <option value="trabalho" selected>Trabalho</option>
                         <option value="pessoal">Pessoal</option>
                         <option value="estudos">Estudos</option>
@@ -964,6 +1010,6 @@
   </script>
 
   <!-- CONTROLLER PRINCIPAL (MVC) -->
-  <script type="module" src="js/controllers/AppController.js?v=20"></script>
+  <script type="module" src="js/controllers/AppController.js?v=22"></script>
 </body>
 </html>

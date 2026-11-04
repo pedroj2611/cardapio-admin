@@ -185,7 +185,7 @@ export class AdminView {
   </table>
 
   <div class="footer-print">
-    <div>Documento gerado automaticamente para controle operacional e acadêmico (AV1).</div>
+    <div>Documento gerado automaticamente para controle operacional e acadêmico (AV2).</div>
     <div class="signature-line">Visto do Gerente / Responsável</div>
   </div>
 
@@ -317,9 +317,28 @@ export class AdminView {
       spanPrazo.title = "Prazo da tarefa";
       spanPrazo.innerHTML = `<img src="icons/ui/clock.svg" class="svg-icon" alt="" aria-hidden="true"> <span class="prazo-txt">${tarefa.vence || "Hoje"}</span>`;
 
+      const btnEditar = document.createElement("button");
+      btnEditar.type = "button";
+      btnEditar.className = "btn-editar-card editar";
+      btnEditar.setAttribute("aria-label", "Editar tarefa");
+      btnEditar.title = "Editar texto da tarefa";
+      btnEditar.innerHTML = `<img src="icons/ui/editar.svg" class="svg-icon" alt="Editar">`;
+      btnEditar.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const novoTexto = prompt("Novo texto da tarefa:", textoExibicao);
+        if (novoTexto !== null && novoTexto.trim() !== "") {
+          tarefa.texto = novoTexto.trim();
+          tarefa.cliente = novoTexto.trim();
+          tarefa.itens = novoTexto.trim();
+          this.salvarPedidos();
+          this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+          ToastView.mostrarToast("Tarefa atualizada com sucesso!", "✏️");
+        }
+      });
+
       const btnApagar = document.createElement("button");
       btnApagar.type = "button";
-      btnApagar.className = "btn-apagar-card";
+      btnApagar.className = "btn-apagar-card apagar";
       btnApagar.setAttribute("aria-label", "Apagar tarefa");
       btnApagar.title = "Apagar tarefa";
       btnApagar.innerHTML = `<img src="icons/ui/apagar.svg" class="svg-icon" alt="Apagar">`;
@@ -332,6 +351,7 @@ export class AdminView {
       });
 
       headerRight.appendChild(spanPrazo);
+      headerRight.appendChild(btnEditar);
       headerRight.appendChild(btnApagar);
 
       cardHeader.appendChild(badgesWrap);
@@ -380,6 +400,9 @@ export class AdminView {
         tarefa.concluido = tarefa.feito;
         this.salvarPedidos();
         this.renderizarTabela(filtroBusca, filtroStatus, filtroOrdenacao, filtroCategoria);
+        if (tarefa.feito) {
+          this.tocarSomConclusao();
+        }
       };
 
       checkInput.addEventListener("change", alternarStatus);
@@ -614,8 +637,32 @@ export class AdminView {
   }
 
   alternarConcluido(id) {
-    this.orderModel.alternarConcluido(id);
+    const ped = this.orderModel.alternarConcluido(id);
     this.renderizarTabela();
+    if (ped && (ped.feito || ped.concluido)) {
+      this.tocarSomConclusao();
+    }
+  }
+
+  tocarSomConclusao() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === "suspended") ctx.resume();
+      const agora = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(523.25, agora); // C5
+      osc.frequency.exponentialRampToValueAtTime(783.99, agora + 0.14); // G5
+      gain.gain.setValueAtTime(0.15, agora);
+      gain.gain.exponentialRampToValueAtTime(0.001, agora + 0.22);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(agora);
+      osc.stop(agora + 0.22);
+    } catch (e) {}
   }
 
   obterExcluidos() {
